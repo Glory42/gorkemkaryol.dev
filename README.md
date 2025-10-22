@@ -14,7 +14,7 @@ This portfolio has 5 main routes:
 - `/projects` — Side projects showcase.  
 - `/experience` — Volunteering and work experiences.  
 - `/interests` — Personal interests.  
-- `/coolroute` — COOL.
+- `/cool` — COOL.
 
 ## Tech Stack
 
