@@ -1,93 +1,36 @@
-![Portfolio Screenshot](public/preview/previewImage.png)
-
-# [gorkemkaryol.dev](https://www.gorkemkaryol.dev/)
-
-Welcome to the public repository of my personal website. This project includes various components and functionalities for my portfolio, including API integrations and dynamic project displays.  
-
-> **Note:** All API calls are handled by a private backend repository. You can view a **mimic public version** of the backend to understand the structure: [Mimic Backend Repository](https://github.com/Glory42/Portfolio_Backend_Mimic).
-
-## Overview
-
-This portfolio has 5 main routes:
-
-- `/` — Home page (**Me**) showcasing personal information.  
-- `/projects` — Side projects showcase.  
-- `/experience` — Volunteering and work experiences.  
-- `/interests` — Personal interests.  
-- `/cool` — COOL.
-
-## Tech Stack
-
-- [Astro](https://astro.build)  
-- [TypeScript](https://www.typescriptlang.org)  
-- [Tailwind CSS](https://tailwindcss.com)  
-- [Vite](https://vitejs.dev)  
-
-## API Integrations
-
-The site fetches dynamic content via backend API calls. Currently supported APIs:
-
-- **GitHub** — For fetching projects or contributions.  
-- **Literal** — For fetching book reading stats/activities.  
-- **Spotify** — Currently playing track or favorite music.
-
-Since the backend is private, see the **mimic backend repo** above for reference on request structure and endpoints.
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js (version 18.x or later)  
-- npm or yarn  
-
-### Running Locally
+First, run the development server:
 
 ```bash
-$ git clone https://github.com/Glory42/ma-portfolio.git
-$ cd ma-portfolio
-$ npm install
-$ npm run dev
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-Navigate to `http://localhost:4321` to see the development server in action.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-### Environment Variables
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-Create a `.env` or `.env.local` file in the root of your project and add variables if you use any APIs or secrets (e.g., Github, Spotify, Literal, etc.):
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-```bash
-# Example:
-GITHUB_TOKEN=your_github_token
-SPOTIFY_CLIENT_ID=your_spotify_client_id
-SPOTIFY_CLIENT_SECRET=your_spotify_secret
-SPOTIFY_REFRESH_TOKEN=your_spotify_refresh_token
-```
+## Learn More
 
-## How It Works
+To learn more about Next.js, take a look at the following resources:
 
-- **Frontend:** Built using Astro + TypeScript, styled with Tailwind CSS for a fast and responsive experience.  
-- **Components:** Modular, reusable UI components for sections like Me, Projects, Interests, Experience, CoolRoute, etc.  
-- **Backend:** All API calls are routed through a backend server. For public understanding, see the mimic repo.  
-- **Deployment:** Can be hosted on Vercel, Netlify, or GitHub Pages.  
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## Learning Resources
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-**TypeScript**  
-- [Codecademy: Learn TypeScript](https://www.codecademy.com/enrolled/courses/learn-typescript)  
-- [YouTube Tutorial](https://youtu.be/SpwzRDUQ1GI?si=ZKZuJcXQy_fJBl-n)  
+## Deploy on Vercel
 
-**Astro**  
-- [Astro Docs](https://docs.astro.build/en/getting-started/)  
-- [YouTube Tutorial](https://www.youtube.com/watch?v=e-hTm5VmofI&t=552s)  
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-**Tailwind / CSS**  
-- [Tailwind Docs](https://tailwindcss.com/docs/installation/using-vite)  
-- [W3Schools CSS](https://www.w3schools.com/Css/)  
-
-## License
-
-This project is licensed under the **GNU General Public License v3.0** – see the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-If you have any questions, feel free to reach out to me at `gorkemkaryol03@gmail.com`.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
