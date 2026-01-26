@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { AnimatedContainerProps, AnimatedElementProps } from "@/types";
 
 export const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
@@ -10,11 +11,6 @@ export const fadeInUp = {
 export const staggerContainer = {
     visible: { transition: { staggerChildren: 0.4 } },
 };
-
-interface AnimatedContainerProps {
-    children: React.ReactNode;
-    className?: string;
-}
 
 export default function AnimatedContainer({
     children,
@@ -30,11 +26,6 @@ export default function AnimatedContainer({
         {children}
         </motion.div>
     );
-}
-
-interface AnimatedElementProps {
-    children: React.ReactNode;
-    className?: string;
 }
 
 export function AnimatedElement({ children, className }: AnimatedElementProps) {
