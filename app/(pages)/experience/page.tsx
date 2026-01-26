@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-import { Calendar, Briefcase, ChevronRight } from "lucide-react";
 import AnimatedContainer, {
   AnimatedElement,
 } from "@/components/AnimatedContainer";

@@ -54,9 +54,7 @@ export default async function ProjectsPage() {
 
                     <p className="text-neutral-400 text-sm mb-6 line-clamp-2">
                         {repo.description}
-                    </p>
-
-                    
+                    </p>      
                     </Link>
                 </AnimatedElement>
             ))}
