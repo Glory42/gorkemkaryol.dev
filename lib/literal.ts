@@ -1,19 +1,11 @@
-const LITERAL_GRAPHQL_API = "https://literal.club/graphql/";
+import { 
+    LiteralLoginResponse, 
+    LiteralBooksResponse, 
+    Book, 
+    ReadingState 
+} from "@/types/literal";
 
-export type Book = {
-    id: string;
-    title: string;
-    subtitle?: string;
-    description?: string;
-    isbn13?: string;
-    cover: string;
-    authors: { name: string }[];
-};
-
-export type ReadingState = {
-    status: string;
-    book: Book;
-};
+const LITERAL_GRAPHQL_API = "https://api.literal.club/graphql/";
 
 const loginMutation = `
     mutation login($email: String!, $password: String!) {
@@ -45,8 +37,12 @@ const booksQuery = `
     }
 `;
 
-async function fetchGraphQL(query: string, variables: any, token?: string) {
-    const headers: any = {
+async function fetchGraphQL<T = unknown>(
+    query: string,
+    variables: Record<string, unknown>,
+    token?: string,
+) {
+    const headers: Record<string, string> = {
         "Content-Type": "application/json",
     };
 
@@ -58,24 +54,48 @@ async function fetchGraphQL(query: string, variables: any, token?: string) {
         method: "POST",
         headers,
         body: JSON.stringify({ query, variables }),
-        next: { revalidate: 3600 }, // Cache for 1 hour
+        next: { revalidate: 3600 },
     });
 
-    return res.json();
+    if (!res.ok) {
+        const text = await res.text();
+        console.error("Literal API Error:", text.slice(0, 500)); // Log first 500 chars
+        throw new Error(`Failed to fetch Literal Data: ${res.status}`);
     }
 
-    export async function getCurrentlyReading() {
+    return res.json();
+}
+
+function validateLiteralEnv(): boolean {
     const email = process.env.LITERAL_EMAIL;
     const password = process.env.LITERAL_PASSWORD;
 
     if (!email || !password) {
         console.error("Missing LITERAL_EMAIL or LITERAL_PASSWORD");
+        console.error(
+        "Please ensure these environment variables are set in your .env file:",
+        );
+        console.error("- LITERAL_EMAIL=your_email@example.com");
+        console.error("- LITERAL_PASSWORD=your_literal_password");
+        return false;
+    }
+    return true;
+}
+
+export async function getCurrentlyReading(): Promise<ReadingState[]> {
+    if (!validateLiteralEnv()) {
         return [];
     }
 
+    const email = process.env.LITERAL_EMAIL!;
+    const password = process.env.LITERAL_PASSWORD!;
+
     try {
-        const loginData = await fetchGraphQL(loginMutation, { email, password });
-        
+        const loginData = await fetchGraphQL<LiteralLoginResponse>(loginMutation, {
+        email,
+        password,
+        });
+
         const token = loginData.data?.login?.token;
         const profileId = loginData.data?.login?.profile?.id;
 
@@ -84,24 +104,23 @@ async function fetchGraphQL(query: string, variables: any, token?: string) {
         return [];
         }
 
-        const booksData = await fetchGraphQL(
-        booksQuery, 
-        { 
-            limit: 3, 
-            offset: 0, 
-            readingStatus: "IS_READING", 
-            profileId 
-        }, 
-        token
+        const booksData = await fetchGraphQL<LiteralBooksResponse>(
+        booksQuery,
+        {
+            limit: 3,
+            offset: 0,
+            readingStatus: "IS_READING",
+            profileId,
+        },
+        token,
         );
 
         const books = booksData.data?.booksByReadingStateAndProfile || [];
 
-        return books.map((book: any) => ({
+        return books.map((book: Book) => ({
         status: "IS_READING",
-        book: book
+        book: book,
         }));
-
     } catch (error) {
         console.error("Error fetching Literal data:", error);
         return [];
