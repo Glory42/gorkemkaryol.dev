@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import Image from "next/image"; 
 import Sidebar from '@/components/Sidebar';
 import { SidebarProvider, useSidebar } from '@/components/providers/SidebarProvider';
 
@@ -10,18 +9,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 
     return (
             
-
         <div className="min-h-screen flex relative">
         
-        <div className="fixed inset-0 z-[-1]">
-            <Image
-                src="/background.jpg"  
-                alt="Background"
-                fill
-                className="object-cover opacity-20"
-                priority
-            />
-        </div>
 
         <Sidebar />
         
