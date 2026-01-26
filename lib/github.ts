@@ -1,7 +1,20 @@
+import { 
+    Repository, 
+    GitHubErrorResponse, 
+    GitHubSearchResponse, 
+    GitHubReadmeResponse, 
+} from '@/types/github';
+
 const GITHUB_GRAPHQL_API = "https://api.github.com/graphql";
 
-export async function getFeaturedRepos() {
+export async function getFeaturedRepos(): Promise<Repository[]> {
     const username = process.env.NEXT_PUBLIC_GITHUB_USERNAME;
+    const token = process.env.GITHUB_TOKEN;
+
+    if (!username || !token) {
+        console.warn("Missing GITHUB_USERNAME or GITHUB_TOKEN");
+        return [];
+    }
     
     const query = `
         {
@@ -12,30 +25,49 @@ export async function getFeaturedRepos() {
                 description
                 url
                 stargazerCount
-                
             }
             }
         }
         }
     `;
 
-    const res = await fetch(GITHUB_GRAPHQL_API, {
-        method: "POST",
-        headers: {
-        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
-        "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query }),
-        next: { revalidate: 60 }, 
-    });
+    try {
+        const res = await fetch(GITHUB_GRAPHQL_API, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ query }),
+            next: { revalidate: 60 }, 
+        });
 
-    const { data } = await res.json();
-    return data.search.nodes;
+        if (!res.ok) {
+            console.error(`GitHub API Error: ${res.status}`);
+            return [];
+        }
+
+        // Cast the response to our specific type
+        const json = (await res.json()) as GitHubSearchResponse;
+
+        if (json.errors) {
+            console.error("GitHub GraphQL Errors:", json.errors);
+            return [];
+        }
+
+        return json.data?.search?.nodes || [];
+
+    } catch (error) {
+        console.error("Network error in getFeaturedRepos:", error);
+        return [];
+    }
 }
 
-// 2. Fetch README Content for a specific repo
-export async function getRepoReadme(repoName: string) {
+export async function getRepoReadme(repoName: string): Promise<string | null> {
     const username = process.env.NEXT_PUBLIC_GITHUB_USERNAME;
+    const token = process.env.GITHUB_TOKEN;
+
+    if (!username || !token) return null;
 
     const query = `
         {
@@ -49,16 +81,22 @@ export async function getRepoReadme(repoName: string) {
         }
     `;
 
-    const res = await fetch(GITHUB_GRAPHQL_API, {
-        method: "POST",
-        headers: {
-        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
-        "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ query }),
-        next: { revalidate: 3600 }, 
-    });
+    try {
+        const res = await fetch(GITHUB_GRAPHQL_API, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ query }),
+            next: { revalidate: 3600 }, 
+        });
 
-    const { data } = await res.json();
-    return data.repository?.object?.text;
+        const json = (await res.json()) as GitHubReadmeResponse;
+        
+        return json.data?.repository?.object?.text || null;
+    } catch (e) {
+        console.error("Error fetching README:", e);
+        return null;
+    }
 }
