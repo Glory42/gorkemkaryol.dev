@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react"; 
 import Footer from './Footer';
 
-const routes = [ "/", "/me", "/projects", "/experience", "/interests", "/cool" ];
+const routes = [ "/", "/projects", "/experience", "/interests", "/cool" ];
 
 const Sidebar = () => {
     const { isOpen, toggle } = useSidebar();
@@ -35,7 +35,7 @@ const Sidebar = () => {
                     <nav className="flex flex-col gap-6">
                     {routes.map((route, index) => {
                         const isActive = pathname === route;
-                        const displayText = route === "/" ? "home" : route.substring(1);
+                        const displayText = route === "/" ? "me" : route.substring(1);
 
                         return (
                         <Link 
