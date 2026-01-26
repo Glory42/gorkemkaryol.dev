@@ -7,7 +7,6 @@ import rehypeRaw from 'rehype-raw';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { GithubIcon } from '@/components/icons';
-import Template from '@/components/Template';
 import 'github-markdown-css/github-markdown-dark.css'; 
 import 'highlight.js/styles/github-dark.css';
 
