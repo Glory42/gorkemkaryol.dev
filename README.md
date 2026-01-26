@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+![Portfolio Screenshot](public/preview/previewImage.png)
 
-## Getting Started
+# [gorkemkaryol.dev](https://www.gorkemkaryol.dev/)
 
-First, run the development server:
+Welcome to the repository of my personal portfolio website. This project is a modern, minimalist digital garden built with **Next.js 16**, designed to showcase my projects, experience, and interests with a terminal-inspired aesthetic.
 
+
+# ⚡ Tech Stack
+
+- **Framework:** [Next.js 16 (App Router)](https://nextjs.org)
+- **Language:** [TypeScript](https://www.typescriptlang.org)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com)
+- **Animation:** [Framer Motion](https://www.framer.com/motion/)
+- **Markdown:** `react-markdown` + `github-markdown-css` (for project README rendering)
+
+
+## 🗺️ Routes & Features
+
+- **`/` (Home)**: Introduction and "About Me" terminal.
+- **`/projects`**:
+  - Dynamically fetches my pinned/featured repositories from GitHub via GraphQL.
+  - **`/projects/[slug]`**: Renders the actual `README.md` of any project directly on the site, styled exactly like GitHub.
+- **`/experience`**: A "Git Commit" style vertical timeline of my work history.
+- **`/interests`**:
+  - Fetches my "Currently Reading" shelf in real-time from [Literal.club](https://literal.club).
+  - Lists favorite media (Movies, Music, etc.).
+- **`/cool`**: An interactive "Do Not Touch" button mini-game (Easter Egg).
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+- Node.js (v20 or later recommended)
+- npm or yarn
+
+### Installation
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+$ git clone https://github.com/Glory42/ma-portfolio.git
+$ cd ma-portfolio
+$ npm install
+$ npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Navigate to `http://localhost:4321` to see the development server in action.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a `.env` or `.env.local` file in the root of your project and add variables if you use any APIs or secrets (e.g., Github, Spotify, Literal, etc.):
 
-## Learn More
+```bash
+# GitHub Configuration (for fetching repos & READMEs)
+GITHUB_TOKEN=your_personal_access_token_here
+NEXT_PUBLIC_GITHUB_USERNAME=Glory42
 
-To learn more about Next.js, take a look at the following resources:
+# Literal Club Configuration (for fetching books)
+# Note: Literal requires email/password login to generate a temporary token
+LITERAL_EMAIL=your_email@example.com
+LITERAL_PASSWORD=your_literal_password
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Architecture
+- Server-Side Fetching: Data fetching (GitHub Repos, READMEs, Book lists) happens inside Async Server Components, ensuring fast initial loads and better SEO.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Client-Side Interactivity: Framer Motion animations and the "Cool" button game are handled by isolated Client Components (use client).
 
-## Deploy on Vercel
+- Markdown Rendering: Project pages pull raw Markdown from GitHub and render it using react-markdown with GFM (GitHub Flavored Markdown) support, ensuring tables, code blocks, and images render correctly.
+ 
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the **GNU General Public License v3.0** – see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+If you have any questions, feel free to reach out to me at `me@gorkemkaryol.dev`.
