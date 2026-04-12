@@ -21,7 +21,7 @@ interface GraphQLResponse<T> {
   errors?: GraphQLError[];
 }
 
-interface ProjectsOverviewData {
+interface FeaturedReposQueryData {
   search?: {
     nodes?: Array<{
       name?: string;
@@ -42,6 +42,9 @@ interface ProjectsOverviewData {
       } | null;
     }>;
   };
+}
+
+interface ContributionsQueryData {
   user?: {
     contributionsCollection?: {
       contributionCalendar?: {
@@ -76,10 +79,49 @@ interface RepoReadmeQueryData {
   } | null;
 }
 
+type AuthHeaders = { Authorization: string };
+
 function buildAuthHeaders(runtimeEnv: RuntimeEnvInput) {
   const token = getGithubToken(runtimeEnv);
   if (!token) return null;
   return { Authorization: `Bearer ${token}` };
+}
+
+function toErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
+function logGithub(
+  level: "info" | "warn" | "error",
+  scope: string,
+  details?: Record<string, unknown>,
+): void {
+  const message = `[github:${scope}]`;
+  if (level === "error") {
+    if (details) {
+      console.error(message, details);
+      return;
+    }
+    console.error(message);
+    return;
+  }
+
+  if (level === "warn") {
+    if (details) {
+      console.warn(message, details);
+      return;
+    }
+    console.warn(message);
+    return;
+  }
+
+  if (details) {
+    console.info(message, details);
+    return;
+  }
+
+  console.info(message);
 }
 
 function mapContributionLevel(level: string): 0 | 1 | 2 | 3 | 4 {
@@ -90,26 +132,12 @@ function mapContributionLevel(level: string): 0 | 1 | 2 | 3 | 4 {
   return 0;
 }
 
-export async function getProjectsOverview(
-  runtimeEnv: RuntimeEnvInput,
-): Promise<{
-  username: string;
-  repos: FeaturedRepository[];
-  contributions: ContributionCalendar | null;
-}> {
-  const username = getGithubUsername(runtimeEnv);
-  const headers = buildAuthHeaders(runtimeEnv);
-
-  if (!username || !headers) {
-    return { username, repos: [], contributions: null };
-  }
-
-  const to = new Date();
-  const from = new Date();
-  from.setFullYear(from.getFullYear() - 1);
-
+async function fetchFeaturedRepos(
+  username: string,
+  headers: AuthHeaders,
+): Promise<{ repos: FeaturedRepository[]; hasError: boolean }> {
   const query = `
-    query ProjectsOverview($repoQuery: String!, $login: String!, $from: DateTime!, $to: DateTime!) {
+    query FeaturedRepos($repoQuery: String!) {
       search(query: $repoQuery, type: REPOSITORY, first: 10) {
         nodes {
           ... on Repository {
@@ -132,44 +160,27 @@ export async function getProjectsOverview(
           }
         }
       }
-      user(login: $login) {
-        contributionsCollection(from: $from, to: $to) {
-          contributionCalendar {
-            totalContributions
-            weeks {
-              contributionDays {
-                date
-                contributionCount
-                contributionLevel
-              }
-            }
-          }
-        }
-      }
     }
   `;
 
   try {
-    const response = await postJson<GraphQLResponse<ProjectsOverviewData>>(
+    const response = await postJson<GraphQLResponse<FeaturedReposQueryData>>(
       GITHUB_GRAPHQL_API,
       {
         query,
         variables: {
           repoQuery: `user:${username} topic:featured sort:updated-desc`,
-          login: username,
-          from: from.toISOString(),
-          to: to.toISOString(),
         },
       },
       headers,
     );
 
     if (response.errors?.length) {
-      console.error(
-        "GitHub GraphQL errors:",
-        response.errors.map((e) => e.message),
-      );
-      return { username, repos: [], contributions: null };
+      logGithub("error", "repos.graphql-errors", {
+        errorCount: response.errors.length,
+        messages: response.errors.map((error) => error.message),
+      });
+      return { repos: [], hasError: true };
     }
 
     const repos: FeaturedRepository[] =
@@ -194,6 +205,64 @@ export async function getProjectsOverview(
               : null,
         })) ?? [];
 
+    return { repos, hasError: false };
+  } catch (error) {
+    logGithub("error", "repos.http-request-failed", {
+      message: toErrorMessage(error),
+    });
+    return { repos: [], hasError: true };
+  }
+}
+
+async function fetchContributionCalendar(
+  username: string,
+  headers: AuthHeaders,
+): Promise<{ contributions: ContributionCalendar | null; hasError: boolean }> {
+  const to = new Date();
+  const from = new Date();
+  from.setFullYear(from.getFullYear() - 1);
+
+  const query = `
+    query ContributionCalendar($login: String!, $from: DateTime!, $to: DateTime!) {
+      user(login: $login) {
+        contributionsCollection(from: $from, to: $to) {
+          contributionCalendar {
+            totalContributions
+            weeks {
+              contributionDays {
+                date
+                contributionCount
+                contributionLevel
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await postJson<GraphQLResponse<ContributionsQueryData>>(
+      GITHUB_GRAPHQL_API,
+      {
+        query,
+        variables: {
+          login: username,
+          from: from.toISOString(),
+          to: to.toISOString(),
+        },
+      },
+      headers,
+    );
+
+    if (response.errors?.length) {
+      logGithub("error", "contributions.graphql-errors", {
+        errorCount: response.errors.length,
+        messages: response.errors.map((error) => error.message),
+      });
+      return { contributions: null, hasError: true };
+    }
+
     const contributionDays =
       response.data?.user?.contributionsCollection?.contributionCalendar?.weeks
         ?.flatMap((week) => week.contributionDays ?? [])
@@ -213,11 +282,61 @@ export async function getProjectsOverview(
           }
         : null;
 
-    return { username, repos, contributions };
+    return { contributions, hasError: false };
   } catch (error) {
-    console.error("Failed to fetch GitHub project overview:", error);
+    logGithub("error", "contributions.http-request-failed", {
+      message: toErrorMessage(error),
+    });
+    return { contributions: null, hasError: true };
+  }
+}
+
+export async function getProjectsOverview(
+  runtimeEnv: RuntimeEnvInput,
+): Promise<{
+  username: string;
+  repos: FeaturedRepository[];
+  contributions: ContributionCalendar | null;
+}> {
+  const username = getGithubUsername(runtimeEnv);
+  const headers = buildAuthHeaders(runtimeEnv);
+
+  if (!username) {
+    logGithub("warn", "projects-overview.missing-username", {
+      hasGithubUser: false,
+      hasGithubToken: Boolean(getGithubToken(runtimeEnv)),
+    });
+    return { username: "", repos: [], contributions: null };
+  }
+
+  if (!headers) {
+    logGithub("warn", "projects-overview.missing-token", {
+      hasGithubUser: true,
+      hasGithubToken: false,
+    });
     return { username, repos: [], contributions: null };
   }
+
+  const [reposResult, contributionsResult] = await Promise.all([
+    fetchFeaturedRepos(username, headers),
+    fetchContributionCalendar(username, headers),
+  ]);
+
+  if (reposResult.hasError) {
+    logGithub("warn", "projects-overview.repos-query-failed", { username });
+  }
+
+  if (contributionsResult.hasError) {
+    logGithub("warn", "projects-overview.contributions-query-failed", {
+      username,
+    });
+  }
+
+  return {
+    username,
+    repos: reposResult.repos,
+    contributions: contributionsResult.contributions,
+  };
 }
 
 export async function getRepoReadmeData(
