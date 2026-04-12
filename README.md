@@ -1,4 +1,3 @@
-![Portfolio Screenshot](public/preview/previewImage.png)
 
 # gorkemkaryol.dev
 

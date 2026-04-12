@@ -3,6 +3,7 @@ import BooksShelf from "@/components/astro/BooksShelf.astro";
 import FavoriteGrid from "@/components/astro/FavoriteGrid.astro";
 import { getCurrentlyReadingWithStatus } from "@/lib/server/literal";
 import { favorites, interestsIntro } from "@/lib/utils/content";
+import { createRuntimeEnv, logRuntimeEnvPresence } from "@/lib/utils/env";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageShell from "@/layouts/PageShell.astro";
 
@@ -15,7 +16,14 @@ Astro.response.headers.set(
   "public, s-maxage=1800, stale-while-revalidate=7200",
 );
 
-const { books, hasError } = await getCurrentlyReadingWithStatus(3);
+const runtimeEnv = createRuntimeEnv(
+  (Astro.locals as { runtime?: { env?: unknown } }).runtime?.env ??
+    import.meta.env,
+);
+
+logRuntimeEnvPresence("interests", runtimeEnv);
+
+const { books, hasError } = await getCurrentlyReadingWithStatus(runtimeEnv, 3);
 ---
 
 <BaseLayout

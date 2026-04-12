@@ -4,6 +4,7 @@ import EmptyState from "@/components/astro/EmptyState.astro";
 import ReadmeArticle from "@/components/astro/ReadmeArticle.astro";
 import { getRepoReadmeData } from "@/lib/server/github";
 import { renderReadmeToHtml } from "@/lib/server/markdown";
+import { createRuntimeEnv } from "@/lib/utils/env";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageShell from "@/layouts/PageShell.astro";
 
@@ -18,7 +19,12 @@ Astro.response.headers.set(
   "public, s-maxage=21600, stale-while-revalidate=86400",
 );
 
-const repoData = isValidSlug ? await getRepoReadmeData(slug) : null;
+const runtimeEnv = createRuntimeEnv(
+  (Astro.locals as { runtime?: { env?: unknown } }).runtime?.env ??
+    import.meta.env,
+);
+
+const repoData = isValidSlug ? await getRepoReadmeData(slug, runtimeEnv) : null;
 
 let readmeHtml = "";
 let hadRenderError = false;

@@ -3,6 +3,7 @@ import ContributionGrid from "@/components/astro/ContributionGrid.astro";
 import EmptyState from "@/components/astro/EmptyState.astro";
 import ProjectsGrid from "@/components/astro/ProjectsGrid.astro";
 import { getProjectsOverview } from "@/lib/server/github";
+import { createRuntimeEnv, logRuntimeEnvPresence } from "@/lib/utils/env";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageShell from "@/layouts/PageShell.astro";
 
@@ -15,7 +16,14 @@ Astro.response.headers.set(
   "public, s-maxage=600, stale-while-revalidate=3600",
 );
 
-const { username, repos, contributions } = await getProjectsOverview();
+const runtimeEnv = createRuntimeEnv(
+  (Astro.locals as { runtime?: { env?: unknown } }).runtime?.env ??
+    import.meta.env,
+);
+
+logRuntimeEnvPresence("projects", runtimeEnv);
+
+const { username, repos, contributions } = await getProjectsOverview(runtimeEnv);
 ---
 
 <BaseLayout

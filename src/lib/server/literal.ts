@@ -1,5 +1,5 @@
 import { postJson } from "@/lib/server/http";
-import { getLiteralCredentials } from "@/lib/utils/env";
+import { getLiteralCredentials, type RuntimeEnvInput } from "@/lib/utils/env";
 import type { ReadingState } from "@/types/literal";
 
 const LITERAL_GRAPHQL_API = "https://api.literal.club/graphql/";
@@ -61,16 +61,19 @@ const CURRENTLY_READING_QUERY = `
   }
 `;
 
-export async function getCurrentlyReading(limit = 3): Promise<ReadingState[]> {
-  const result = await getCurrentlyReadingWithStatus(limit);
+export async function getCurrentlyReading(
+  runtimeEnv: RuntimeEnvInput,
+  limit = 3,
+): Promise<ReadingState[]> {
+  const result = await getCurrentlyReadingWithStatus(runtimeEnv, limit);
   return result.books;
 }
 
-export async function getCurrentlyReadingWithStatus(limit = 3): Promise<{
-  books: ReadingState[];
-  hasError: boolean;
-}> {
-  const credentials = getLiteralCredentials();
+export async function getCurrentlyReadingWithStatus(
+  runtimeEnv: RuntimeEnvInput,
+  limit = 3,
+): Promise<{ books: ReadingState[]; hasError: boolean }> {
+  const credentials = getLiteralCredentials(runtimeEnv);
   if (!credentials) return { books: [], hasError: false };
 
   try {

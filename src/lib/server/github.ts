@@ -1,5 +1,9 @@
 import { postJson } from "@/lib/server/http";
-import { getGithubToken, getGithubUsername } from "@/lib/utils/env";
+import {
+  getGithubToken,
+  getGithubUsername,
+  type RuntimeEnvInput,
+} from "@/lib/utils/env";
 import type {
   ContributionCalendar,
   FeaturedRepository,
@@ -72,8 +76,8 @@ interface RepoReadmeQueryData {
   } | null;
 }
 
-function buildAuthHeaders() {
-  const token = getGithubToken();
+function buildAuthHeaders(runtimeEnv: RuntimeEnvInput) {
+  const token = getGithubToken(runtimeEnv);
   if (!token) return null;
   return { Authorization: `Bearer ${token}` };
 }
@@ -86,13 +90,15 @@ function mapContributionLevel(level: string): 0 | 1 | 2 | 3 | 4 {
   return 0;
 }
 
-export async function getProjectsOverview(): Promise<{
+export async function getProjectsOverview(
+  runtimeEnv: RuntimeEnvInput,
+): Promise<{
   username: string;
   repos: FeaturedRepository[];
   contributions: ContributionCalendar | null;
 }> {
-  const username = getGithubUsername();
-  const headers = buildAuthHeaders();
+  const username = getGithubUsername(runtimeEnv);
+  const headers = buildAuthHeaders(runtimeEnv);
 
   if (!username || !headers) {
     return { username, repos: [], contributions: null };
@@ -216,9 +222,10 @@ export async function getProjectsOverview(): Promise<{
 
 export async function getRepoReadmeData(
   repo: string,
+  runtimeEnv: RuntimeEnvInput,
 ): Promise<RepoReadmeData | null> {
-  const owner = getGithubUsername();
-  const headers = buildAuthHeaders();
+  const owner = getGithubUsername(runtimeEnv);
+  const headers = buildAuthHeaders(runtimeEnv);
 
   if (!owner || !headers || !repo) return null;
 
