@@ -1,20 +1,17 @@
 import type { Config } from "tailwindcss";
+import typography from "@tailwindcss/typography";
 
 const config: Config = {
-  content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+  content: ["./src/**/*.{astro,html,js,jsx,ts,tsx,md,mdx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ["Sora", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "ui-monospace", "monospace"],
+      },
+    },
   },
-  plugins: [
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    require("@tailwindcss/typography"),
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    require("tailwindcss-animate"),
-  ],
+  plugins: [typography],
 };
 
 export default config;

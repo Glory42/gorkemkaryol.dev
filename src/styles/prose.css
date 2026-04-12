@@ -1,0 +1,65 @@
+.readme-prose {
+  color: var(--text-2);
+  font-size: 0.98rem;
+}
+
+.readme-prose h1,
+.readme-prose h2,
+.readme-prose h3,
+.readme-prose h4 {
+  color: var(--text-1);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.02em;
+}
+
+.readme-prose a {
+  color: var(--accent-cyan);
+  text-underline-offset: 3px;
+}
+
+.readme-prose code {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  background: rgba(5, 11, 18, 0.8);
+  padding: 0.1rem 0.35rem;
+}
+
+.readme-prose pre {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: rgba(4, 10, 16, 0.92);
+  padding: 1rem;
+  overflow: auto;
+}
+
+.readme-prose pre code {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.readme-prose img {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+}
+
+.readme-prose blockquote {
+  border-left: 3px solid var(--accent-cyan);
+  margin-left: 0;
+  padding-left: 1rem;
+  color: var(--text-3);
+}
+
+.readme-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+}
+
+.readme-prose table th,
+.readme-prose table td {
+  border: 1px solid var(--border-soft);
+  padding: 0.45rem 0.6rem;
+}

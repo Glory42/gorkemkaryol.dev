@@ -1,0 +1,44 @@
+---
+import "@/styles/global.css";
+import "@/styles/prose.css";
+import { buildSeo } from "@/lib/utils/seo";
+
+interface Props {
+  title: string;
+  description: string;
+  pathname: string;
+}
+
+const { title, description, pathname } = Astro.props;
+const seo = buildSeo({ title, description, pathname });
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={seo.description} />
+    <link rel="icon" href="/favicon.ico?v=3" />
+    <link rel="canonical" href={seo.canonical} />
+
+    <meta property="og:title" content={seo.openGraph.title} />
+    <meta property="og:description" content={seo.openGraph.description} />
+    <meta property="og:url" content={seo.openGraph.url} />
+    <meta property="og:site_name" content={seo.openGraph.siteName} />
+    <meta property="og:type" content={seo.openGraph.type} />
+    <meta property="og:image" content={seo.openGraph.image} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={seo.title} />
+    <meta name="twitter:description" content={seo.description} />
+    <meta name="twitter:image" content={seo.openGraph.image} />
+
+    <title>{seo.title}</title>
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link mono">Skip to content</a>
+    <div class="shell-grid"></div>
+    <slot />
+  </body>
+</html>

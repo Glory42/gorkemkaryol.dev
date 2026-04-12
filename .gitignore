@@ -13,9 +13,13 @@
 # testing
 /coverage
 
-# next.js
+# next.js (legacy)
 /.next/
 /out/
+
+# astro
+/.astro/
+/dist/
 
 # production
 /build
@@ -35,6 +39,9 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# cloudflare
+.wrangler
 
 # typescript
 *.tsbuildinfo

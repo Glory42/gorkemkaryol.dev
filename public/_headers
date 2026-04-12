@@ -1,0 +1,8 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+/api/books
+  Cache-Control: public, s-maxage=1800, stale-while-revalidate=7200

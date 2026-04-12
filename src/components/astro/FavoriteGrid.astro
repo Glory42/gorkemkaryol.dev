@@ -1,0 +1,25 @@
+---
+import type { FavoriteItem } from "@/types/content";
+
+interface Props {
+  items: FavoriteItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="grid max-w-[800px] grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-2">
+  {
+    items.map((item) => (
+      <article class="relative border border-[rgba(64,61,82,0.7)] bg-[rgba(31,29,46,0.45)] px-[18px] py-[15px]">
+        <span class="pointer-events-none absolute left-0 top-0 h-[6px] w-[6px] border-l border-t border-[rgba(235,188,186,0.2)]"></span>
+        <span class="pointer-events-none absolute right-0 top-0 h-[6px] w-[6px] border-r border-t border-[rgba(235,188,186,0.2)]"></span>
+        <span class="pointer-events-none absolute bottom-0 left-0 h-[6px] w-[6px] border-b border-l border-[rgba(235,188,186,0.2)]"></span>
+        <span class="pointer-events-none absolute bottom-0 right-0 h-[6px] w-[6px] border-b border-r border-[rgba(235,188,186,0.2)]"></span>
+
+        <p class="mono mb-[7px] text-[8px] tracking-[0.18em] text-[rgba(235,188,186,0.55)]">{item.label}</p>
+        <p class="mono text-[12px] font-semibold leading-[1.35] text-[rgba(224,222,244,0.88)]">{item.value}</p>
+      </article>
+    ))
+  }
+</div>

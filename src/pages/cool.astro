@@ -1,0 +1,31 @@
+---
+import CoolTerminal from "@/components/react/coolTerminal/CoolTerminal";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageShell from "@/layouts/PageShell.astro";
+
+const pathname = "/cool";
+---
+
+<BaseLayout
+  title="Cool"
+  description="Interactive terminal sandbox with games and ASCII streams."
+  pathname={pathname}
+>
+  <PageShell pathname={pathname} mainClass="px-[max(24px,4vw)] pb-20 pt-[max(40px,5vh)]">
+    <section>
+      <header class="mb-8">
+        <div class="mb-2">
+          <span class="mono text-[9px] tracking-[0.25em] text-[rgba(49,116,143,0.5)]">/cool</span>
+        </div>
+        <h1 class="mono m-0 mb-[6px] text-[clamp(26px,5vw,44px)] font-bold tracking-[-0.01em] text-[rgb(224,222,244)]">
+          TERMINAL
+        </h1>
+        <p class="m-0 text-[13px] leading-[1.65] text-[rgba(144,140,170,0.8)]">
+          Command shell with mini-games and live ASCII streams.
+        </p>
+      </header>
+
+      <CoolTerminal client:load />
+    </section>
+  </PageShell>
+</BaseLayout>

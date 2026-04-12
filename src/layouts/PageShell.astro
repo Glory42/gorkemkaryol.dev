@@ -1,0 +1,25 @@
+---
+import Navbar from "@/components/astro/Navbar.astro";
+import FooterBadge from "@/components/astro/FooterBadge.astro";
+
+interface Props {
+  pathname: string;
+  mainClass?: string;
+}
+
+const { pathname, mainClass } = Astro.props;
+---
+
+<Navbar currentPath={pathname} />
+<div class="pt-[52px]">
+  <main
+    id="main-content"
+    class={
+      mainClass ??
+      "mx-auto w-full max-w-6xl px-4 pb-10 pt-10 md:px-8 md:pt-14"
+    }
+  >
+    <slot />
+  </main>
+</div>
+<FooterBadge />
