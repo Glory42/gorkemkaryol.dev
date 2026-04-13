@@ -132,7 +132,7 @@ function mapContributionLevel(level: string): 0 | 1 | 2 | 3 | 4 {
   return 0;
 }
 
-async function fetchFeaturedRepos(
+async function queryFeaturedRepos(
   username: string,
   headers: AuthHeaders,
 ): Promise<{ repos: FeaturedRepository[]; hasError: boolean }> {
@@ -214,7 +214,7 @@ async function fetchFeaturedRepos(
   }
 }
 
-async function fetchContributionCalendar(
+async function queryContributionCalendar(
   username: string,
   headers: AuthHeaders,
 ): Promise<{ contributions: ContributionCalendar | null; hasError: boolean }> {
@@ -291,6 +291,28 @@ async function fetchContributionCalendar(
   }
 }
 
+export async function getFeaturedRepos(
+  runtimeEnv: RuntimeEnvInput,
+): Promise<{ repos: FeaturedRepository[]; hasError: boolean }> {
+  const username = getGithubUsername(runtimeEnv);
+  const headers = buildAuthHeaders(runtimeEnv);
+
+  if (!username || !headers) return { repos: [], hasError: false };
+
+  return queryFeaturedRepos(username, headers);
+}
+
+export async function getContributionCalendar(
+  runtimeEnv: RuntimeEnvInput,
+): Promise<{ contributions: ContributionCalendar | null; hasError: boolean }> {
+  const username = getGithubUsername(runtimeEnv);
+  const headers = buildAuthHeaders(runtimeEnv);
+
+  if (!username || !headers) return { contributions: null, hasError: false };
+
+  return queryContributionCalendar(username, headers);
+}
+
 export async function getProjectsOverview(
   runtimeEnv: RuntimeEnvInput,
 ): Promise<{
@@ -318,8 +340,8 @@ export async function getProjectsOverview(
   }
 
   const [reposResult, contributionsResult] = await Promise.all([
-    fetchFeaturedRepos(username, headers),
-    fetchContributionCalendar(username, headers),
+    getFeaturedRepos(runtimeEnv),
+    getContributionCalendar(runtimeEnv),
   ]);
 
   if (reposResult.hasError) {
