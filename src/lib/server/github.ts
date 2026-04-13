@@ -175,12 +175,14 @@ async function queryFeaturedRepos(
       headers,
     );
 
-    if (response.errors?.length) {
+    const graphQLErrors = response.errors ?? [];
+    const hasGraphQLErrors = graphQLErrors.length > 0;
+
+    if (hasGraphQLErrors) {
       logGithub("error", "repos.graphql-errors", {
-        errorCount: response.errors.length,
-        messages: response.errors.map((error) => error.message),
+        errorCount: graphQLErrors.length,
+        messages: graphQLErrors.map((error) => error.message),
       });
-      return { repos: [], hasError: true };
     }
 
     const repos: FeaturedRepository[] =
@@ -205,7 +207,7 @@ async function queryFeaturedRepos(
               : null,
         })) ?? [];
 
-    return { repos, hasError: false };
+    return { repos, hasError: hasGraphQLErrors };
   } catch (error) {
     logGithub("error", "repos.http-request-failed", {
       message: toErrorMessage(error),
@@ -255,12 +257,14 @@ async function queryContributionCalendar(
       headers,
     );
 
-    if (response.errors?.length) {
+    const graphQLErrors = response.errors ?? [];
+    const hasGraphQLErrors = graphQLErrors.length > 0;
+
+    if (hasGraphQLErrors) {
       logGithub("error", "contributions.graphql-errors", {
-        errorCount: response.errors.length,
-        messages: response.errors.map((error) => error.message),
+        errorCount: graphQLErrors.length,
+        messages: graphQLErrors.map((error) => error.message),
       });
-      return { contributions: null, hasError: true };
     }
 
     const contributionDays =
@@ -282,7 +286,7 @@ async function queryContributionCalendar(
           }
         : null;
 
-    return { contributions, hasError: false };
+    return { contributions, hasError: hasGraphQLErrors };
   } catch (error) {
     logGithub("error", "contributions.http-request-failed", {
       message: toErrorMessage(error),

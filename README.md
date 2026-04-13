@@ -1,11 +1,10 @@
-
 # gorkemkaryol.dev
 
-Personal portfolio built with Astro and deployed to Cloudflare Pages.
+Personal portfolio built with Astro and deployed to Cloudflare Workers.
 
 ## Stack
 
-- Astro (static-first with function-backed SSR routes)
+- Astro (static-first with Worker-backed SSR routes)
 - TypeScript
 - Tailwind CSS + tokenized custom CSS system
 - React islands (only for `LiveClock` and `CoolButtonGame`)
@@ -48,8 +47,32 @@ npm run check
 npm run build
 ```
 
+## Cloudflare Workers Deployment
+
+```bash
+npm run deploy:worker
+```
+
+Useful Worker scripts:
+
+```bash
+npm run preview:worker
+npm run cf:typegen
+```
+
+Worker environment setup:
+
+```bash
+npx wrangler login
+npx wrangler secret put GITHUB_TOKEN
+npx wrangler secret put LITERAL_EMAIL
+npx wrangler secret put LITERAL_PASSWORD
+```
+
+Set `PUBLIC_GITHUB_USERNAME` in your Worker environment variables (Cloudflare dashboard or Wrangler-managed vars).
+
 ## Notes
 
-- Dynamic routes (`/projects`, `/projects/[slug]`, `/interests`, `/api/books`) are server-rendered via Cloudflare adapter.
+- Dynamic routes (`/projects`, `/projects/[slug]`, `/interests`, `/api/books`) are server-rendered via Cloudflare Workers.
 - README markdown is rendered server-side with GFM support, syntax highlighting, relative URL rewriting, and sanitization.
 - Secrets stay server-side; only `PUBLIC_GITHUB_USERNAME` is exposed to client-facing code.

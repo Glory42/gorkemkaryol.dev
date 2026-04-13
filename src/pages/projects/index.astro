@@ -16,10 +16,14 @@ Astro.response.headers.set(
   "public, s-maxage=600, stale-while-revalidate=3600",
 );
 
-const runtimeEnv = createRuntimeEnv(
-  (Astro.locals as { runtime?: { env?: unknown } }).runtime?.env ??
-    import.meta.env,
-);
+const runtimeBindings =
+  (Astro.locals as { runtime?: { env?: unknown } }).runtime?.env ?? null;
+
+const runtimeEnv = createRuntimeEnv(runtimeBindings ?? import.meta.env);
+
+console.info("[runtime-env:projects-source]", {
+  source: runtimeBindings ? "locals.runtime.env" : "import.meta.env",
+});
 
 logRuntimeEnvPresence("projects", runtimeEnv);
 

@@ -7,6 +7,9 @@
     "build": "astro build",
     "start": "astro start",
     "preview": "astro preview",
+    "preview:worker": "npm run build && npx wrangler dev",
+    "deploy:worker": "npm run build && npx wrangler deploy",
+    "cf:typegen": "npx wrangler types",
     "check": "astro check",
     "lint": "eslint ."
   },
