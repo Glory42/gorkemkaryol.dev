@@ -4,6 +4,8 @@ import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
 import tailwind from "@astrojs/tailwind";
 
+const isBuildCommand = process.argv.includes("build");
+
 export default defineConfig({
   site: "https://www.gorkemkaryol.dev",
   output: "static",
@@ -23,6 +25,11 @@ export default defineConfig({
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
+        ...(isBuildCommand
+          ? {
+              "react-dom/server": "react-dom/server.edge",
+            }
+          : {}),
       },
     },
   },
