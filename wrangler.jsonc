@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "portfolio",
+  "name": "gorkemkaryoldev",
   "main": ".output/server/index.mjs",
   "compatibility_date": "2025-01-01",
   "compatibility_flags": ["nodejs_compat"],
