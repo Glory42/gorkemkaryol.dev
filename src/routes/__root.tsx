@@ -46,17 +46,17 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       <a href="#main-content" className="skip-link mono">
         Skip to content
       </a>
       <div className="shell-grid" />
       <Navbar />
-      <div className="pt-[52px]">
+      <div className="flex-1 pt-[52px]">
         <Outlet />
       </div>
       <FooterBadge />
-    </>
+    </div>
   );
 }
 

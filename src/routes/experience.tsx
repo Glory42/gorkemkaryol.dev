@@ -18,7 +18,7 @@ export const Route = createFileRoute("/experience")({
 
 function ExperiencePage() {
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(40px,5vh)]">
+    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(20px,2.5vh)]">
       <section>
         <header className="mb-12 opacity-100">
           <div className="mb-2">

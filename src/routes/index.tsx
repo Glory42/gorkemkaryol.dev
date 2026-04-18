@@ -36,7 +36,7 @@ function HomePage() {
               <h1 className="mono mb-1 text-[clamp(38px,5.5vw,72px)] font-bold leading-[0.95] tracking-[-0.02em]">
                 <span className="text-[rgb(224,222,244)]">Hi, I am</span>
                 <br />
-                <span className="text-[rgb(196,167,231)]">Gorkem</span>
+                <span className="text-[rgb(196,167,231)]">Görkem</span>
               </h1>
 
               <p className="mono mb-4 text-[11px] tracking-[0.12em] text-[rgba(110,106,134,0.8)]">

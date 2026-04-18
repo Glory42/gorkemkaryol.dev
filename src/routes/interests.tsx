@@ -5,14 +5,22 @@ import { PageShell } from "@/components/layout/PageShell";
 import { BooksShelf } from "@/components/ui/BooksShelf";
 import { ErrorPanel } from "@/components/ui/ErrorPanel";
 import { FavoriteGrid } from "@/components/ui/FavoriteGrid";
+import { Top4Grid } from "@/components/ui/Top4Grid";
 import { favorites, interestsIntro } from "@/lib/content";
 import { readRuntimeEnv } from "@/lib/env";
+import { getInterisData } from "@/server/interis";
 import { getCurrentlyReading } from "@/server/literal";
 
 const getCurrentlyReadingServerFn = createServerFn({ method: "GET" }).handler(
   async () => {
     const runtimeEnv = readRuntimeEnv(workerEnv);
     return getCurrentlyReading(runtimeEnv, 3);
+  },
+);
+
+const getInterisDataServerFn = createServerFn({ method: "GET" }).handler(
+  async () => {
+    return getInterisData("glory42");
   },
 );
 
@@ -26,15 +34,44 @@ export const Route = createFileRoute("/interests")({
       },
     ],
   }),
-  loader: async () => getCurrentlyReadingServerFn(),
+  loader: async () => {
+    const [books, interis] = await Promise.all([
+      getCurrentlyReadingServerFn(),
+      getInterisDataServerFn(),
+    ]);
+    return { books, interis };
+  },
+  pendingMs: 0,
+  pendingComponent: InterestsPageSkeleton,
   component: InterestsPage,
 });
 
-function InterestsPage() {
-  const result = Route.useLoaderData();
-
+function SectionHeader({ sig, label }: { sig: string; label: string }) {
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(40px,5vh)]">
+    <div className="mb-10 flex items-center gap-4">
+      <span className="mono text-[10px] tracking-[0.2em] text-[rgba(49,116,143,0.5)]">
+        {sig}
+      </span>
+      <div className="h-px w-10 bg-gradient-to-r from-[rgba(49,116,143,0.45)] to-transparent" />
+      <h2 className="mono m-0 text-[11px] font-normal uppercase tracking-[0.25em] text-[rgba(224,222,244,0.75)]">
+        {label}
+      </h2>
+      <div className="h-px flex-1 bg-[rgba(64,61,82,0.8)]" />
+    </div>
+  );
+}
+
+function SubLabel({ label }: { label: string }) {
+  return (
+    <p className="mono mb-4 text-[8px] tracking-[0.2em] text-[rgba(49,116,143,0.45)] uppercase">
+      {label}
+    </p>
+  );
+}
+
+function InterestsPageSkeleton() {
+  return (
+    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(20px,2.5vh)]">
       <section>
         <header className="opacity-100">
           <div className="mb-2">
@@ -48,12 +85,125 @@ function InterestsPage() {
         </header>
 
         <section className="mt-6 max-w-[680px]">
+          <div className="relative animate-pulse border border-[rgba(64,61,82,0.8)] bg-[rgba(31,29,46,0.45)] px-6 py-5">
+            <span className="pointer-events-none absolute left-0 top-0 h-[7px] w-[7px] border-l border-t border-[rgba(49,116,143,0.28)]" />
+            <span className="pointer-events-none absolute right-0 top-0 h-[7px] w-[7px] border-r border-t border-[rgba(49,116,143,0.28)]" />
+            <span className="pointer-events-none absolute bottom-0 left-0 h-[7px] w-[7px] border-b border-l border-[rgba(49,116,143,0.28)]" />
+            <span className="pointer-events-none absolute bottom-0 right-0 h-[7px] w-[7px] border-b border-r border-[rgba(49,116,143,0.28)]" />
+            <div className="mb-3 h-2 w-32 rounded bg-[rgba(64,61,82,0.6)]" />
+            <div className="space-y-2">
+              <div className="h-2.5 w-full rounded bg-[rgba(64,61,82,0.5)]" />
+              <div className="h-2.5 w-11/12 rounded bg-[rgba(64,61,82,0.5)]" />
+              <div className="h-2.5 w-4/5 rounded bg-[rgba(64,61,82,0.5)]" />
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-[60px] mt-12">
+          <SectionHeader sig="SIG.01" label="Favorites" />
+          <FavoriteGrid items={favorites} />
+          <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 animate-pulse">
+            {["Favorite Movies", "Favorite Series"].map((label) => (
+              <div key={label}>
+                <SubLabel label={label} />
+                <div className="flex flex-col gap-2">
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-4 border border-[rgba(64,61,82,0.7)] bg-[rgba(31,29,46,0.5)] px-5 py-4"
+                    >
+                      <div className="mt-[3px] flex shrink-0 flex-col items-center gap-1">
+                        <div className="h-[6px] w-[6px] rounded-full bg-[rgba(64,61,82,0.6)]" />
+                        <div className="h-10 w-1 rounded bg-[rgba(64,61,82,0.4)]" />
+                      </div>
+                      <div className="h-[84px] w-[58px] shrink-0 bg-[rgba(64,61,82,0.5)]" />
+                      <div className="min-w-0 flex-1 space-y-2 pt-[2px]">
+                        <div className="h-3 w-3/4 rounded bg-[rgba(64,61,82,0.6)]" />
+                        <div className="h-2 w-1/3 rounded bg-[rgba(64,61,82,0.5)]" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <SectionHeader sig="SIG.02" label="Currently Reading" />
+          <div className="flex max-w-[640px] animate-pulse flex-col gap-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex items-start gap-4 border border-[rgba(64,61,82,0.7)] bg-[rgba(31,29,46,0.5)] px-5 py-4"
+              >
+                <div className="mt-[3px] flex shrink-0 flex-col items-center gap-1">
+                  <div className="h-[6px] w-[6px] rounded-full bg-[rgba(64,61,82,0.6)]" />
+                  <div className="h-10 w-1 rounded bg-[rgba(64,61,82,0.4)]" />
+                </div>
+                <div className="h-[84px] w-[58px] shrink-0 border border-[rgba(64,61,82,0.8)] bg-[rgba(64,61,82,0.5)]" />
+                <div className="min-w-0 flex-1 space-y-2 pt-[2px]">
+                  <div className="h-3 w-3/4 rounded bg-[rgba(64,61,82,0.6)]" />
+                  <div className="h-2 w-1/3 rounded bg-[rgba(64,61,82,0.5)]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </section>
+    </PageShell>
+  );
+}
+
+function InterestsPage() {
+  const { books, interis } = Route.useLoaderData();
+
+  const seriesCount = interis.ok
+    ? interis.data.profile.stats.entryCount -
+      interis.data.profile.stats.filmCount
+    : null;
+
+  return (
+    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(20px,2.5vh)]">
+      <section>
+        <header className="opacity-100">
+          <div className="mb-2">
+            <span className="mono text-[9px] tracking-[0.25em] text-[rgba(49,116,143,0.5)]">
+              /interests
+            </span>
+          </div>
+          <h1 className="mono m-0 mb-[6px] text-[clamp(26px,5vw,44px)] font-bold tracking-[-0.01em] text-[rgb(224,222,244)]">
+            INTERESTS
+          </h1>
+          {interis.ok && (
+            <div className="mt-2 flex items-center gap-4">
+              <span className="mono text-[11px] text-[rgba(144,140,170,0.7)]">
+                <span className="font-semibold text-[rgb(156,207,216)]">
+                  {interis.data.profile.stats.filmCount}
+                </span>{" "}
+                films watched
+              </span>
+              {seriesCount != null && seriesCount > 0 && (
+                <>
+                  <span className="h-[12px] w-px bg-[rgba(64,61,82,0.9)]" />
+                  <span className="mono text-[11px] text-[rgba(144,140,170,0.7)]">
+                    <span className="font-semibold text-[rgb(156,207,216)]">
+                      {seriesCount}
+                    </span>{" "}
+                    series logged
+                  </span>
+                </>
+              )}
+            </div>
+          )}
+        </header>
+
+        <section className="mt-6 max-w-[680px]">
           <div className="relative border border-[rgba(64,61,82,0.8)] bg-[rgba(31,29,46,0.45)] px-6 py-5">
             <span className="pointer-events-none absolute left-0 top-0 h-[7px] w-[7px] border-l border-t border-[rgba(49,116,143,0.28)]" />
             <span className="pointer-events-none absolute right-0 top-0 h-[7px] w-[7px] border-r border-t border-[rgba(49,116,143,0.28)]" />
             <span className="pointer-events-none absolute bottom-0 left-0 h-[7px] w-[7px] border-b border-l border-[rgba(49,116,143,0.28)]" />
             <span className="pointer-events-none absolute bottom-0 right-0 h-[7px] w-[7px] border-b border-r border-[rgba(49,116,143,0.28)]" />
-
             <p className="mono mb-3 text-[8px] tracking-[0.2em] text-[rgba(49,116,143,0.5)]">
               // ABOUT INTERESTS
             </p>
@@ -64,36 +214,36 @@ function InterestsPage() {
         </section>
 
         <section className="mb-[60px] mt-12">
-          <div className="mb-10 flex items-center gap-4">
-            <span className="mono text-[10px] tracking-[0.2em] text-[rgba(49,116,143,0.5)]">
-              SIG.01
-            </span>
-            <div className="h-px w-10 bg-gradient-to-r from-[rgba(49,116,143,0.45)] to-transparent" />
-            <h2 className="mono m-0 text-[11px] font-normal uppercase tracking-[0.25em] text-[rgba(224,222,244,0.75)]">
-              Favorites
-            </h2>
-            <div className="h-px flex-1 bg-[rgba(64,61,82,0.8)]" />
-          </div>
-
+          <SectionHeader sig="SIG.01" label="Favorites" />
           <FavoriteGrid items={favorites} />
+
+          {!interis.ok ? (
+            <div className="mt-8">
+              <ErrorPanel
+                title="Interis API Unavailable"
+                error={interis.error}
+              />
+            </div>
+          ) : (
+            <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
+              <div>
+                <SubLabel label="Favorite Movies" />
+                <Top4Grid items={interis.data.cinema.slice(0, 2)} verticalLabel="FILM" />
+              </div>
+              <div>
+                <SubLabel label="Favorite Series" />
+                <Top4Grid items={interis.data.serial.slice(0, 2)} verticalLabel="SERIES" />
+              </div>
+            </div>
+          )}
         </section>
 
         <section>
-          <div className="mb-10 flex items-center gap-4">
-            <span className="mono text-[10px] tracking-[0.2em] text-[rgba(49,116,143,0.5)]">
-              SIG.02
-            </span>
-            <div className="h-px w-10 bg-gradient-to-r from-[rgba(49,116,143,0.45)] to-transparent" />
-            <h2 className="mono m-0 text-[11px] font-normal uppercase tracking-[0.25em] text-[rgba(224,222,244,0.75)]">
-              Currently Reading
-            </h2>
-            <div className="h-px flex-1 bg-[rgba(64,61,82,0.8)]" />
-          </div>
-
-          {!result.ok ? (
-            <ErrorPanel title="Literal API Unavailable" error={result.error} />
+          <SectionHeader sig="SIG.02" label="Currently Reading" />
+          {!books.ok ? (
+            <ErrorPanel title="Literal API Unavailable" error={books.error} />
           ) : (
-            <BooksShelf books={result.data.books} />
+            <BooksShelf books={books.data.books} />
           )}
         </section>
       </section>
