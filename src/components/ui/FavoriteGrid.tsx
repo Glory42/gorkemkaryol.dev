@@ -13,7 +13,7 @@ export function FavoriteGrid({ items }: Props) {
         return (
           <article
             key={`${item.label}-${item.value}`}
-            className="relative border border-[rgba(64,61,82,0.7)] bg-[rgba(31,29,46,0.45)] px-[18px] py-[15px]"
+            className="group relative border border-[rgba(64,61,82,0.7)] bg-[rgba(31,29,46,0.45)] px-[18px] py-[15px]"
           >
             <span className="pointer-events-none absolute left-0 top-0 h-[6px] w-[6px] border-l border-t border-[rgba(235,188,186,0.2)]" />
             <span className="pointer-events-none absolute right-0 top-0 h-[6px] w-[6px] border-r border-t border-[rgba(235,188,186,0.2)]" />
@@ -27,6 +27,7 @@ export function FavoriteGrid({ items }: Props) {
             <p className="mono text-[12px] font-semibold leading-[1.35] text-[rgba(224,222,244,0.88)]">
               {item.value}
             </p>
+            <span className="absolute bottom-0 left-0 right-0 h-px origin-left scale-x-0 bg-[rgb(196,167,231)] transition-transform duration-200 group-hover:scale-x-100" />
           </article>
         );
       })}

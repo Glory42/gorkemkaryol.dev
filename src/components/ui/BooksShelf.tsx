@@ -20,7 +20,7 @@ export function BooksShelf({ books }: Props) {
       {books.map((state) => (
         <article
           key={state.book.id}
-          className="book-card group relative flex items-start gap-4 border border-[rgba(64,61,82,0.7)] bg-[rgba(31,29,46,0.5)] px-5 py-4 transition-colors hover:border-[rgba(196,167,231,0.28)]"
+          className="book-card group relative flex items-start gap-4 border border-[rgba(64,61,82,0.7)] bg-[rgba(31,29,46,0.5)] px-5 py-4"
         >
           <span className="pointer-events-none absolute left-0 top-0 h-[6px] w-[6px] border-l border-t border-[rgba(196,167,231,0.2)]" />
           <span className="pointer-events-none absolute right-0 top-0 h-[6px] w-[6px] border-r border-t border-[rgba(196,167,231,0.2)]" />
@@ -65,6 +65,7 @@ export function BooksShelf({ books }: Props) {
               {state.book.authors[0]?.name ?? "Unknown"}
             </p>
           </div>
+          <span className="absolute bottom-0 left-0 right-0 h-px origin-left scale-x-0 bg-[rgb(196,167,231)] transition-transform duration-200 group-hover:scale-x-100" />
         </article>
       ))}
     </div>

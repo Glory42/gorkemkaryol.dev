@@ -21,7 +21,7 @@ export function TechSpecList({ items }: Props) {
         return (
           <article
             key={`${item.title}-${item.spec}`}
-            className="book-card relative flex gap-[14px] border border-[rgba(64,61,82,0.7)] bg-[rgba(31,29,46,0.4)] px-4 py-[13px] transition-colors hover:border-[rgba(196,167,231,0.28)]"
+            className="book-card group relative flex gap-[14px] border border-[rgba(64,61,82,0.7)] bg-[rgba(31,29,46,0.4)] px-4 py-[13px]"
           >
             <span className="pointer-events-none absolute left-0 top-0 h-[6px] w-[6px] border-l border-t border-[rgba(49,116,143,0.22)]" />
             <span className="pointer-events-none absolute right-0 top-0 h-[6px] w-[6px] border-r border-t border-[rgba(49,116,143,0.22)]" />
@@ -59,6 +59,7 @@ export function TechSpecList({ items }: Props) {
                 {item.description}
               </p>
             </div>
+            <span className="absolute bottom-0 left-0 right-0 h-px origin-left scale-x-0 bg-[rgb(196,167,231)] transition-transform duration-200 group-hover:scale-x-100" />
           </article>
         );
       })}

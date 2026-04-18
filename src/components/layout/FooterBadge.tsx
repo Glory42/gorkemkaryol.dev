@@ -12,12 +12,12 @@ export function FooterBadge() {
 
         <a
           className="focus-ring inline-flex items-center gap-[5px] text-[9px] tracking-[0.15em] text-[rgba(156,207,216,0.5)] no-underline transition-colors hover:text-[rgba(156,207,216,0.85)]"
-          href="https://www.websitecarbon.com/website/gorkemkaryol-dev/"
+          href="https://digitalbeacon.co/report/gorkemkaryol-dev"
           target="_blank"
           rel="noopener noreferrer"
         >
           <span className="inline-block h-[4px] w-[4px] rounded-full bg-[rgb(156,207,216)]" />
-          <span className="mono">This visit generated 0.01g of CO2.</span>
+          <span className="mono">This visit generated 0.063g of CO2.</span>
         </a>
       </div>
     </footer>
