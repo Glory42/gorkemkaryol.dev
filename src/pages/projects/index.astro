@@ -1,33 +1,11 @@
 ---
-import ContributionGrid from "@/components/astro/ContributionGrid.astro";
 import EmptyState from "@/components/astro/EmptyState.astro";
 import ProjectsGrid from "@/components/astro/ProjectsGrid.astro";
-import { getProjectsOverview } from "@/lib/server/github";
-import { createRuntimeEnv, logRuntimeEnvPresence } from "@/lib/utils/env";
+import { staticProjects } from "@/data/projects";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageShell from "@/layouts/PageShell.astro";
 
-export const prerender = false;
-
 const pathname = "/projects";
-
-Astro.response.headers.set(
-  "Cache-Control",
-  "public, s-maxage=600, stale-while-revalidate=3600",
-);
-
-const runtimeBindings =
-  (Astro.locals as { runtime?: { env?: unknown } }).runtime?.env ?? null;
-
-const runtimeEnv = createRuntimeEnv(runtimeBindings ?? import.meta.env);
-
-console.info("[runtime-env:projects-source]", {
-  source: runtimeBindings ? "locals.runtime.env" : "import.meta.env",
-});
-
-logRuntimeEnvPresence("projects", runtimeEnv);
-
-const { username, repos, contributions } = await getProjectsOverview(runtimeEnv);
 ---
 
 <BaseLayout
@@ -50,7 +28,10 @@ const { username, repos, contributions } = await getProjectsOverview(runtimeEnv)
       </header>
 
       <div class="opacity-100">
-        <ContributionGrid username={username} calendar={contributions} />
+        <EmptyState
+          title="Contributions unavailable"
+          description="Temporarily disabled."
+        />
       </div>
 
       <div class="mb-8 mt-8 h-px bg-[rgba(64,61,82,0.5)]"></div>
@@ -65,16 +46,7 @@ const { username, repos, contributions } = await getProjectsOverview(runtimeEnv)
           <div class="h-px flex-1 bg-[rgba(64,61,82,0.8)]"></div>
         </div>
 
-        {
-          repos.length > 0 ? (
-            <ProjectsGrid repos={repos} />
-          ) : (
-            <EmptyState
-              title="No featured repositories"
-              description="Featured projects are temporarily unavailable."
-            />
-          )
-        }
+        <ProjectsGrid repos={staticProjects} />
       </section>
     </section>
   </PageShell>
