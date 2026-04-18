@@ -120,11 +120,19 @@ a {
   margin-bottom: 0.5em;
 }
 
-.readme-prose h1 { font-size: 1.5rem; }
-.readme-prose h2 { font-size: 1.25rem; }
-.readme-prose h3 { font-size: 1.05rem; }
+.readme-prose h1 {
+  font-size: 1.5rem;
+}
+.readme-prose h2 {
+  font-size: 1.25rem;
+}
+.readme-prose h3 {
+  font-size: 1.05rem;
+}
 
-.readme-prose p { margin: 0.75em 0; }
+.readme-prose p {
+  margin: 0.75em 0;
+}
 
 .readme-prose a {
   color: var(--accent-cyan);
@@ -172,7 +180,9 @@ a {
   margin: 0.75em 0;
 }
 
-.readme-prose li { margin: 0.25em 0; }
+.readme-prose li {
+  margin: 0.25em 0;
+}
 
 .readme-prose table {
   width: 100%;
@@ -189,7 +199,9 @@ a {
   text-align: left;
 }
 
-.readme-prose table th { color: var(--text-1); }
+.readme-prose table th {
+  color: var(--text-1);
+}
 
 .readme-prose hr {
   border: none;
