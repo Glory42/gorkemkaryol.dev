@@ -1,28 +1,56 @@
+// ~1 s pause after train exits right side (9 frames × 120 ms ≈ 1 080 ms)
+const PAUSE_FRAMES = 5;
+
+const MIRROR_MAP: Record<string, string> = {
+  ">": "<",
+  "<": ">",
+  "(": ")",
+  ")": "(",
+  "[": "]",
+  "]": "[",
+  "/": "\\",
+  "\\": "/",
+};
+
+function mirrorLine(s: string): string {
+  return [...s]
+    .reverse()
+    .map((c) => MIRROR_MAP[c] ?? c)
+    .join("");
+}
+
+const TRAIN_LINES = [
+  "         o x o x o x o . . .",
+  "       o      _____            _______________ ___=====__T___",
+  "     .][__n_n_|DD[  ====_____  |    |.\\/.|   | |   |_|     |_",
+  "    >(________|__|_[_________]_|____|_/\\_|___|_|___________|_|",
+  "    _/oo OOOOO oo`  ooo   ooo   o^o       o^o   o^o     o^o",
+].map(mirrorLine);
+
+const CANVAS = 79;
+const TRAIN_WIDTH = Math.max(...TRAIN_LINES.map((l) => l.length));
+const PERIOD = TRAIN_WIDTH + CANVAS + PAUSE_FRAMES;
+const TRACK = "-+-".repeat(27).slice(0, CANVAS);
+
 export function renderTrainFrame(frame: number): string {
-  const width = 74;
-  const engine = [
-    "      ____        ",
-    " ____|_[]\\__     ",
-    "|_  _  _  _|==---",
-    "  O-O-O-O-O      ",
-  ];
+  const tick = frame % PERIOD;
 
-  const trainWidth = engine[0].length;
-  const offset = (frame % (width + trainWidth + 12)) - trainWidth;
+  // Pause phase — train has fully exited the right edge
+  if (tick >= TRAIN_WIDTH + CANVAS) {
+    return ["", " ", " ", " ", " ", " ", TRACK].join("\n");
+  }
 
-  const place = (line: string) => {
-    const slots = Array.from({ length: width }, () => " ");
-    for (let i = 0; i < line.length; i += 1) {
-      const at = offset + i;
-      if (at >= 0 && at < width) {
-        slots[at] = line[i] ?? " ";
-      }
+  // offset < 0 → train entering from left; offset > 0 → train visible/exiting right
+  const offset = tick - TRAIN_WIDTH;
+
+  const place = (line: string): string => {
+    const row = Array<string>(CANVAS).fill(" ");
+    for (let i = 0; i < line.length; i++) {
+      const col = offset + i;
+      if (col >= 0 && col < CANVAS) row[col] = line[i]!;
     }
-    return slots.join("");
+    return row.join("");
   };
 
-  const trainRows = engine.map((line) => place(line));
-  const track = "=".repeat(width);
-
-  return ["signal: [train stream active]", "", ...trainRows, track].join("\n");
+  return ["", ...TRAIN_LINES.map(place), TRACK].join("\n");
 }
