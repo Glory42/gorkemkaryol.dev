@@ -1,10 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "portfolio",
-  "main": ".output/server/index.mjs",
+  "name": "portfolio-vite",
+  "main": "@tanstack/react-start/server-entry",
   "compatibility_date": "2025-01-01",
   "compatibility_flags": ["nodejs_compat"],
-  "assets": {
-    "directory": ".output/public",
-  },
 }

@@ -1,8 +1,7 @@
 import type { Config } from "tailwindcss";
-import typography from "@tailwindcss/typography";
 
 const config: Config = {
-  content: ["./src/**/*.{astro,html,js,jsx,ts,tsx,md,mdx}"],
+  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
       fontFamily: {
@@ -11,7 +10,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [typography],
+  plugins: [],
 };
 
 export default config;
