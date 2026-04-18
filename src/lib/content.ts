@@ -1,4 +1,4 @@
-import { Book, Film, Mic2, Music, type LucideIcon } from "lucide-react";
+import { Book, Mic2, Music, type LucideIcon } from "lucide-react";
 
 export interface NavigationItem {
   href: "/" | "/projects" | "/interests" | "/experience" | "/cool";
@@ -41,26 +41,45 @@ export const navigationItems: NavigationItem[] = [
 
 export const experiences: ExperienceItem[] = [
   {
+    role: "Full Stack Engineer",
+    company: "Holala.ai",
+    date: "Feb 2026 – Mar 2026",
+    description: [
+      "Built a high-performance AI SaaS for e-commerce photography using Bun.js, React, and TypeScript.",
+      "Architected an asynchronous AI pipeline using webhooks to handle high-concurrency GPU bursts without dropping requests or hitting rate limits.",
+      "Reduced AI payload sizes by 90% by implementing Cloudflare Images for on-the-fly compression of R2 storage assets.",
+      "Designed a strict, type-safe monorepo with Turborepo and Drizzle ORM to enforce seamless client-server data boundaries.",
+      "Optimized frontend rendering state with advanced deduplication and caching via TanStack Query, eliminating race conditions during real-time image generation.",
+    ],
+    tags: [
+      "Bun.js",
+      "React",
+      "TypeScript",
+      "Drizzle ORM",
+      "TanStack Query",
+      "Cloudflare",
+    ],
+  },
+  {
     role: "Cyber Security Intern",
     company: "OPET",
-    date: "Jun 2025 - Aug 2025",
+    date: "Jul 2024 – Aug 2025",
     description: [
-      "Conducted vulnerability assessments using Kali Linux and categorized findings by severity.",
+      "Conducted vulnerability assessments using tools such as Kali Linux and categorized findings by severity.",
       "Developed custom security tools in Go, including a port scanner with service detection and a hash-cracking utility.",
-      "Collaborated with cybersecurity and infrastructure teams to plan and implement remediation strategies.",
-      "Analyzed vulnerability reports from multiple external vendors to identify overlaps and blind spots.",
+      "Analyzed and compared vulnerability reports from multiple external vendors to identify overlaps and gaps in findings.",
     ],
     tags: ["Cyber Security", "Network Security", "Kali Linux", "Go"],
   },
   {
-    role: "Core/Project Team Member",
-    company: "Google Developer Groups",
-    date: "Sep 2024 - Present",
+    role: "Core Member, Project Team Member",
+    company: "Google Developer Groups on Campus Halic",
+    date: "Sep 2024 – Present",
     description: [
-      "Collaborating with my team to design and build applications that offer practical solutions to real-world challenges.",
-      "Gaining hands-on experience in managing projects and working in a collaborative environment.",
-      "Partnering with the social media team to produce creative and engaging content that promotes our events.",
-      "Actively participating in both community-focused initiatives and internal project development.",
+      "Collaborating with the team to design and build applications that offer practical solutions to real-world challenges.",
+      "Gaining hands-on experience in managing projects and working in a collaborative environment, making a positive impact within the university's tech ecosystem.",
+      "Working with the social media team to create engaging content that promotes events and showcases ongoing work.",
+      "Actively participating in both community-focused initiatives and internal project development to support the team's mission and outreach.",
     ],
     tags: ["Teamwork", "Community Building", "Project Management"],
   },
@@ -109,11 +128,6 @@ export const interestsIntro =
   "I am passionate about technology and the things I enjoy outside of it. I love exploring Linux, experimenting with homelabs, and diving into computer networks. Outside of tech, I enjoy reading, watching movies, basketball, and skateboarding.";
 
 export const favorites: FavoriteItem[] = [
-  {
-    icon: Film,
-    label: "Favorite Movie",
-    value: "Knockin' on Heaven's Door",
-  },
   {
     icon: Book,
     label: "Favorite Book",
