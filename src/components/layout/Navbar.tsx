@@ -71,14 +71,14 @@ export function Navbar() {
     >
       <Link
         to="/"
-        className="focus-ring flex items-center gap-[8px] border border-[rgba(196,167,231,0.3)] bg-[rgba(196,167,231,0.08)] px-2 py-[3px] no-underline"
+        className="focus-ring flex items-center gap-[8px] border border-[rgba(156,207,216,0.3)] bg-[rgba(156,207,216,0.08)] px-2 py-[3px] no-underline"
         aria-label="Go to home"
       >
-        <span className="flex h-[18px] w-[18px] items-center justify-center border border-[rgba(196,167,231,0.22)] bg-[rgba(196,167,231,0.08)]">
-          <Rocket size={10} className="text-[rgba(196,167,231,0.82)]" />
+        <span className="flex h-[18px] w-[18px] items-center justify-center border border-[rgba(156,207,216,0.22)] bg-[rgba(156,207,216,0.08)]">
+          <Rocket size={10} className="text-[rgba(156,207,216,0.82)]" />
         </span>
         <span className="mono text-[11px] font-normal tracking-[0.12em] text-[rgba(224,222,244,0.85)]">
-          gorkemkaryol<span className="text-[rgb(196,167,231)]">.</span>dev
+          gorkemkaryol<span className="text-[rgb(156,207,216)]">.</span>dev
         </span>
       </Link>
 
