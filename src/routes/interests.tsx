@@ -19,7 +19,8 @@ const getLiteralDataServerFn = createServerFn({ method: "GET" }).handler(
 
 const getInterisDataServerFn = createServerFn({ method: "GET" }).handler(
   async () => {
-    return getInterisData("glory42");
+    const runtimeEnv = readRuntimeEnv(workerEnv);
+    return getInterisData(runtimeEnv.INTERIS_USERNAME);
   },
 );
 
