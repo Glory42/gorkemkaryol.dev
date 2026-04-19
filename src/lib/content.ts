@@ -1,4 +1,33 @@
-import { Book, Mic2, Music, type LucideIcon } from "lucide-react";
+export const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w185";
+export const INTERIS_BASE = "https://interis.gorkemkaryol.dev";
+
+export interface SkillGroup {
+  category: string;
+  skills: string[];
+}
+
+export const skillGroups: SkillGroup[] = [
+  {
+    category: "Languages",
+    skills: ["TypeScript", "JavaScript", "Python", "Go", "SQL"],
+  },
+  {
+    category: "Backend",
+    skills: ["Node.js", "Bun", "Express", "REST APIs", "API Documentation"],
+  },
+  {
+    category: "Frontend",
+    skills: ["React", "Next.js", "Astro", "TailwindCSS"],
+  },
+  {
+    category: "Database",
+    skills: ["PostgreSQL", "Redis"],
+  },
+  {
+    category: "Infrastructure",
+    skills: ["Linux", "Docker", "Cloudflare", "Dokploy", "Git"],
+  },
+];
 
 export interface NavigationItem {
   href: "/" | "/projects" | "/interests" | "/experience" | "/cool";
@@ -25,17 +54,16 @@ export interface TechItem {
   description: string;
 }
 
-export interface FavoriteItem {
-  icon: LucideIcon;
-  label: string;
-  value: string;
+export interface BandItem {
+  name: string;
+  image: string;
 }
 
 export const navigationItems: NavigationItem[] = [
   { href: "/", label: "me" },
   { href: "/projects", label: "projects" },
-  { href: "/interests", label: "interests" },
   { href: "/experience", label: "experience" },
+  { href: "/interests", label: "interests" },
   { href: "/cool", label: "cool" },
 ];
 
@@ -86,7 +114,7 @@ export const experiences: ExperienceItem[] = [
 ];
 
 export const introText =
-  "I am a computer engineering student focused on backend systems and modern web applications. I enjoy building production software, contributing to open source, and continuously exploring better developer tools.";
+  "I’m a computer engineering student building web apps and experimenting with different parts of the stack. I like working on real projects, trying out new tools, and figuring out better ways to build and ship things.";
 
 export const contactItems: ContactItem[] = [
   { href: "https://github.com/glory42", label: "GitHub", icon: "github" },
@@ -125,22 +153,9 @@ export const techItems: TechItem[] = [
 ];
 
 export const interestsIntro =
-  "I am passionate about technology and the things I enjoy outside of it. I love exploring Linux, experimenting with homelabs, and diving into computer networks. Outside of tech, I enjoy reading, watching movies, basketball, and skateboarding.";
+  "This page captures the things I keep coming back to. Books, films, and series shape how I think, while basketball and skateboarding keep me moving. Recently, I’ve been building habits around the gym and playing guitar. Slow progress, but consistent.";
 
-export const favorites: FavoriteItem[] = [
-  {
-    icon: Book,
-    label: "Favorite Book",
-    value: "Hitchhiker's Guide to The Galaxy",
-  },
-  {
-    icon: Music,
-    label: "Favorite Band",
-    value: "Radiohead",
-  },
-  {
-    icon: Mic2,
-    label: "Favorite Song",
-    value: "Lover You Should've Come Over",
-  },
+export const favoriteBands: BandItem[] = [
+  { name: "Radiohead", image: "/radiohead.jpg" },
+  { name: "Deftones", image: "/deftones.jpg" },
 ];
