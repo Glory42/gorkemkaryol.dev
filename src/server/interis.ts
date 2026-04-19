@@ -6,7 +6,6 @@ import {
 } from "@/server/http";
 
 const BASE = "https://api.interis.gorkemkaryol.dev/api/public";
-export const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w185";
 
 export interface InterisTop4Item {
   slot: number;
