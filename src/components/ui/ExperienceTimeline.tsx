@@ -21,7 +21,10 @@ export function ExperienceTimeline({ items }: Props) {
                 </div>
               </div>
 
-              <article className="group relative flex-1 border border-[rgba(64,61,82,0.8)] bg-[rgba(31,29,46,0.5)] px-[22px] py-5">
+              <article className="book-card group relative flex-1 border border-[rgba(64,61,82,0.8)] bg-[rgba(31,29,46,0.5)] px-[22px] py-5">
+                <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                  <rect className="book-trace" x="0.5" y="0.5" width="99" height="99" pathLength="100" />
+                </svg>
                 <span className="pointer-events-none absolute left-0 top-0 h-[6px] w-[6px] border-l border-t border-[rgba(49,116,143,0.22)]" />
                 <span className="pointer-events-none absolute right-0 top-0 h-[6px] w-[6px] border-r border-t border-[rgba(49,116,143,0.22)]" />
                 <span className="pointer-events-none absolute bottom-0 left-0 h-[6px] w-[6px] border-b border-l border-[rgba(49,116,143,0.22)]" />
@@ -32,7 +35,7 @@ export function ExperienceTimeline({ items }: Props) {
                     <p className="mono mb-[5px] text-[8px] tracking-[0.15em] text-[rgba(110,106,134,0.65)]">
                       EXP-{expId}
                     </p>
-                    <h3 className="mono mb-1 text-[14px] font-semibold leading-[1.3] tracking-[0.03em] text-[rgb(224,222,244)]">
+                    <h3 className="mono mb-1 text-[14px] font-semibold leading-[1.3] tracking-[0.03em] text-[rgb(224,222,244)] transition-colors duration-200 group-hover:text-[rgb(196,167,231)]">
                       {item.role}
                     </h3>
                     <p className="mono m-0 text-[11px] text-[rgba(156,207,216,0.8)]">

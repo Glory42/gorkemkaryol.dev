@@ -52,7 +52,7 @@ export function TechSpecList({ items }: Props) {
             </div>
 
             <div className="min-w-0 flex-1">
-              <h3 className="mono mb-1 text-[11px] font-semibold tracking-[0.02em] text-[rgba(224,222,244,0.88)]">
+              <h3 className="mono mb-1 text-[11px] font-semibold tracking-[0.02em] text-[rgba(224,222,244,0.88)] transition-colors duration-200 group-hover:text-[rgb(196,167,231)]">
                 {item.spec}
               </h3>
               <p className="m-0 text-[11px] leading-[1.55] text-[rgba(144,140,170,0.8)]">
