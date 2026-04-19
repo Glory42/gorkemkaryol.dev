@@ -3,6 +3,7 @@ export interface RuntimeEnv {
   PUBLIC_GITHUB_USERNAME: string;
   LITERAL_EMAIL: string;
   LITERAL_PASSWORD: string;
+  INTERIS_USERNAME: string;
 }
 
 type RuntimeEnvKey = keyof RuntimeEnv;
@@ -53,6 +54,7 @@ export function readRuntimeEnv(source: unknown): RuntimeEnv {
     PUBLIC_GITHUB_USERNAME: asString(env.PUBLIC_GITHUB_USERNAME),
     LITERAL_EMAIL: asString(env.LITERAL_EMAIL),
     LITERAL_PASSWORD: asString(env.LITERAL_PASSWORD),
+    INTERIS_USERNAME: asString(env.INTERIS_USERNAME),
   };
 }
 
