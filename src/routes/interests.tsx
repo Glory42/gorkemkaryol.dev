@@ -4,17 +4,16 @@ import { env as workerEnv } from "cloudflare:workers";
 import { PageShell } from "@/components/layout/PageShell";
 import { BooksShelf } from "@/components/ui/BooksShelf";
 import { ErrorPanel } from "@/components/ui/ErrorPanel";
-import { FavoriteGrid } from "@/components/ui/FavoriteGrid";
 import { Top4Grid } from "@/components/ui/Top4Grid";
-import { favorites, interestsIntro } from "@/lib/content";
+import { favoriteBands, interestsIntro } from "@/lib/content";
 import { readRuntimeEnv } from "@/lib/env";
 import { getInterisData } from "@/server/interis";
-import { getCurrentlyReading } from "@/server/literal";
+import { getLiteralData } from "@/server/literal";
 
-const getCurrentlyReadingServerFn = createServerFn({ method: "GET" }).handler(
+const getLiteralDataServerFn = createServerFn({ method: "GET" }).handler(
   async () => {
     const runtimeEnv = readRuntimeEnv(workerEnv);
-    return getCurrentlyReading(runtimeEnv, 3);
+    return getLiteralData(runtimeEnv, 3);
   },
 );
 
@@ -35,11 +34,11 @@ export const Route = createFileRoute("/interests")({
     ],
   }),
   loader: async () => {
-    const [books, interis] = await Promise.all([
-      getCurrentlyReadingServerFn(),
+    const [literal, interis] = await Promise.all([
+      getLiteralDataServerFn(),
       getInterisDataServerFn(),
     ]);
-    return { books, interis };
+    return { literal, interis };
   },
   pendingMs: 0,
   pendingComponent: InterestsPageSkeleton,
@@ -101,9 +100,8 @@ function InterestsPageSkeleton() {
 
         <section className="mb-[60px] mt-12">
           <SectionHeader sig="SIG.01" label="Favorites" />
-          <FavoriteGrid items={favorites} />
           <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 animate-pulse">
-            {["Favorite Movies", "Favorite Series"].map((label) => (
+            {["Favorite Bands", "Favorite Movies", "Favorite Series"].map((label) => (
               <div key={label}>
                 <SubLabel label={label} />
                 <div className="flex flex-col gap-2">
@@ -156,7 +154,7 @@ function InterestsPageSkeleton() {
 }
 
 function InterestsPage() {
-  const { books, interis } = Route.useLoaderData();
+  const { literal: books, interis } = Route.useLoaderData();
 
   const seriesCount = interis.ok
     ? interis.data.profile.stats.entryCount -
@@ -215,27 +213,77 @@ function InterestsPage() {
 
         <section className="mb-[60px] mt-12">
           <SectionHeader sig="SIG.01" label="Favorites" />
-          <FavoriteGrid items={favorites} />
 
-          {!interis.ok ? (
-            <div className="mt-8">
-              <ErrorPanel
-                title="Interis API Unavailable"
-                error={interis.error}
-              />
-            </div>
-          ) : (
-            <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2">
-              <div>
-                <SubLabel label="Favorite Movies" />
-                <Top4Grid items={interis.data.cinema.slice(0, 2)} verticalLabel="FILM" />
+          <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <div className="flex flex-col gap-2">
+                {favoriteBands.map((band) => (
+                  <article
+                    key={band.name}
+                    className="book-card group relative flex items-start gap-4 border border-[rgba(64,61,82,0.7)] bg-[rgba(31,29,46,0.5)] px-5 py-4"
+                  >
+                    <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                      <rect className="book-trace" x="0.5" y="0.5" width="99" height="99" pathLength="100" />
+                    </svg>
+                    <span className="pointer-events-none absolute left-0 top-0 h-[6px] w-[6px] border-l border-t border-[rgba(196,167,231,0.2)]" />
+                    <span className="pointer-events-none absolute right-0 top-0 h-[6px] w-[6px] border-r border-t border-[rgba(196,167,231,0.2)]" />
+                    <span className="pointer-events-none absolute bottom-0 left-0 h-[6px] w-[6px] border-b border-l border-[rgba(196,167,231,0.2)]" />
+                    <span className="pointer-events-none absolute bottom-0 right-0 h-[6px] w-[6px] border-b border-r border-[rgba(196,167,231,0.2)]" />
+                    <div className="mt-[3px] flex shrink-0 flex-col items-center gap-1">
+                      <span className="inline-block h-[6px] w-[6px] rounded-full bg-[rgb(196,167,231)]" />
+                      <span className="mono text-[6px] tracking-[0.08em] text-[rgba(196,167,231,0.55)] [text-orientation:mixed] [transform:rotate(180deg)] [writing-mode:vertical-rl]">
+                        BAND
+                      </span>
+                    </div>
+                    <img
+                      src={band.image}
+                      alt={band.name}
+                      loading="lazy"
+                      className="h-[84px] w-[58px] shrink-0 border border-[rgba(64,61,82,0.8)] object-cover"
+                    />
+                    <div className="min-w-0 flex-1 pt-[2px]">
+                      <h3 className="text-[12px] font-semibold leading-[1.35] text-[rgba(224,222,244,0.9)] transition-colors duration-200 group-hover:text-[rgb(196,167,231)]">
+                        {band.name}
+                      </h3>
+                    </div>
+                    <span className="absolute bottom-0 left-0 right-0 h-px origin-left scale-x-0 bg-[rgb(196,167,231)] transition-transform duration-200 group-hover:scale-x-100" />
+                  </article>
+                ))}
               </div>
-              <div>
-                <SubLabel label="Favorite Series" />
-                <Top4Grid items={interis.data.serial.slice(0, 2)} verticalLabel="SERIES" />
-              </div>
             </div>
-          )}
+
+            <div>
+              {books.ok ? (
+                <BooksShelf books={books.data.favoriteBooks} verticalLabel="BOOK" />
+              ) : (
+                <ErrorPanel title="Literal API Unavailable" error={books.error} />
+              )}
+            </div>
+
+            {!interis.ok ? (
+              <div className="md:col-span-2">
+                <ErrorPanel
+                  title="Interis API Unavailable"
+                  error={interis.error}
+                />
+              </div>
+            ) : (
+              <>
+                <div>
+                  <Top4Grid
+                    items={interis.data.cinema.slice(0, 2)}
+                    verticalLabel="FILM"
+                  />
+                </div>
+                <div>
+                  <Top4Grid
+                    items={interis.data.serial.slice(0, 2)}
+                    verticalLabel="SERIES"
+                  />
+                </div>
+              </>
+            )}
+          </div>
         </section>
 
         <section>
@@ -243,7 +291,7 @@ function InterestsPage() {
           {!books.ok ? (
             <ErrorPanel title="Literal API Unavailable" error={books.error} />
           ) : (
-            <BooksShelf books={books.data.books} />
+            <BooksShelf books={books.data.currentlyReading.map((rs) => rs.book)} />
           )}
         </section>
       </section>
