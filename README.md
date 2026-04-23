@@ -1,6 +1,6 @@
 # gorkemkaryol.dev
 
-Production portfolio migrated to TanStack Start with Bun runtime and Cloudflare Workers deployment.
+Personal portfolio built with TanStack Start, deployed on Cloudflare Workers.
 
 ## Stack
 
@@ -9,21 +9,28 @@ Production portfolio migrated to TanStack Start with Bun runtime and Cloudflare 
 - Cloudflare Workers
 - TypeScript
 - Tailwind CSS
-- GitHub GraphQL API (projects + contributions)
-- Literal GraphQL API (currently reading)
+
+## Integrations
+
+- **GitHub GraphQL API** — pinned projects and contribution data
+- **Literal GraphQL API** — favorite books shelf and currently reading shelf
+- **Interis** (`interis.gorkemkaryol.dev`) — my self-hosted movie and series tracker; the interests page pulls top-rated films and series from it via the public API and links each card back to the Interis entry
 
 ## Environment
 
-Create a `.dev.vars` or Worker bindings with:
+Create a `.dev.vars` file (for local dev) or set Worker bindings (for production):
 
 ```bash
 GITHUB_TOKEN=...
 PUBLIC_GITHUB_USERNAME=...
 LITERAL_EMAIL=...
 LITERAL_PASSWORD=...
+INTERIS_USERNAME=...   # your Interis username, used to fetch top films/series
 ```
 
-All API secrets are server-only and read from Workers runtime bindings.
+`INTERIS_USERNAME` is a non-secret public variable — it is also declared under `vars` in `wrangler.jsonc` so it is available in preview deployments without a secret binding.
+
+All API secrets are server-only and read from Workers runtime bindings at request time.
 
 ## Development
 
@@ -38,7 +45,7 @@ bun dev
 bun run build
 ```
 
-`bun run build` creates both `dist/` (Vite output) and `.output/` (Worker deploy output expected by `wrangler.jsonc`).
+Creates `.output/` (Worker deploy artifact expected by `wrangler.jsonc`).
 
 ## Deploy
 
@@ -46,4 +53,4 @@ bun run build
 npx wrangler deploy
 ```
 
-`wrangler.jsonc` uses `nodejs_compat` because TanStack Start server runtime imports Node-compatible modules internally.
+`wrangler.jsonc` uses `nodejs_compat` because TanStack Start's server runtime imports Node-compatible modules internally.
