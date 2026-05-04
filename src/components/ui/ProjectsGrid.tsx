@@ -13,7 +13,7 @@ export function ProjectsGrid({ repos }: Props) {
         const cardId = String(index + 1).padStart(3, "0");
         const tags =
           repo.topics.length > 0
-            ? repo.topics.slice(0, 4)
+            ? repo.topics.filter((t) => t !== "featured").slice(0, 4)
             : [repo.primaryLanguage?.name ?? "Repository"];
 
         return (
