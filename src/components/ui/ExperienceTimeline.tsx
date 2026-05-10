@@ -20,9 +20,9 @@ export function ExperienceTimeline({ items }: Props) {
                 </p>
               </div>
               <div className="flex flex-col items-end gap-1.5">
-                <span className="mono text-[11px] text-[#444]">{item.date}</span>
+                <span className="mono text-[11px] text-[rgba(168,85,247,0.5)]">{item.date}</span>
                 {item.type && (
-                  <span className="mono border border-[rgba(255,255,255,0.08)] px-2 py-[2px] text-[8px] tracking-[0.1em] text-[#444]">
+                  <span className="mono border border-[rgba(168,85,247,0.25)] px-2 py-[2px] text-[8px] tracking-[0.1em] text-[rgba(168,85,247,0.55)]">
                     {item.type}
                   </span>
                 )}
