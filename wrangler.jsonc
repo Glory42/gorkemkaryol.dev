@@ -10,5 +10,6 @@
   "keep_vars": true,
   "vars": {
     "INTERIS_USERNAME": "glory42",
+    "PUBLIC_GITHUB_USERNAME": "Glory42",
   },
 }
