@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Keyboard, Monitor, Mouse, Terminal } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
 import { ContactLinks } from "@/components/ui/ContactLinks";
+import { LiveClock } from "@/components/ui/LiveClock";
 import { RotatingPrompt } from "@/components/ui/RotatingPrompt";
-import { TechSpecList } from "@/components/ui/TechSpecList";
 import { contactItems, introText, techItems } from "@/lib/content";
 
 export const Route = createFileRoute("/")({
@@ -15,61 +16,83 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
+function iconFor(title: string) {
+  const t = title.toLowerCase();
+  if (t.includes("mouse")) return Mouse;
+  if (t.includes("keyboard")) return Keyboard;
+  if (t.includes("os") || t.includes("linux") || t.includes("arch")) return Terminal;
+  return Monitor;
+}
+
 function HomePage() {
   return (
-    <PageShell mainClassName="p-0">
-      <div className="opacity-100">
-        <div className="relative grid h-[calc(100vh-52px)] grid-cols-1 overflow-hidden">
-          <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-            <div className="absolute left-0 right-0 top-[98%] h-px bg-gradient-to-r from-transparent via-[rgba(49,116,143,0.07)] to-transparent" />
-          </div>
+    <PageShell mainClassName="px-[max(24px,4vw)] pt-[max(24px,4vh)] pb-16">
+      <div className="mx-auto max-w-[680px]">
+      <p className="mono mb-5 text-[11px] text-[#252525]">~$ whoami</p>
+      <section className="mb-10">
+        <h1 className="mono mb-2 text-[clamp(20px,2.2vw,30px)] font-bold leading-[1.1] tracking-[-0.01em] text-white">
+          Görkem Karyol
+        </h1>
 
-          <div className="z-[1] grid h-full grid-cols-1 md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-            <section className="flex flex-col justify-center gap-0 overflow-y-auto px-[max(28px,4vw)] py-8 md:border-r md:border-[rgba(64,61,82,0.5)]">
-              <div className="mb-5 flex items-center gap-2.5 opacity-100">
-                <span className="mono text-[9px] tracking-[0.25em] text-[rgba(49,116,143,0.55)]">
-                  /identity
-                </span>
-                <span className="h-px max-w-12 flex-1 bg-gradient-to-r from-[rgba(49,116,143,0.3)] to-transparent" />
-              </div>
-
-              <h1 className="mono mb-1 text-[clamp(38px,5.5vw,72px)] font-bold leading-[0.95] tracking-[-0.02em]">
-                <span className="text-[rgb(224,222,244)]">Hi, I am</span>
-                <br />
-                <span className="text-[rgb(196,167,231)]">Görkem</span>
-              </h1>
-
-              <p className="mono mb-4 text-[11px] tracking-[0.12em] text-[rgba(110,106,134,0.8)]">
-                Istanbul, Turkiye
-              </p>
-
-              <div className="mb-5 flex flex-wrap items-center gap-[5px] opacity-100">
-                <span className="mono text-[12px] text-[rgba(156,207,216,0.75)]">
-                  ~$
-                </span>
-                <RotatingPrompt className="mono min-w-[20ch] text-[12px] text-[rgba(224,222,244,0.8)]" />
-              </div>
-
-              <p className="mb-7 mt-0 max-w-[460px] text-[13px] leading-[1.7] text-[rgba(144,140,170,0.9)]">
-                {introText}
-              </p>
-
-              <section className="opacity-100">
-                <h2 className="mono mb-3 text-[9px] tracking-[0.22em] text-[rgba(49,116,143,0.55)]">
-                  /contact
-                </h2>
-                <ContactLinks items={contactItems} />
-              </section>
-            </section>
-
-            <section className="flex flex-col justify-center overflow-y-auto px-[max(24px,3vw)] py-8">
-              <h2 className="mono mb-[18px] text-[9px] tracking-[0.22em] text-[rgba(49,116,143,0.55)]">
-                /tech
-              </h2>
-              <TechSpecList items={techItems} />
-            </section>
-          </div>
+        <div className="mb-3 flex items-center gap-2.5">
+          <span className="mono text-[11px] text-[#444]">Istanbul, Türkiye</span>
+          <span className="h-[10px] w-px bg-[rgba(255,255,255,0.07)]" />
+          <span className="mono text-[11px] text-[#2e2e2e]">
+            <LiveClock
+              location="Europe/Istanbul"
+              shortName="UTC+3"
+              showAt={false}
+              timezoneClassName="text-[#252525]"
+            />
+          </span>
         </div>
+
+        <div className="mb-5 flex items-center gap-2">
+          <span className="mono text-[11px] text-[rgba(168,85,247,0.65)]">→</span>
+          <RotatingPrompt
+            className="mono text-[11px] text-[#555]"
+            words={["computer engineering student", "linux enjoyer", "web developer"]}
+          />
+          <span className="mono text-[11px] text-[rgba(168,85,247,0.55)] animate-pulse">_</span>
+        </div>
+
+        <p className="mb-5 text-[12px] leading-[1.75] text-[#444]">
+          {introText}
+        </p>
+
+        <ContactLinks items={contactItems} />
+      </section>
+
+      <section>
+        <div className="mb-5 flex items-center gap-3">
+          <span className="mono text-[9px] tracking-[0.25em] text-[rgba(168,85,247,0.55)] uppercase">
+            ./setup
+          </span>
+          <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
+        </div>
+
+        <div className="flex flex-col">
+          {techItems.map((item, i) => {
+            const Icon = iconFor(item.title);
+            return (
+              <div key={item.title}>
+                <div className="group flex items-center gap-4">
+                  <Icon size={13} className="shrink-0 text-[#282828]" />
+                  <span className="mono w-[180px] shrink-0 text-[12px] text-[rgba(255,255,255,0.7)] transition-colors duration-150 group-hover:text-[#a855f7]">
+                    {item.spec}
+                  </span>
+                  <span className="mono text-[11px] text-[#333] italic">
+                    // {item.description}
+                  </span>
+                </div>
+                {i < techItems.length - 1 && (
+                  <div className="my-4 h-px bg-[rgba(255,255,255,0.04)]" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
       </div>
     </PageShell>
   );
