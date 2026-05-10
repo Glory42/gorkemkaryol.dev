@@ -121,10 +121,19 @@ const SHELF_BY_SLUG_QUERY = `
   }
 `;
 
+const LITERAL_CACHE_KEY = "https://portfolio.cache/literal-data-v1";
+const LITERAL_CACHE_TTL = 600;
+
 export async function getLiteralData(
   runtimeEnv: RuntimeEnv,
   readingLimit = 3,
 ): Promise<ServiceResult<LiteralData>> {
+  const cache = (caches as unknown as { default: Cache }).default;
+  const cached = await cache.match(LITERAL_CACHE_KEY).catch(() => null);
+  if (cached) {
+    return (await cached.json()) as ServiceResult<LiteralData>;
+  }
+
   const envResult = requireLiteralEnv(runtimeEnv);
 
   if (!envResult.ok) {
@@ -236,7 +245,14 @@ export async function getLiteralData(
 
   const favoriteBooks = (shelfResult.data.data.data?.shelf?.books ?? []).slice(0, 2);
 
-  return ok({ currentlyReading, favoriteBooks });
+  const result = ok({ currentlyReading, favoriteBooks });
+  cache.put(
+    LITERAL_CACHE_KEY,
+    new Response(JSON.stringify(result), {
+      headers: { "Cache-Control": `max-age=${LITERAL_CACHE_TTL}` },
+    }),
+  ).catch(() => {});
+  return result;
 }
 
 export async function getCurrentlyReading(

@@ -42,9 +42,18 @@ export interface InterisData {
   profile: InterisProfile;
 }
 
+const INTERIS_CACHE_TTL = 300;
+
 export async function getInterisData(
   username: string,
 ): Promise<ServiceResult<InterisData>> {
+  const cacheKey = `https://portfolio.cache/interis-data-v1/${username}`;
+  const cache = (caches as unknown as { default: Cache }).default;
+  const cached = await cache.match(cacheKey).catch(() => null);
+  if (cached) {
+    return (await cached.json()) as ServiceResult<InterisData>;
+  }
+
   const [top4Result, profileResult] = await Promise.all([
     requestJsonWithRetry<Top4Response>({
       url: `${BASE}/${username}/top4`,
@@ -65,9 +74,16 @@ export async function getInterisData(
   const cinema = categories.find((c) => c.key === "cinema")?.items ?? [];
   const serial = categories.find((c) => c.key === "serial")?.items ?? [];
 
-  return ok({
+  const result = ok({
     cinema,
     serial,
     profile: profileResult.data.data,
   });
+  cache.put(
+    cacheKey,
+    new Response(JSON.stringify(result), {
+      headers: { "Cache-Control": `max-age=${INTERIS_CACHE_TTL}` },
+    }),
+  ).catch(() => {});
+  return result;
 }
