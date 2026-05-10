@@ -32,86 +32,76 @@ export const Route = createFileRoute("/projects/")({
   component: ProjectsPage,
 });
 
+function SectionHeader({ sig, label }: { sig: string; label: string }) {
+  return (
+    <div className="mb-6 flex items-center gap-3">
+      <span className="mono text-[9px] tracking-[0.25em] text-[rgba(168,85,247,0.55)] uppercase">
+        {sig}
+      </span>
+      <div className="h-px w-8 bg-gradient-to-r from-[rgba(168,85,247,0.42)] to-transparent" />
+      <span className="mono text-[9px] tracking-[0.2em] text-[rgba(255,255,255,0.45)] uppercase">
+        {label}
+      </span>
+      <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
+    </div>
+  );
+}
+
 function ProjectsPageSkeleton() {
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(20px,2.5vh)]">
+    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
       <section>
-        <header className="mb-10">
-          <div className="mb-2">
-            <span className="mono text-[9px] tracking-[0.25em] text-[rgba(49,116,143,0.5)]">
-              /contributions
-            </span>
+        <div className="mx-auto max-w-[900px]">
+        <p className="mono mb-6 text-[11px] text-[#252525]">~$ ls -la ./projects</p>
+        <section className="mb-8 animate-pulse">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="h-2 w-32 rounded bg-[rgba(255,255,255,0.04)]" />
+            <div className="h-px flex-1 bg-[rgba(255,255,255,0.04)]" />
           </div>
-          <h1 className="mono m-0 mb-[6px] text-[clamp(26px,5vw,44px)] font-bold tracking-[-0.01em] text-[rgb(224,222,244)]">
-            PROJECTS
-          </h1>
-          <p className="m-0 mt-0 max-w-[480px] text-[13px] leading-[1.65] text-[rgba(144,140,170,0.8)]">
-            Live GitHub repositories and contribution activity.
-          </p>
-        </header>
-
-        <section className="animate-pulse">
-          <div className="relative mb-5 flex flex-wrap items-center justify-between gap-3 border border-[rgba(64,61,82,0.7)] bg-[rgba(31,29,46,0.45)] px-5 py-4">
-            <div className="h-2.5 w-48 rounded bg-[rgba(64,61,82,0.55)]" />
-            <div className="h-2.5 w-24 rounded bg-[rgba(64,61,82,0.55)]" />
-          </div>
-          <div className="overflow-x-auto pb-1">
-            <div className="min-w-[820px]">
-              <div
-                className="grid w-full gap-[4px]"
-                style={{ gridTemplateColumns: "repeat(52, minmax(0, 1fr))" }}
-              >
-                {Array.from({ length: 52 }).map((_, w) => (
-                  <div key={w} className="grid grid-rows-7 gap-[4px]">
-                    {Array.from({ length: 7 }).map((_, d) => (
-                      <div
-                        key={d}
-                        className="aspect-square w-full border border-[rgba(64,61,82,0.6)] bg-[rgba(31,29,46,0.8)]"
-                      />
-                    ))}
-                  </div>
+          <div className="overflow-x-auto">
+          <div
+            className="grid"
+            style={{ gridTemplateColumns: "repeat(52, minmax(0, 1fr))", minWidth: `${52 * 13}px`, gap: "3px" }}
+          >
+            {Array.from({ length: 52 }).map((_, w) => (
+              <div key={w} className="grid grid-rows-7" style={{ gap: "3px" }}>
+                {Array.from({ length: 7 }).map((_, d) => (
+                  <div
+                    key={d}
+                    className="aspect-square w-full rounded-[2px]"
+                    style={{ backgroundColor: "rgba(255,255,255,0.03)" }}
+                  />
                 ))}
               </div>
-            </div>
+            ))}
+          </div>
           </div>
         </section>
 
-        <div className="mb-8 mt-8 h-px bg-[rgba(64,61,82,0.5)]" />
+        <div className="mb-8 h-px bg-[rgba(255,255,255,0.05)]" />
 
         <section>
-          <div className="mb-10 flex items-center gap-4">
-            <span className="mono text-[10px] tracking-[0.2em] text-[rgba(49,116,143,0.5)]">
-              /featured_projects
-            </span>
-            <div className="h-px w-10 bg-gradient-to-r from-[rgba(49,116,143,0.45)] to-transparent" />
-            <h2 className="mono m-0 text-[11px] font-normal uppercase tracking-[0.25em] text-[rgba(224,222,244,0.75)]">
-              Featured Projects
-            </h2>
-            <div className="h-px flex-1 bg-[rgba(64,61,82,0.8)]" />
-          </div>
-          <div className="grid animate-pulse grid-cols-[repeat(auto-fill,minmax(min(100%,340px),1fr))] gap-3">
+          <SectionHeader sig="/featured" label="Projects" />
+          <div className="flex animate-pulse flex-col">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="relative flex h-[190px] flex-col border border-[rgba(64,61,82,0.8)] bg-[rgba(31,29,46,0.55)] p-[22px]"
+                className="flex items-start gap-5 border-b border-[rgba(255,255,255,0.04)] py-5"
               >
-                <div className="mb-3 flex justify-between">
-                  <div className="h-2 w-12 rounded bg-[rgba(64,61,82,0.6)]" />
-                  <div className="h-2 w-8 rounded bg-[rgba(64,61,82,0.6)]" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="h-3 w-32 rounded bg-[rgba(255,255,255,0.04)]" />
+                  <div className="h-2 w-48 rounded bg-[rgba(255,255,255,0.03)]" />
+                  <div className="flex gap-2">
+                    <div className="h-4 w-14 rounded bg-[rgba(255,255,255,0.04)]" />
+                    <div className="h-4 w-14 rounded bg-[rgba(255,255,255,0.04)]" />
+                  </div>
                 </div>
-                <div className="mb-[10px] h-3 w-3/4 rounded bg-[rgba(64,61,82,0.6)]" />
-                <div className="mb-1.5 h-2 w-full rounded bg-[rgba(64,61,82,0.45)]" />
-                <div className="mb-1.5 h-2 w-5/6 rounded bg-[rgba(64,61,82,0.45)]" />
-                <div className="mb-4 h-2 w-2/3 rounded bg-[rgba(64,61,82,0.45)]" />
-                <div className="flex gap-1.5">
-                  <div className="h-4 w-12 rounded bg-[rgba(64,61,82,0.5)]" />
-                  <div className="h-4 w-16 rounded bg-[rgba(64,61,82,0.5)]" />
-                  <div className="h-4 w-10 rounded bg-[rgba(64,61,82,0.5)]" />
-                </div>
+                <div className="h-2 w-8 shrink-0 rounded bg-[rgba(255,255,255,0.04)]" />
               </div>
             ))}
           </div>
         </section>
+        </div>
       </section>
     </PageShell>
   );
@@ -121,44 +111,27 @@ function ProjectsPage() {
   const result = Route.useLoaderData();
 
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(20px,2.5vh)]">
+    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
       <section>
-        <header className="mb-10 opacity-100">
-          <div className="mb-2">
-            <span className="mono text-[9px] tracking-[0.25em] text-[rgba(49,116,143,0.5)]">
-              /contributions
-            </span>
-          </div>
-          <h1 className="mono m-0 mb-[6px] text-[clamp(26px,5vw,44px)] font-bold tracking-[-0.01em] text-[rgb(224,222,244)]">
-            PROJECTS
-          </h1>
-          <p className="m-0 mt-0 max-w-[480px] text-[13px] leading-[1.65] text-[rgba(144,140,170,0.8)]">
-            Live GitHub repositories and contribution activity.
-          </p>
-        </header>
-
         {!result.ok ? (
-          <ErrorPanel title="GitHub API Unavailable" error={result.error} />
-        ) : (
           <>
-            <ContributionGrid
-              username={result.data.username}
-              calendar={result.data.contributions}
-            />
+            <p className="mono mb-6 text-[11px] text-[#252525]">~$ ls -la ./projects</p>
+            <ErrorPanel title="GitHub API Unavailable" error={result.error} />
+          </>
+        ) : (
+          <div className="mx-auto max-w-[900px]">
+            <p className="mono mb-6 text-[11px] text-[#252525]">~$ ls -la ./projects</p>
+            <section className="mb-8">
+              <ContributionGrid
+                username={result.data.username}
+                calendar={result.data.contributions}
+              />
+            </section>
 
-            <div className="mb-8 mt-8 h-px bg-[rgba(64,61,82,0.5)]" />
+            <div className="mb-8 h-px bg-[rgba(255,255,255,0.05)]" />
 
             <section>
-              <div className="mb-10 flex items-center gap-4">
-                <span className="mono text-[10px] tracking-[0.2em] text-[rgba(49,116,143,0.5)]">
-                  /featured_projects
-                </span>
-                <div className="h-px w-10 bg-gradient-to-r from-[rgba(49,116,143,0.45)] to-transparent" />
-                <h2 className="mono m-0 text-[11px] font-normal uppercase tracking-[0.25em] text-[rgba(224,222,244,0.75)]">
-                  Featured Projects
-                </h2>
-                <div className="h-px flex-1 bg-[rgba(64,61,82,0.8)]" />
-              </div>
+              <SectionHeader sig="/featured" label="Projects" />
 
               {result.data.projects.length === 0 ? (
                 <EmptyState
@@ -169,7 +142,7 @@ function ProjectsPage() {
                 <ProjectsGrid repos={result.data.projects} />
               )}
             </section>
-          </>
+          </div>
         )}
       </section>
     </PageShell>
