@@ -9,7 +9,10 @@ import { getRepoReadmeData } from "@/server/github";
 import { renderMarkdownToHTML } from "@/server/markdown";
 
 const getRepoReadmeServerFn = createServerFn({ method: "GET" })
-  .inputValidator((data: string) => data)
+  .inputValidator((data: string) => {
+    if (!/^[a-zA-Z0-9_.-]+$/.test(data)) throw new Error("Invalid slug");
+    return data;
+  })
   .handler(async ({ data: slug }) => {
     const runtimeEnv = readRuntimeEnv(workerEnv);
     const readmeData = await getRepoReadmeData(slug, runtimeEnv);

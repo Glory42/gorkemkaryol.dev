@@ -1,5 +1,13 @@
 import { Marked } from "marked";
 
+function escapeAttr(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 function buildMarked(
   owner: string,
   repo: string,
@@ -28,19 +36,21 @@ function buildMarked(
   instance.use({
     renderer: {
       image({ href, title, text }) {
-        const src = resolveUrl(href ?? "", true);
-        const titleAttr = title ? ` title="${title}"` : "";
-        return `<img src="${src}" alt="${text ?? ""}"${titleAttr} loading="lazy" />`;
+        const src = escapeAttr(resolveUrl(href ?? "", true));
+        const alt = escapeAttr(text ?? "");
+        const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
+        return `<img src="${src}" alt="${alt}"${titleAttr} loading="lazy" />`;
       },
       link({ href, title, text }) {
         const resolved = resolveUrl(href ?? "", false);
         const isExternal =
           resolved.startsWith("http://") || resolved.startsWith("https://");
-        const titleAttr = title ? ` title="${title}"` : "";
+        const safeHref = escapeAttr(resolved);
+        const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
         const externalAttrs = isExternal
           ? ` target="_blank" rel="noopener noreferrer nofollow"`
           : "";
-        return `<a href="${resolved}"${titleAttr}${externalAttrs}>${text}</a>`;
+        return `<a href="${safeHref}"${titleAttr}${externalAttrs}>${text}</a>`;
       },
     },
   });
