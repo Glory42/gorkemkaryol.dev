@@ -1,34 +1,6 @@
 export const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w185";
 export const INTERIS_BASE = "https://interis.gorkemkaryol.dev";
 
-export interface SkillGroup {
-  category: string;
-  skills: string[];
-}
-
-export const skillGroups: SkillGroup[] = [
-  {
-    category: "Languages",
-    skills: ["TypeScript", "JavaScript", "Python", "Go", "SQL"],
-  },
-  {
-    category: "Backend",
-    skills: ["Node.js", "Bun", "Express", "REST APIs", "API Documentation"],
-  },
-  {
-    category: "Frontend",
-    skills: ["React", "Next.js", "Astro", "TailwindCSS"],
-  },
-  {
-    category: "Database",
-    skills: ["PostgreSQL", "Redis"],
-  },
-  {
-    category: "Infrastructure",
-    skills: ["Linux", "Docker", "Cloudflare", "Dokploy", "Git"],
-  },
-];
-
 export interface NavigationItem {
   href: "/" | "/projects" | "/interests" | "/experience" | "/cool";
   label: string;

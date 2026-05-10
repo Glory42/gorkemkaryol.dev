@@ -77,32 +77,6 @@ a {
   top: 1rem;
 }
 
-.book-trace {
-  fill: none;
-  stroke: rgba(168, 85, 247, 0.9);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-  stroke-dasharray: 18 82;
-  stroke-dashoffset: 0;
-  opacity: 0;
-  transition: opacity var(--motion-fast) linear;
-}
-
-.book-card:hover .book-trace {
-  opacity: 1;
-  animation: book-trace-loop 1.2s linear infinite;
-}
-
-@keyframes book-trace-loop {
-  from {
-    stroke-dashoffset: 0;
-  }
-
-  to {
-    stroke-dashoffset: -100;
-  }
-}
-
 .readme-prose {
   color: rgba(255, 255, 255, 0.45);
   font-size: 0.875rem;
@@ -223,12 +197,5 @@ a {
     animation: none !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-
-  .book-card:hover .book-trace {
-    animation: none !important;
-    stroke-dasharray: 100;
-    stroke-dashoffset: 0;
-    opacity: 1;
   }
 }

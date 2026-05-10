@@ -189,11 +189,11 @@ function InterestsPage() {
                 <>
                   <div>
                     <SubLabel label="Films" icon={Film} />
-                    <Top4Grid items={interis.data.cinema.slice(0, 2)} verticalLabel="FILM" />
+                    <Top4Grid items={interis.data.cinema.slice(0, 2)} />
                   </div>
                   <div>
                     <SubLabel label="Series" icon={Tv} />
-                    <Top4Grid items={interis.data.serial.slice(0, 2)} verticalLabel="SERIES" />
+                    <Top4Grid items={interis.data.serial.slice(0, 2)} />
                   </div>
                 </>
               )}
@@ -230,7 +230,7 @@ function InterestsPage() {
               <div>
                 <SubLabel label="Books" icon={BookOpen} />
                 {books.ok ? (
-                  <BooksShelf books={books.data.favoriteBooks} verticalLabel="BOOK" />
+                  <BooksShelf books={books.data.favoriteBooks} />
                 ) : (
                   <ErrorPanel title="Literal API Unavailable" error={books.error} />
                 )}

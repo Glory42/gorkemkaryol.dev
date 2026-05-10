@@ -9,7 +9,6 @@ function interisUrl(item: InterisTop4Item): string | null {
 
 interface Props {
   items: InterisTop4Item[];
-  verticalLabel: string;
 }
 
 export function Top4Grid({ items }: Props) {

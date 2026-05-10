@@ -3,7 +3,6 @@ import { EmptyState } from "@/components/ui/EmptyState";
 
 interface Props {
   books: LiteralBook[];
-  verticalLabel?: string;
 }
 
 export function BooksShelf({ books }: Props) {
