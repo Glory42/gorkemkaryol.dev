@@ -8,6 +8,7 @@ import {
 
 export interface LiteralBook {
   id: string;
+  slug: string;
   title: string;
   cover: string;
   authors: Array<{ name: string }>;
@@ -44,6 +45,7 @@ interface LoginMutationData {
 interface ReadingQueryData {
   booksByReadingStateAndProfile?: Array<{
     id: string;
+    slug: string;
     title: string;
     cover: string;
     authors: Array<{ name: string }>;
@@ -56,6 +58,7 @@ interface ShelfBySlugQueryData {
     slug: string;
     books: Array<{
       id: string;
+      slug: string;
       title: string;
       cover: string;
       authors: Array<{ name: string }>;
@@ -90,6 +93,7 @@ const CURRENTLY_READING_QUERY = `
       profileId: $profileId
     ) {
       id
+      slug
       title
       cover
       authors {
@@ -106,6 +110,7 @@ const SHELF_BY_SLUG_QUERY = `
       slug
       books {
         id
+        slug
         title
         cover
         authors {
