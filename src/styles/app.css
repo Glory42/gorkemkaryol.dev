@@ -32,8 +32,8 @@ a {
 }
 
 ::selection {
-  background: rgba(196, 167, 231, 0.35);
-  color: #f8f7ff;
+  background: rgba(168, 85, 247, 0.42);
+  color: #ffffff;
 }
 
 .shell-grid {
@@ -42,8 +42,8 @@ a {
   pointer-events: none;
   z-index: -1;
   background-image:
-    linear-gradient(rgba(49, 116, 143, 0.016) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(49, 116, 143, 0.016) 1px, transparent 1px);
+    linear-gradient(rgba(168, 85, 247, 0.013) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 85, 247, 0.013) 1px, transparent 1px);
   background-size: 44px 44px;
 }
 
@@ -79,7 +79,7 @@ a {
 
 .book-trace {
   fill: none;
-  stroke: rgba(196, 167, 231, 0.95);
+  stroke: rgba(168, 85, 247, 0.9);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
   stroke-dasharray: 18 82;
@@ -104,30 +104,33 @@ a {
 }
 
 .readme-prose {
-  color: var(--text-2);
-  font-size: 0.95rem;
-  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.875rem;
+  line-height: 1.75;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
 }
 
 .readme-prose h1,
 .readme-prose h2,
 .readme-prose h3,
 .readme-prose h4 {
-  color: var(--text-1);
+  color: rgba(255, 255, 255, 0.85);
   font-family: "JetBrains Mono", ui-monospace, monospace;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
   margin-top: 1.5em;
   margin-bottom: 0.5em;
 }
 
 .readme-prose h1 {
-  font-size: 1.5rem;
+  font-size: clamp(1.1rem, 4vw, 1.4rem);
 }
 .readme-prose h2 {
-  font-size: 1.25rem;
+  font-size: clamp(1rem, 3vw, 1.15rem);
 }
 .readme-prose h3 {
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
 .readme-prose p {
@@ -135,21 +138,25 @@ a {
 }
 
 .readme-prose a {
-  color: var(--accent-cyan);
+  color: rgba(168, 85, 247, 0.88);
   text-underline-offset: 3px;
+}
+
+.readme-prose a:hover {
+  color: #a855f7;
 }
 
 .readme-prose code {
   font-family: "JetBrains Mono", ui-monospace, monospace;
   font-size: 0.875em;
-  border: 1px solid var(--border-soft);
-  background: rgba(5, 11, 18, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
   padding: 0.1rem 0.35rem;
 }
 
 .readme-prose pre {
-  border: 1px solid var(--border-soft);
-  background: rgba(4, 10, 16, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
   padding: 1rem;
   overflow-x: auto;
   margin: 1em 0;
@@ -163,15 +170,15 @@ a {
 
 .readme-prose img {
   max-width: 100%;
-  border: 1px solid var(--border-soft);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   margin: 0.5em 0;
 }
 
 .readme-prose blockquote {
-  border-left: 3px solid var(--accent-cyan);
+  border-left: 2px solid rgba(168, 85, 247, 0.55);
   margin-left: 0;
   padding-left: 1rem;
-  color: var(--text-3);
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .readme-prose ul,
@@ -194,18 +201,18 @@ a {
 
 .readme-prose table th,
 .readme-prose table td {
-  border: 1px solid var(--border-soft);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   padding: 0.45rem 0.6rem;
   text-align: left;
 }
 
 .readme-prose table th {
-  color: var(--text-1);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .readme-prose hr {
   border: none;
-  border-top: 1px solid var(--border-soft);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
   margin: 1.5em 0;
 }
 
