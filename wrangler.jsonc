@@ -7,4 +7,7 @@
   "assets": {
     "directory": ".output/public",
   },
+  "vars": {
+    "INTERIS_USERNAME": "glory42",
+  },
 }
