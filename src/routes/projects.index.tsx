@@ -32,15 +32,11 @@ export const Route = createFileRoute("/projects/")({
   component: ProjectsPage,
 });
 
-function SectionHeader({ sig, label }: { sig: string; label: string }) {
+function SectionHeader({ sig }: { sig: string; label?: string }) {
   return (
     <div className="mb-6 flex items-center gap-3">
       <span className="mono text-[9px] tracking-[0.25em] text-[rgba(168,85,247,0.55)] uppercase">
         {sig}
-      </span>
-      <div className="h-px w-8 bg-gradient-to-r from-[rgba(168,85,247,0.42)] to-transparent" />
-      <span className="mono text-[9px] tracking-[0.2em] text-[rgba(255,255,255,0.45)] uppercase">
-        {label}
       </span>
       <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
     </div>
@@ -131,7 +127,7 @@ function ProjectsPage() {
             <div className="mb-8 h-px bg-[rgba(255,255,255,0.05)]" />
 
             <section>
-              <SectionHeader sig="/featured" label="Projects" />
+              <SectionHeader sig="./projects/featured" />
 
               {result.data.projects.length === 0 ? (
                 <EmptyState

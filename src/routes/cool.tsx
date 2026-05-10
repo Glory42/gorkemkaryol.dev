@@ -27,16 +27,9 @@ function CoolPage() {
   const [active, setActive] = useState<GameId>("snake");
 
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
+    <PageShell mainClassName="px-[max(24px,4vw)] pb-8 pt-[max(12px,1.5vh)]">
       <section className="mx-auto max-w-[900px]">
         <p className="mono mb-5 text-[11px] text-[#252525]">~$ cd ./cool</p>
-
-        <div className="mb-5 flex items-center gap-3">
-          <span className="mono text-[9px] tracking-[0.25em] text-[rgba(168,85,247,0.55)] uppercase">
-            ./cool
-          </span>
-          <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
-        </div>
 
         <div className="mb-8 flex gap-2">
           {GAMES.map(g => (
@@ -54,7 +47,7 @@ function CoolPage() {
           ))}
         </div>
 
-        <div className="flex min-h-[560px] items-center justify-center">
+        <div className="flex min-h-[480px] items-center justify-center">
           {active === "snake" && <SnakeGame />}
           {active === "flappy" && <FlappyGame />}
           {active === "tetris" && <TetrisGame />}

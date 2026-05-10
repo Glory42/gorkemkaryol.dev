@@ -87,13 +87,10 @@ function SkeletonItem() {
 
 function InterestsPageSkeleton() {
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
+    <PageShell mainClassName="px-[max(24px,4vw)] pb-10 pt-[max(12px,1.5vh)]">
       <section className="mx-auto max-w-[900px] animate-pulse">
-        <p className="mono mb-5 text-[11px] text-[#252525]">~$ cat ./interests</p>
-        <div className="mb-4 flex items-center gap-3">
-          <div className="h-2 w-28 rounded bg-[rgba(255,255,255,0.04)]" />
-          <div className="h-px flex-1 bg-[rgba(255,255,255,0.04)]" />
-        </div>
+        <p className="mono mb-2 text-[11px] text-[#252525]">~$ ls ./interests</p>
+        <div className="mb-5 h-2 w-24 rounded bg-[rgba(255,255,255,0.03)]" />
         <div className="mb-8 h-2 w-3/4 max-w-[480px] rounded bg-[rgba(255,255,255,0.03)]" />
 
         <div className="flex flex-col gap-8 md:flex-row md:gap-10">
@@ -153,14 +150,16 @@ function InterestsPage() {
     : undefined;
 
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
+    <PageShell mainClassName="px-[max(24px,4vw)] pb-10 pt-[max(12px,1.5vh)]">
       <section className="mx-auto max-w-[900px]">
-        <p className="mono mb-5 text-[11px] text-[#252525]">~$ cat ./interests</p>
-
-        <SectionLabel label="./interests" meta={statsMeta} />
+        <p className="mono mb-2 text-[11px] text-[#252525]">~$ ls ./interests</p>
+        {statsMeta && (
+          <p className="mono mb-3 text-[10px] text-[rgba(168,85,247,0.45)]">{statsMeta}</p>
+        )}
+        {!statsMeta && <div className="mb-3" />}
 
         {interestsIntro && (
-          <p className="mb-8 text-[12px] leading-[1.75] text-[#444]">
+          <p className="mb-6 text-[12px] leading-[1.75] text-[#444]">
             {interestsIntro}
           </p>
         )}
@@ -168,7 +167,7 @@ function InterestsPage() {
         <div className="flex flex-col gap-8 md:flex-row md:gap-10">
           {/* Left: currently reading */}
           <div className="w-full md:w-[200px] md:shrink-0">
-            <SectionLabel label="./reading" />
+            <SectionLabel label="./interests/reading" />
             {!books.ok ? (
               <ErrorPanel title="Literal API Unavailable" error={books.error} />
             ) : (
@@ -178,7 +177,7 @@ function InterestsPage() {
 
           {/* Right: favorites */}
           <div className="min-w-0 flex-1">
-            <SectionLabel label="./favorites" />
+            <SectionLabel label="./interests/favorites" />
 
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
               {!interis.ok ? (
