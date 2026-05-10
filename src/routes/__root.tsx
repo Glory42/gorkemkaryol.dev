@@ -52,7 +52,7 @@ function RootComponent() {
       </a>
       <div className="shell-grid" />
       <Navbar />
-      <div className="flex-1 pt-[52px]">
+      <div className="flex-1 pt-[48px]">
         <Outlet />
       </div>
       <FooterBadge />
