@@ -7,7 +7,7 @@ interface Props {
 
 export function ContactLinks({ items }: Props) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap items-center gap-5">
       {items.map((item) => {
         const external =
           item.href.startsWith("http") || item.href.startsWith("mailto:");
@@ -18,7 +18,7 @@ export function ContactLinks({ items }: Props) {
             href={item.href}
             target={external ? "_blank" : undefined}
             rel={external ? "noopener noreferrer" : undefined}
-            className="focus-ring mono inline-flex items-center gap-1.5 border border-[rgba(64,61,82,0.8)] bg-[rgba(31,29,46,0.5)] px-[11px] py-[5px] text-[10px] tracking-[0.1em] text-[rgba(224,222,244,0.6)] no-underline transition hover:border-[rgba(196,167,231,0.35)] hover:text-[rgba(224,222,244,0.9)]"
+            className="focus-ring mono inline-flex items-center gap-1.5 text-[11px] tracking-[0.06em] text-[#555] no-underline transition-colors duration-150 hover:text-white"
           >
             {item.icon === "github" ? (
               <svg
@@ -54,11 +54,10 @@ export function ContactLinks({ items }: Props) {
                 <circle cx="4" cy="4" r="2" />
               </svg>
             ) : item.icon === "mail" ? (
-              <Mail size={11} />
+              <Mail size={11} aria-hidden="true" />
             ) : (
-              <FileText size={11} />
+              <FileText size={11} aria-hidden="true" />
             )}
-
             {item.label}
           </a>
         );

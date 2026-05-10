@@ -16,12 +16,12 @@ export function ErrorPanel({ title, error }: Props) {
       <p className="mono mb-2 text-[10px] uppercase tracking-[0.16em] text-[rgba(235,111,146,0.9)]">
         {title}
       </p>
-      <p className="m-0 text-[12px] leading-[1.6] text-[rgba(224,222,244,0.85)]">
+      <p className="m-0 text-[12px] leading-[1.6] text-[rgba(255,255,255,0.75)]">
         {error.message}
       </p>
 
       {error.details ? (
-        <p className="mono mt-3 text-[10px] leading-[1.5] text-[rgba(235,188,186,0.78)]">
+        <p className="mono mt-3 text-[10px] leading-[1.5] text-[#666]">
           {error.details}
         </p>
       ) : null}
