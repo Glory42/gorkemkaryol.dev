@@ -6,77 +6,55 @@ interface Props {
 
 export function ExperienceTimeline({ items }: Props) {
   return (
-    <div className="relative">
-      <div className="absolute bottom-0 left-[11px] top-0 w-px bg-gradient-to-b from-[rgba(49,116,143,0.4)] to-[rgba(49,116,143,0.03)]" />
-
-      <div className="flex flex-col gap-[18px]">
-        {items.map((item, index) => {
-          const expId = String(index + 1).padStart(3, "0");
-
-          return (
-            <div key={`${item.role}-${item.company}`} className="flex gap-5">
-              <div className="mt-[6px] shrink-0">
-                <div className="flex h-6 w-6 items-center justify-center border border-[rgba(49,116,143,0.45)] bg-[rgb(25,23,36)]">
-                  <span className="h-[6px] w-[6px] bg-[rgb(49,116,143)]" />
-                </div>
+    <div className="flex flex-col">
+      {items.map((item, index) => (
+        <div key={`${item.role}-${item.company}`}>
+          <div className="group py-5">
+            <div className="mb-2 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="text-[16px] font-bold leading-[1.25] text-white transition-colors duration-150 group-hover:text-[#a855f7]">
+                  {item.role}
+                </h3>
+                <p className="mono mt-1 text-[12px] text-[rgba(168,85,247,0.75)]">
+                  {item.company}
+                </p>
               </div>
-
-              <article className="book-card group relative flex-1 border border-[rgba(64,61,82,0.8)] bg-[rgba(31,29,46,0.5)] px-[22px] py-5">
-                <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                  <rect className="book-trace" x="0.5" y="0.5" width="99" height="99" pathLength="100" />
-                </svg>
-                <span className="pointer-events-none absolute left-0 top-0 h-[6px] w-[6px] border-l border-t border-[rgba(49,116,143,0.22)]" />
-                <span className="pointer-events-none absolute right-0 top-0 h-[6px] w-[6px] border-r border-t border-[rgba(49,116,143,0.22)]" />
-                <span className="pointer-events-none absolute bottom-0 left-0 h-[6px] w-[6px] border-b border-l border-[rgba(49,116,143,0.22)]" />
-                <span className="pointer-events-none absolute bottom-0 right-0 h-[6px] w-[6px] border-b border-r border-[rgba(49,116,143,0.22)]" />
-
-                <div className="mb-4 flex flex-wrap items-start justify-between gap-[10px]">
-                  <div>
-                    <p className="mono mb-[5px] text-[8px] tracking-[0.15em] text-[rgba(110,106,134,0.65)]">
-                      EXP-{expId}
-                    </p>
-                    <h3 className="mono mb-1 text-[14px] font-semibold leading-[1.3] tracking-[0.03em] text-[rgb(224,222,244)] transition-colors duration-200 group-hover:text-[rgb(196,167,231)]">
-                      {item.role}
-                    </h3>
-                    <p className="mono m-0 text-[11px] text-[rgba(156,207,216,0.8)]">
-                      {item.company}
-                    </p>
-                  </div>
-
-                  <p className="mono shrink-0 self-start whitespace-nowrap border border-[rgba(64,61,82,0.9)] bg-[rgba(38,35,58,0.3)] px-[9px] py-1 text-[9px] tracking-[0.1em] text-[rgba(110,106,134,0.7)]">
-                    {item.date}
-                  </p>
-                </div>
-
-                <ul className="mb-4 ml-0 list-none p-0">
-                  {item.description.map((line) => (
-                    <li key={line} className="mb-[7px] flex items-start gap-[10px]">
-                      <span className="mono mt-[2px] shrink-0 text-[10px] text-[rgba(49,116,143,0.55)]">
-                        ›
-                      </span>
-                      <span className="text-[12px] leading-[1.6] text-[rgba(144,140,170,0.88)]">
-                        {line}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="flex flex-wrap gap-[5px]">
-                  {item.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="mono border border-[rgba(49,116,143,0.2)] px-1.5 py-[2px] text-[8px] tracking-[0.1em] text-[rgba(49,116,143,0.75)]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <span className="absolute bottom-0 left-0 right-0 h-px origin-left scale-x-0 bg-[rgb(196,167,231)] transition-transform duration-200 group-hover:scale-x-100" />
-              </article>
+              <div className="flex flex-col items-end gap-1.5">
+                <span className="mono text-[11px] text-[#444]">{item.date}</span>
+                {item.type && (
+                  <span className="mono border border-[rgba(255,255,255,0.08)] px-2 py-[2px] text-[8px] tracking-[0.1em] text-[#444]">
+                    {item.type}
+                  </span>
+                )}
+              </div>
             </div>
-          );
-        })}
-      </div>
+
+            <ul className="mb-3 ml-0 list-none space-y-[5px] p-0">
+              {item.description.map((line) => (
+                <li key={line} className="flex items-start gap-3">
+                  <span className="mono mt-[3px] shrink-0 text-[11px] text-[#333]">–</span>
+                  <span className="text-[13px] leading-[1.65] text-[#555]">{line}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex flex-wrap gap-[5px]">
+              {item.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="mono border border-[rgba(168,85,247,0.22)] px-1.5 py-[2px] text-[8px] tracking-[0.1em] text-[rgba(168,85,247,0.65)]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {index < items.length - 1 && (
+            <div className="h-px bg-[rgba(255,255,255,0.04)]" />
+          )}
+        </div>
+      ))}
     </div>
   );
 }
