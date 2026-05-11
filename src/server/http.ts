@@ -50,6 +50,11 @@ function isAbortError(error: unknown): boolean {
   return error instanceof DOMException && error.name === "AbortError";
 }
 
+function isClientDisconnect(error: unknown): boolean {
+  return error instanceof TypeError &&
+    error.message.includes("client disconnected");
+}
+
 export function fail<T>(error: ServiceError): ServiceResult<T> {
   return { ok: false, error };
 }
@@ -122,19 +127,28 @@ export async function requestJsonWithRetry<T>(
         });
       }
     } catch (error) {
-      const retryable = attempt < attempts - 1;
-
-      if (retryable) {
-        await delay(150 * (attempt + 1));
-        continue;
-      }
-
       if (isAbortError(error)) {
         return fail({
           code: "TIMEOUT",
           message: `Request timed out after ${timeoutMs}ms`,
           retryable: true,
         });
+      }
+
+      if (isClientDisconnect(error)) {
+        return fail({
+          code: "NETWORK_ERROR",
+          message: "Client disconnected",
+          retryable: false,
+          details: toErrorMessage(error),
+        });
+      }
+
+      const retryable = attempt < attempts - 1;
+
+      if (retryable) {
+        await delay(150 * (attempt + 1));
+        continue;
       }
 
       return fail({
