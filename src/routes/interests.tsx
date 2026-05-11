@@ -135,18 +135,8 @@ function InterestsPageSkeleton() {
 function InterestsPage() {
   const { literal: books, interis } = Route.useLoaderData();
 
-  const seriesCount = interis.ok
-    ? interis.data.profile.stats.entryCount -
-      interis.data.profile.stats.filmCount
-    : null;
-
   const statsMeta = interis.ok
-    ? [
-        `${interis.data.profile.stats.filmCount} films`,
-        seriesCount && seriesCount > 0 ? `${seriesCount} series` : null,
-      ]
-        .filter(Boolean)
-        .join(" · ")
+    ? `${interis.data.profile.stats.filmCount} films watched`
     : undefined;
 
   return (
