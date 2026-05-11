@@ -65,7 +65,14 @@ export const workExperiences: ExperienceItem[] = [
       "Reduced AI payload sizes by 90% by implementing Cloudflare Images for on-the-fly compression of R2 storage assets.",
       "Designed a strict, type-safe Turborepo monorepo with Drizzle ORM and optimized frontend rendering state with TanStack Query, eliminating race conditions during real-time image generation.",
     ],
-    tags: ["Bun.js", "React", "TypeScript", "Drizzle ORM", "TanStack Query", "Cloudflare"],
+    tags: [
+      "Bun.js",
+      "React",
+      "TypeScript",
+      "Drizzle ORM",
+      "TanStack Query",
+      "Cloudflare",
+    ],
   },
   {
     role: "Cyber Security Intern",
@@ -140,6 +147,14 @@ export const interestsIntro =
   "This page captures the things I keep coming back to. Books, films, and series shape how I think, while basketball and skateboarding keep me moving. Recently, I’ve been building habits around the gym and playing guitar. Slow progress, but consistent.";
 
 export const favoriteBands: BandItem[] = [
-  { name: "Radiohead", image: "/radiohead.jpg", url: "https://radiohead.com/" },
-  { name: "Deftones", image: "/deftones.jpg", url: "https://www.deftones.com/" },
+  {
+    name: "Radiohead",
+    image: "/radiohead.jpg",
+    url: "https://radiohead.com/",
+  },
+  {
+    name: "Deftones",
+    image: "/deftones.jpg",
+    url: "https://www.deftones.com/",
+  },
 ];
