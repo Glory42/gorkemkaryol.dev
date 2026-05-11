@@ -34,10 +34,6 @@ INTERIS_USERNAME=...   # your Interis username, used to fetch top films/series
 
 All API secrets are server-only and read from Workers runtime bindings at request time.
 
-## Caching
-
-Literal and Interis API responses are cached at the Cloudflare edge using `caches.default` (10 min and 5 min TTL respectively), so repeated page loads in the same datacenter skip all upstream round trips.
-
 ## Development
 
 ```bash

@@ -121,27 +121,10 @@ const SHELF_BY_SLUG_QUERY = `
   }
 `;
 
-const LITERAL_CACHE_KEY = "https://portfolio.cache/literal-data-v1";
-const LITERAL_CACHE_TTL = 600;
-const LITERAL_TOKEN_CACHE_KEY = "https://portfolio.cache/literal-token-v1";
-const LITERAL_TOKEN_CACHE_TTL = 3600;
-
-interface CachedToken {
-  token: string;
-  profileId: string;
-}
-
 async function getLiteralToken(
-  cache: Cache,
   email: string,
   password: string,
-): Promise<ServiceResult<CachedToken>> {
-  const cached = await cache.match(LITERAL_TOKEN_CACHE_KEY).catch(() => null);
-  if (cached) {
-    const result = await cached.json().catch(() => null) as CachedToken | null;
-    if (result?.token && result?.profileId) return ok(result);
-  }
-
+): Promise<ServiceResult<{ token: string; profileId: string }>> {
   const loginResult = await requestJsonWithRetry<
     GraphQLResponse<LoginMutationData>
   >({
@@ -180,28 +163,13 @@ async function getLiteralToken(
     });
   }
 
-  const tokenData: CachedToken = { token, profileId };
-  cache.put(
-    LITERAL_TOKEN_CACHE_KEY,
-    new Response(JSON.stringify(tokenData), {
-      headers: { "Cache-Control": `max-age=${LITERAL_TOKEN_CACHE_TTL}` },
-    }),
-  ).catch(() => {});
-
-  return ok(tokenData);
+  return ok({ token, profileId });
 }
 
 export async function getLiteralData(
   runtimeEnv: RuntimeEnv,
   readingLimit = 3,
 ): Promise<ServiceResult<LiteralData>> {
-  const cache = (caches as unknown as { default: Cache }).default;
-  const cached = await cache.match(LITERAL_CACHE_KEY).catch(() => null);
-  if (cached) {
-    const result = await cached.json().catch(() => null);
-    if (result) return result as ServiceResult<LiteralData>;
-  }
-
   const envResult = requireLiteralEnv(runtimeEnv);
 
   if (!envResult.ok) {
@@ -215,7 +183,7 @@ export async function getLiteralData(
 
   const { LITERAL_EMAIL, LITERAL_PASSWORD } = envResult.data;
 
-  const tokenResult = await getLiteralToken(cache, LITERAL_EMAIL, LITERAL_PASSWORD);
+  const tokenResult = await getLiteralToken(LITERAL_EMAIL, LITERAL_PASSWORD);
   if (!tokenResult.ok) return tokenResult;
 
   const { token, profileId } = tokenResult.data;
@@ -280,14 +248,7 @@ export async function getLiteralData(
 
   const favoriteBooks = (shelfResult.data.data.data?.shelf?.books ?? []).slice(0, 2);
 
-  const result = ok({ currentlyReading, favoriteBooks });
-  cache.put(
-    LITERAL_CACHE_KEY,
-    new Response(JSON.stringify(result), {
-      headers: { "Cache-Control": `max-age=${LITERAL_CACHE_TTL}` },
-    }),
-  ).catch(() => {});
-  return result;
+  return ok({ currentlyReading, favoriteBooks });
 }
 
 export async function getCurrentlyReading(
