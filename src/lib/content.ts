@@ -52,7 +52,7 @@ export const workExperiences: ExperienceItem[] = [
       "Designed cross-application DM integration flows between interconnected platforms while minimizing changes to existing real-time messaging infrastructure.",
       "Improved frontend UX and permission handling for private community systems, including request-state management and protected navigation flows.",
     ],
-    tags: ["React", "Next.js", "TypeScript"],
+    tags: ["React", "Next.js", "TypeScript", "WebSocket"],
   },
   {
     role: "Full Stack Engineer",
