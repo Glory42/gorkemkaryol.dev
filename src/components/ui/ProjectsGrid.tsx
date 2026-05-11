@@ -16,7 +16,7 @@ export function ProjectsGrid({ repos }: Props) {
         return (
           <div
             key={repo.url}
-            className="group flex items-start gap-5 border-b border-[rgba(255,255,255,0.04)] py-5"
+            className="group flex items-start gap-5 border-b border-[rgba(255,255,255,0.04)] pb-5 pt-5 first:pt-0"
           >
             <div className="min-w-0 flex-1">
               <Link

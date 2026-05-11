@@ -34,7 +34,7 @@ export const Route = createFileRoute("/projects/")({
 
 function SectionHeader({ sig }: { sig: string; label?: string }) {
   return (
-    <div className="mb-6 flex items-center gap-3">
+    <div className="mb-4 flex items-center gap-3">
       <span className="mono text-[9px] tracking-[0.25em] text-[rgba(168,85,247,0.55)] uppercase">
         {sig}
       </span>
