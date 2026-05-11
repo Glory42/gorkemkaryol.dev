@@ -51,7 +51,8 @@ export async function getInterisData(
   const cache = (caches as unknown as { default: Cache }).default;
   const cached = await cache.match(cacheKey).catch(() => null);
   if (cached) {
-    return (await cached.json()) as ServiceResult<InterisData>;
+    const result = await cached.json().catch(() => null);
+    if (result) return result as ServiceResult<InterisData>;
   }
 
   const [top4Result, profileResult] = await Promise.all([

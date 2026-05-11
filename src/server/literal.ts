@@ -131,7 +131,8 @@ export async function getLiteralData(
   const cache = (caches as unknown as { default: Cache }).default;
   const cached = await cache.match(LITERAL_CACHE_KEY).catch(() => null);
   if (cached) {
-    return (await cached.json()) as ServiceResult<LiteralData>;
+    const result = await cached.json().catch(() => null);
+    if (result) return result as ServiceResult<LiteralData>;
   }
 
   const envResult = requireLiteralEnv(runtimeEnv);
