@@ -174,7 +174,7 @@ export function SnakeGame() {
           </div>
         )}
       </div>
-      <p className="mono text-[9px] text-[rgba(168,85,247,0.45)]">score — {ui.score}</p>
+      {ui.phase !== "idle" && <p className="mono text-[9px] text-[rgba(168,85,247,0.45)]">score — {ui.score}</p>}
     </div>
   );
 }
