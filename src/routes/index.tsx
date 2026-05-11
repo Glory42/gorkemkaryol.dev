@@ -26,7 +26,7 @@ function iconFor(title: string) {
 
 function HomePage() {
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pt-[max(24px,4vh)] pb-16">
+    <PageShell mainClassName="px-[max(24px,4vw)] pt-3 pb-16 md:pt-[max(24px,4vh)]">
       <div className="mx-auto max-w-[680px]">
       <p className="mono mb-5 text-[11px] text-[#252525]">~$ whoami</p>
       <section className="mb-10">
@@ -49,11 +49,13 @@ function HomePage() {
 
         <div className="mb-5 flex items-center gap-2">
           <span className="mono text-[11px] text-[rgba(168,85,247,0.65)]">→</span>
-          <RotatingPrompt
-            className="mono text-[11px] text-[#555]"
-            words={["computer engineering student", "linux enjoyer", "web developer"]}
-          />
-          <span className="mono text-[11px] text-[rgba(168,85,247,0.55)] animate-pulse">_</span>
+          <span className="inline-flex items-center">
+            <RotatingPrompt
+              className="mono text-[11px] text-[#555]"
+              words={["computer engineering student", "linux enjoyer", "web developer"]}
+            />
+            <span className="mono text-[11px] text-[rgba(168,85,247,0.55)] animate-pulse">_</span>
+          </span>
         </div>
 
         <p className="mb-5 text-[12px] leading-[1.75] text-[#444]">
