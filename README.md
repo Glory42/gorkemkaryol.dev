@@ -1,6 +1,8 @@
-# gorkemkaryol.dev
+# [gorkemkaryol.dev](https://gorkemkaryol.dev)
 
 Personal portfolio built with TanStack Start, deployed on Cloudflare Workers.
+
+![Preview](./public/preview/Preview-Image.png)
 
 ## Stack
 
