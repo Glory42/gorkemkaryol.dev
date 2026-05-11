@@ -30,6 +30,30 @@ a {
   color: inherit;
 }
 
+/* scrollbar */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(168, 85, 247, 0.25) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.25);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.45);
+}
+
 ::selection {
   background: rgba(168, 85, 247, 0.42);
   color: #ffffff;
@@ -96,6 +120,10 @@ a {
   margin-bottom: 0.5em;
 }
 
+.readme-prose :first-child {
+  margin-top: 0;
+}
+
 .readme-prose h1 {
   font-size: clamp(1.1rem, 4vw, 1.4rem);
 }
@@ -160,6 +188,14 @@ a {
   margin: 0.75em 0;
 }
 
+.readme-prose ul {
+  list-style-type: disc;
+}
+
+.readme-prose ol {
+  list-style-type: decimal;
+}
+
 .readme-prose li {
   margin: 0.25em 0;
 }
@@ -187,6 +223,21 @@ a {
   border: none;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   margin: 1.5em 0;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: page-in 220ms ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {

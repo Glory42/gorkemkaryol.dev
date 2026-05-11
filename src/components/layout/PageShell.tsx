@@ -10,8 +10,9 @@ export function PageShell({ children, mainClassName }: Props) {
     <main
       id="main-content"
       className={
-        mainClassName ??
-        "mx-auto w-full max-w-6xl px-4 pb-10 pt-10 md:px-8 md:pt-14"
+        "page-enter " +
+        (mainClassName ??
+          "mx-auto w-full max-w-6xl px-4 pb-10 pt-10 md:px-8 md:pt-14")
       }
     >
       {children}
