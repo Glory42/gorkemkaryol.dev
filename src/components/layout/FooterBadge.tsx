@@ -17,7 +17,7 @@ export function FooterBadge() {
           rel="noopener noreferrer"
         >
           <span className="inline-block h-[4px] w-[4px] rounded-full bg-[rgba(168,85,247,0.65)]" />
-          <span className="mono">This visit generated 0.063g of CO2.</span>
+          <span className="mono">This visit generated 0.065g of CO2.</span>
         </a>
       </div>
     </footer>
