@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { env as workerEnv } from "cloudflare:workers";
 import { ChevronLeft, ExternalLink } from "lucide-react";
+import { GithubIcon } from "@/components/ui/icons";
 import { PageShell } from "@/components/layout/PageShell";
 import { ReadmeArticle } from "@/components/ui/ReadmeArticle";
 import { readRuntimeEnv } from "@/lib/env";
@@ -80,7 +81,9 @@ function ProjectReadmePage() {
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
       <div className="mx-auto min-w-0 max-w-[860px] overflow-hidden">
-        <div className="mb-6 flex items-center justify-between">
+        <p className="mono mb-4 text-[11px] text-[#252525]">~$ cat ./projects/{repo}</p>
+
+        <div className="mb-4 flex items-center justify-between">
           <Link
             to="/projects"
             className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#333] no-underline transition-colors hover:text-[rgba(168,85,247,0.85)]"
@@ -92,10 +95,12 @@ function ProjectReadmePage() {
             href={repoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="focus-ring text-[#2a2a2a] transition-colors hover:text-[rgba(168,85,247,0.85)]"
+            className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.08em] text-[#333] no-underline transition-colors hover:text-[rgba(168,85,247,0.85)]"
             aria-label={`Open ${repo} on GitHub`}
           >
-            <ExternalLink size={13} />
+            <GithubIcon size={12} />
+            open on github
+            <ExternalLink size={10} />
           </a>
         </div>
 
