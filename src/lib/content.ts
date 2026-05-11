@@ -48,11 +48,12 @@ export const workExperiences: ExperienceItem[] = [
     date: "April 2026 – Present",
     type: "internship",
     description: [
+      "Contributed to the development of social/community platforms that reached 5,000+ active users within 8 months.",
       "Worked on large-scale social/community platforms using React, Next.js, TypeScript, and shared backend architectures.",
       "Designed cross-application DM integration flows between interconnected platforms while minimizing changes to existing real-time messaging infrastructure.",
       "Improved frontend UX and permission handling for private community systems, including request-state management and protected navigation flows.",
     ],
-    tags: ["React", "Next.js", "TypeScript", "WebSocket"],
+    tags: ["React", "Next.js", "TypeScript", "Real-Time Systems", "Socket.IO"],
   },
   {
     role: "Full Stack Engineer",
