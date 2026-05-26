@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Await, createFileRoute, defer } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { env as workerEnv } from "cloudflare:workers";
 import { BookOpen, Film, Music, Tv } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { Suspense } from "react";
 import { PageShell } from "@/components/layout/PageShell";
 import { BooksShelf } from "@/components/ui/BooksShelf";
 import { ErrorPanel } from "@/components/ui/ErrorPanel";
@@ -36,15 +37,10 @@ export const Route = createFileRoute("/interests")({
       },
     ],
   }),
-  loader: async () => {
-    const [literal, interis] = await Promise.all([
-      getLiteralDataServerFn(),
-      getInterisDataServerFn(),
-    ]);
-    return { literal, interis };
-  },
-  pendingMs: 0,
-  pendingComponent: InterestsPageSkeleton,
+  loader: () => ({
+    literal: defer(getLiteralDataServerFn()),
+    interis: defer(getInterisDataServerFn()),
+  }),
   component: InterestsPage,
 });
 
@@ -85,68 +81,41 @@ function SkeletonItem() {
   );
 }
 
-function InterestsPageSkeleton() {
+function SectionLoading() {
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-10 pt-[max(12px,1.5vh)]">
-      <section className="mx-auto max-w-[900px] animate-pulse">
-        <p className="mono mb-2 text-[11px] text-[#252525]">~$ ls ./interests</p>
-        <div className="mb-5 h-2 w-24 rounded bg-[rgba(255,255,255,0.03)]" />
-        <div className="mb-8 h-2 w-3/4 max-w-[480px] rounded bg-[rgba(255,255,255,0.03)]" />
-
-        <div className="flex flex-col gap-8 md:flex-row md:gap-10">
-          {/* Reading skeleton */}
-          <div className="w-full md:w-[200px] md:shrink-0">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="h-2 w-16 rounded bg-[rgba(255,255,255,0.04)]" />
-              <div className="h-px flex-1 bg-[rgba(255,255,255,0.04)]" />
-            </div>
-            <div className="flex flex-col">
-              <SkeletonItem />
-              <div className="h-px bg-[rgba(255,255,255,0.04)]" />
-              <SkeletonItem />
-            </div>
-          </div>
-
-          {/* Favorites skeleton */}
-          <div className="min-w-0 flex-1">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="h-2 w-20 rounded bg-[rgba(255,255,255,0.04)]" />
-              <div className="h-px flex-1 bg-[rgba(255,255,255,0.04)]" />
-            </div>
-            <div className="grid grid-cols-2 gap-4 sm:gap-6">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i}>
-                  <div className="mb-3 h-2 w-12 rounded bg-[rgba(255,255,255,0.04)]" />
-                  <div className="flex flex-col">
-                    <SkeletonItem />
-                    <div className="h-px bg-[rgba(255,255,255,0.04)]" />
-                    <SkeletonItem />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-    </PageShell>
+    <div className="flex flex-col gap-3">
+      <div className="flex justify-center py-2">
+        <div className="h-3.5 w-3.5 animate-spin rounded-full border border-[rgba(168,85,247,0.2)] border-t-[rgba(168,85,247,0.7)]" />
+      </div>
+      <SkeletonItem />
+      <div className="h-px bg-[rgba(255,255,255,0.04)]" />
+      <SkeletonItem />
+    </div>
   );
 }
 
-function InterestsPage() {
-  const { literal: books, interis } = Route.useLoaderData();
 
-  const statsMeta = interis.ok
-    ? `${interis.data.profile.stats.filmCount} films watched`
-    : undefined;
+function InterestsPage() {
+  const { literal, interis } = Route.useLoaderData();
 
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-10 pt-[max(12px,1.5vh)]">
       <section className="mx-auto max-w-[900px]">
         <p className="mono mb-2 text-[11px] text-[#252525]">~$ ls ./interests</p>
-        {statsMeta && (
-          <p className="mono mb-3 text-[10px] text-[rgba(168,85,247,0.45)]">{statsMeta}</p>
-        )}
-        {!statsMeta && <div className="mb-3" />}
+
+        <Suspense fallback={<div className="mb-3" />}>
+          <Await promise={interis}>
+            {(data) =>
+              data.ok ? (
+                <p className="mono mb-3 text-[10px] text-[rgba(168,85,247,0.45)]">
+                  {data.data.profile.stats.filmCount} films watched
+                </p>
+              ) : (
+                <div className="mb-3" />
+              )
+            }
+          </Await>
+        </Suspense>
 
         {interestsIntro && (
           <p className="mb-6 text-[12px] leading-[1.75] text-[#444]">
@@ -158,11 +127,17 @@ function InterestsPage() {
           {/* Left: currently reading */}
           <div className="w-full md:w-[200px] md:shrink-0">
             <SectionLabel label="./interests/reading" />
-            {!books.ok ? (
-              <ErrorPanel title="Literal API Unavailable" error={books.error} />
-            ) : (
-              <BooksShelf books={books.data.currentlyReading.slice(0, 2).map((rs) => rs.book)} />
-            )}
+            <Suspense fallback={<SectionLoading />}>
+              <Await promise={literal}>
+                {(books) =>
+                  books.ok ? (
+                    <BooksShelf books={books.data.currentlyReading.slice(0, 2).map((rs) => rs.book)} />
+                  ) : (
+                    <ErrorPanel title="Literal API Unavailable" error={books.error} />
+                  )
+                }
+              </Await>
+            </Suspense>
           </div>
 
           {/* Right: favorites */}
@@ -170,22 +145,35 @@ function InterestsPage() {
             <SectionLabel label="./interests/favorites" />
 
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
-              {!interis.ok ? (
-                <div className="col-span-2">
-                  <ErrorPanel title="Interis API Unavailable" error={interis.error} />
-                </div>
-              ) : (
-                <>
-                  <div>
-                    <SubLabel label="Films" icon={Film} />
-                    <Top4Grid items={interis.data.cinema.slice(0, 2)} />
-                  </div>
-                  <div>
-                    <SubLabel label="Series" icon={Tv} />
-                    <Top4Grid items={interis.data.serial.slice(0, 2)} />
-                  </div>
-                </>
-              )}
+              <Suspense
+                fallback={
+                  <>
+                    <div><SubLabel label="Films" icon={Film} /><SectionLoading /></div>
+                    <div><SubLabel label="Series" icon={Tv} /><SectionLoading /></div>
+                  </>
+                }
+              >
+                <Await promise={interis}>
+                  {(data) =>
+                    data.ok ? (
+                      <>
+                        <div>
+                          <SubLabel label="Films" icon={Film} />
+                          <Top4Grid items={data.data.cinema.slice(0, 2)} />
+                        </div>
+                        <div>
+                          <SubLabel label="Series" icon={Tv} />
+                          <Top4Grid items={data.data.serial.slice(0, 2)} />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="col-span-2">
+                        <ErrorPanel title="Interis API Unavailable" error={data.error} />
+                      </div>
+                    )
+                  }
+                </Await>
+              </Suspense>
 
               <div>
                 <SubLabel label="Bands" icon={Music} />
@@ -218,11 +206,17 @@ function InterestsPage() {
 
               <div>
                 <SubLabel label="Books" icon={BookOpen} />
-                {books.ok ? (
-                  <BooksShelf books={books.data.favoriteBooks} />
-                ) : (
-                  <ErrorPanel title="Literal API Unavailable" error={books.error} />
-                )}
+                <Suspense fallback={<SectionLoading />}>
+                  <Await promise={literal}>
+                    {(books) =>
+                      books.ok ? (
+                        <BooksShelf books={books.data.favoriteBooks} />
+                      ) : (
+                        <ErrorPanel title="Literal API Unavailable" error={books.error} />
+                      )
+                    }
+                  </Await>
+                </Suspense>
               </div>
             </div>
           </div>
