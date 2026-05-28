@@ -12,18 +12,19 @@ import { favoriteBands, interestsIntro } from "@/lib/content";
 import { readRuntimeEnv } from "@/lib/env";
 import { getInterisData } from "@/server/interis";
 import { getLiteralData } from "@/server/literal";
+import { publicResult } from "@/server/http";
 
 const getLiteralDataServerFn = createServerFn({ method: "GET" }).handler(
   async () => {
     const runtimeEnv = readRuntimeEnv(workerEnv);
-    return getLiteralData(runtimeEnv, 3);
+    return publicResult(await getLiteralData(runtimeEnv, 3));
   },
 );
 
 const getInterisDataServerFn = createServerFn({ method: "GET" }).handler(
   async () => {
     const runtimeEnv = readRuntimeEnv(workerEnv);
-    return getInterisData(runtimeEnv.INTERIS_USERNAME);
+    return publicResult(await getInterisData(runtimeEnv.INTERIS_USERNAME));
   },
 );
 

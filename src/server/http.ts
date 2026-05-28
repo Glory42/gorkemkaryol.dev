@@ -63,6 +63,14 @@ export function ok<T>(data: T): ServiceResult<T> {
   return { ok: true, data };
 }
 
+export function publicResult<T>(result: ServiceResult<T>): ServiceResult<T> {
+  if (!result.ok) {
+    const { details: _, ...rest } = result.error;
+    return { ok: false, error: rest as ServiceError };
+  }
+  return result;
+}
+
 export async function requestJsonWithRetry<T>(
   options: JsonRequestOptions,
 ): Promise<ServiceResult<JsonResponse<T>>> {

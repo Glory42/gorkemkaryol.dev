@@ -8,11 +8,12 @@ import { ErrorPanel } from "@/components/ui/ErrorPanel";
 import { ProjectsGrid } from "@/components/ui/ProjectsGrid";
 import { readRuntimeEnv } from "@/lib/env";
 import { getGithubProjects } from "@/server/github";
+import { publicResult } from "@/server/http";
 
 const getGithubProjectsServerFn = createServerFn({ method: "GET" }).handler(
   async () => {
     const runtimeEnv = readRuntimeEnv(workerEnv);
-    return getGithubProjects(runtimeEnv);
+    return publicResult(await getGithubProjects(runtimeEnv));
   },
 );
 

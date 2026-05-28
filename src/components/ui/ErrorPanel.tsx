@@ -20,11 +20,6 @@ export function ErrorPanel({ title, error }: Props) {
         {error.message}
       </p>
 
-      {error.details ? (
-        <p className="mono mt-3 text-[10px] leading-[1.5] text-[#666]">
-          {error.details}
-        </p>
-      ) : null}
     </div>
   );
 }
