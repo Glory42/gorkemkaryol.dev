@@ -1,9 +1,16 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/layout/PageShell";
-import { FlappyGame } from "@/components/ui/games/FlappyGame";
-import { SnakeGame } from "@/components/ui/games/SnakeGame";
-import { TetrisGame } from "@/components/ui/games/TetrisGame";
+
+const SnakeGame = lazy(() =>
+  import("@/components/ui/games/SnakeGame").then((m) => ({ default: m.SnakeGame })),
+);
+const FlappyGame = lazy(() =>
+  import("@/components/ui/games/FlappyGame").then((m) => ({ default: m.FlappyGame })),
+);
+const TetrisGame = lazy(() =>
+  import("@/components/ui/games/TetrisGame").then((m) => ({ default: m.TetrisGame })),
+);
 
 const GAMES = [
   { id: "snake", label: "SNAKE" },
@@ -48,9 +55,11 @@ function CoolPage() {
         </div>
 
         <div className="flex min-h-[480px] items-center justify-center">
-          {active === "snake" && <SnakeGame />}
-          {active === "flappy" && <FlappyGame />}
-          {active === "tetris" && <TetrisGame />}
+          <Suspense fallback={<p className="mono text-[11px] text-[#333]">loading...</p>}>
+            {active === "snake" && <SnakeGame />}
+            {active === "flappy" && <FlappyGame />}
+            {active === "tetris" && <TetrisGame />}
+          </Suspense>
         </div>
       </section>
     </PageShell>
