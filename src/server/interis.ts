@@ -31,9 +31,13 @@ export interface InterisProfile {
   username: string;
   displayUsername: string;
   stats: {
-    entryCount: number;
+    filmEntryCount: number;
+    serialEntryCount: number;
     filmCount: number;
     reviewCount: number;
+    listCount: number;
+    followerCount: number;
+    followingCount: number;
   };
 }
 

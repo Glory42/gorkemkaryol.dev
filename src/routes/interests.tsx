@@ -109,7 +109,7 @@ function InterestsPage() {
             {(data) =>
               data.ok ? (
                 <p className="mono mb-3 text-[10px] text-[rgba(168,85,247,0.45)]">
-                  {data.data.profile.stats.filmCount} films watched
+                  {data.data.profile.stats.filmCount} films · {data.data.profile.stats.serialEntryCount} series watched
                 </p>
               ) : (
                 <div className="mb-3" />
