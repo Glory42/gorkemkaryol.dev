@@ -29,6 +29,8 @@ export function Top4Grid({ items }: Props) {
                 src={`${TMDB_IMAGE_BASE}${item.posterPath}`}
                 alt={item.title ?? ""}
                 loading="lazy"
+                width={36}
+                height={52}
                 className="h-[52px] w-[36px] shrink-0 object-cover"
               />
             ) : (

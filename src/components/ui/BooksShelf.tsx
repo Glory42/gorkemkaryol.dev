@@ -29,6 +29,8 @@ export function BooksShelf({ books }: Props) {
               src={book.cover}
               alt={book.title}
               loading="lazy"
+              width={36}
+              height={52}
               className="h-[52px] w-[36px] shrink-0 object-cover"
             />
             <div className="min-w-0 flex-1">

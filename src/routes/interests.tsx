@@ -191,6 +191,8 @@ function InterestsPage() {
                           src={band.image}
                           alt={band.name}
                           loading="lazy"
+                          width={36}
+                          height={52}
                           className="h-[52px] w-[36px] shrink-0 object-cover"
                         />
                         <p className="text-[12px] font-medium leading-[1.3] text-[rgba(255,255,255,0.8)] transition-colors group-hover:text-[#a855f7]">
