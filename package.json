@@ -13,6 +13,8 @@
     "cf:typegen": "wrangler types"
   },
   "dependencies": {
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/sora": "^5.2.8",
     "@tanstack/react-router": "^1.168.22",
     "@tanstack/react-start": "^1.167.41",
     "lucide-react": "^0.563.0",
