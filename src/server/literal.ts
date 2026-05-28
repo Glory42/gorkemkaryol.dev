@@ -5,6 +5,7 @@ import {
   requestJsonWithRetry,
   type ServiceResult,
 } from "@/server/http";
+import { withCache } from "@/server/cache";
 
 export interface LiteralBook {
   id: string;
@@ -125,45 +126,47 @@ async function getLiteralToken(
   email: string,
   password: string,
 ): Promise<ServiceResult<{ token: string; profileId: string }>> {
-  const loginResult = await requestJsonWithRetry<
-    GraphQLResponse<LoginMutationData>
-  >({
-    url: LITERAL_GRAPHQL_API,
-    method: "POST",
-    body: {
-      query: LOGIN_MUTATION,
-      variables: { email, password },
-    },
-    timeoutMs: 12_000,
-    retries: 1,
+  return withCache(`literal-token-${email}`, 1200, async () => {
+    const loginResult = await requestJsonWithRetry<
+      GraphQLResponse<LoginMutationData>
+    >({
+      url: LITERAL_GRAPHQL_API,
+      method: "POST",
+      body: {
+        query: LOGIN_MUTATION,
+        variables: { email, password },
+      },
+      timeoutMs: 12_000,
+      retries: 1,
+    });
+
+    if (!loginResult.ok) return loginResult;
+
+    const loginPayload = loginResult.data.data;
+    const loginErrors = loginPayload.errors ?? [];
+
+    if (loginErrors.length > 0) {
+      return fail({
+        code: "UPSTREAM_ERROR",
+        message: "Literal login mutation failed",
+        retryable: false,
+        details: loginErrors.map((e) => e.message).join(" | "),
+      });
+    }
+
+    const token = loginPayload.data?.login?.token ?? "";
+    const profileId = loginPayload.data?.login?.profile?.id ?? "";
+
+    if (!token || !profileId) {
+      return fail({
+        code: "UNAUTHORIZED",
+        message: "Literal login did not return a valid token/profile",
+        retryable: false,
+      });
+    }
+
+    return ok({ token, profileId });
   });
-
-  if (!loginResult.ok) return loginResult;
-
-  const loginPayload = loginResult.data.data;
-  const loginErrors = loginPayload.errors ?? [];
-
-  if (loginErrors.length > 0) {
-    return fail({
-      code: "UPSTREAM_ERROR",
-      message: "Literal login mutation failed",
-      retryable: false,
-      details: loginErrors.map((e) => e.message).join(" | "),
-    });
-  }
-
-  const token = loginPayload.data?.login?.token ?? "";
-  const profileId = loginPayload.data?.login?.profile?.id ?? "";
-
-  if (!token || !profileId) {
-    return fail({
-      code: "UNAUTHORIZED",
-      message: "Literal login did not return a valid token/profile",
-      retryable: false,
-    });
-  }
-
-  return ok({ token, profileId });
 }
 
 export async function getLiteralData(
@@ -183,72 +186,74 @@ export async function getLiteralData(
 
   const { LITERAL_EMAIL, LITERAL_PASSWORD } = envResult.data;
 
-  const tokenResult = await getLiteralToken(LITERAL_EMAIL, LITERAL_PASSWORD);
-  if (!tokenResult.ok) return tokenResult;
+  return withCache(`literal-data-${LITERAL_EMAIL}`, 3600, async () => {
+    const tokenResult = await getLiteralToken(LITERAL_EMAIL, LITERAL_PASSWORD);
+    if (!tokenResult.ok) return tokenResult;
 
-  const { token, profileId } = tokenResult.data;
+    const { token, profileId } = tokenResult.data;
 
-  const [readingResult, shelfResult] = await Promise.all([
-    requestJsonWithRetry<GraphQLResponse<ReadingQueryData>>({
-      url: LITERAL_GRAPHQL_API,
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: {
-        query: CURRENTLY_READING_QUERY,
-        variables: {
-          limit: readingLimit,
-          offset: 0,
-          readingStatus: "IS_READING",
-          profileId,
+    const [readingResult, shelfResult] = await Promise.all([
+      requestJsonWithRetry<GraphQLResponse<ReadingQueryData>>({
+        url: LITERAL_GRAPHQL_API,
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: {
+          query: CURRENTLY_READING_QUERY,
+          variables: {
+            limit: readingLimit,
+            offset: 0,
+            readingStatus: "IS_READING",
+            profileId,
+          },
         },
-      },
-      timeoutMs: 12_000,
-      retries: 1,
-    }),
-    requestJsonWithRetry<GraphQLResponse<ShelfBySlugQueryData>>({
-      url: LITERAL_GRAPHQL_API,
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: {
-        query: SHELF_BY_SLUG_QUERY,
-        variables: { shelfSlug: "favorits-b4k6z82" },
-      },
-      timeoutMs: 12_000,
-      retries: 1,
-    }),
-  ]);
+        timeoutMs: 12_000,
+        retries: 1,
+      }),
+      requestJsonWithRetry<GraphQLResponse<ShelfBySlugQueryData>>({
+        url: LITERAL_GRAPHQL_API,
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: {
+          query: SHELF_BY_SLUG_QUERY,
+          variables: { shelfSlug: "favorits-b4k6z82" },
+        },
+        timeoutMs: 12_000,
+        retries: 1,
+      }),
+    ]);
 
-  if (!readingResult.ok) return readingResult;
-  if (!shelfResult.ok) return shelfResult;
+    if (!readingResult.ok) return readingResult;
+    if (!shelfResult.ok) return shelfResult;
 
-  const readingErrors = readingResult.data.data.errors ?? [];
-  if (readingErrors.length > 0) {
-    return fail({
-      code: "UPSTREAM_ERROR",
-      message: "Literal currently-reading query failed",
-      retryable: true,
-      details: readingErrors.map((e) => e.message).join(" | "),
-    });
-  }
+    const readingErrors = readingResult.data.data.errors ?? [];
+    if (readingErrors.length > 0) {
+      return fail({
+        code: "UPSTREAM_ERROR",
+        message: "Literal currently-reading query failed",
+        retryable: true,
+        details: readingErrors.map((e) => e.message).join(" | "),
+      });
+    }
 
-  const shelvesErrors = shelfResult.data.data.errors ?? [];
-  if (shelvesErrors.length > 0) {
-    return fail({
-      code: "UPSTREAM_ERROR",
-      message: "Literal shelves query failed",
-      retryable: true,
-      details: shelvesErrors.map((e) => e.message).join(" | "),
-    });
-  }
+    const shelvesErrors = shelfResult.data.data.errors ?? [];
+    if (shelvesErrors.length > 0) {
+      return fail({
+        code: "UPSTREAM_ERROR",
+        message: "Literal shelves query failed",
+        retryable: true,
+        details: shelvesErrors.map((e) => e.message).join(" | "),
+      });
+    }
 
-  const currentlyReading =
-    readingResult.data.data.data?.booksByReadingStateAndProfile?.map(
-      (book) => ({ status: "IS_READING" as const, book }),
-    ) ?? [];
+    const currentlyReading =
+      readingResult.data.data.data?.booksByReadingStateAndProfile?.map(
+        (book) => ({ status: "IS_READING" as const, book }),
+      ) ?? [];
 
-  const favoriteBooks = (shelfResult.data.data.data?.shelf?.books ?? []).slice(0, 2);
+    const favoriteBooks = (shelfResult.data.data.data?.shelf?.books ?? []).slice(0, 2);
 
-  return ok({ currentlyReading, favoriteBooks });
+    return ok({ currentlyReading, favoriteBooks });
+  });
 }
 
 export async function getCurrentlyReading(

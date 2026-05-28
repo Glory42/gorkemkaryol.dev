@@ -5,6 +5,7 @@ import {
   requestJsonWithRetry,
   type ServiceResult,
 } from "@/server/http";
+import { withCache } from "@/server/cache";
 
 export interface GithubProject {
   name: string;
@@ -234,44 +235,50 @@ export async function getRepoReadmeData(
 
   const { PUBLIC_GITHUB_USERNAME, GITHUB_TOKEN } = envResult.data;
 
-  const result = await requestJsonWithRetry<
-    GraphQLResponse<RepoReadmeQueryData>
-  >({
-    url: GITHUB_GRAPHQL_API,
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${GITHUB_TOKEN}`,
-      Accept: "application/vnd.github+json",
-      "User-Agent": "gorkemkaryol.dev",
-      "X-GitHub-Api-Version": "2022-11-28",
+  return withCache(
+    `github-readme-${PUBLIC_GITHUB_USERNAME}-${repo}`,
+    1800,
+    async () => {
+      const result = await requestJsonWithRetry<
+        GraphQLResponse<RepoReadmeQueryData>
+      >({
+        url: GITHUB_GRAPHQL_API,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github+json",
+          "User-Agent": "gorkemkaryol.dev",
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+        body: {
+          query: REPO_README_QUERY,
+          variables: { owner: PUBLIC_GITHUB_USERNAME, name: repo },
+        },
+        timeoutMs: 10_000,
+        retries: 1,
+      });
+
+      if (!result.ok) return null;
+
+      const repository = result.data.data?.data?.repository;
+      if (!repository) return null;
+
+      const readme =
+        repository.readmeMd?.text ??
+        repository.readmeMdx?.text ??
+        repository.readmeLower?.text ??
+        repository.readmePlain?.text ??
+        null;
+
+      return {
+        owner: PUBLIC_GITHUB_USERNAME,
+        repo,
+        defaultBranch: repository.defaultBranchRef?.name ?? "main",
+        repoUrl: repository.url,
+        readme,
+      };
     },
-    body: {
-      query: REPO_README_QUERY,
-      variables: { owner: PUBLIC_GITHUB_USERNAME, name: repo },
-    },
-    timeoutMs: 10_000,
-    retries: 1,
-  });
-
-  if (!result.ok) return null;
-
-  const repository = result.data.data?.data?.repository;
-  if (!repository) return null;
-
-  const readme =
-    repository.readmeMd?.text ??
-    repository.readmeMdx?.text ??
-    repository.readmeLower?.text ??
-    repository.readmePlain?.text ??
-    null;
-
-  return {
-    owner: PUBLIC_GITHUB_USERNAME,
-    repo,
-    defaultBranch: repository.defaultBranchRef?.name ?? "main",
-    repoUrl: repository.url,
-    readme,
-  };
+  );
 }
 
 export async function getGithubProjects(
@@ -290,128 +297,134 @@ export async function getGithubProjects(
 
   const { PUBLIC_GITHUB_USERNAME, GITHUB_TOKEN } = envResult.data;
 
-  const to = new Date();
-  const from = new Date(to);
-  from.setUTCFullYear(from.getUTCFullYear() - 1);
+  return withCache(
+    `github-projects-${PUBLIC_GITHUB_USERNAME}`,
+    600,
+    async () => {
+      const to = new Date();
+      const from = new Date(to);
+      from.setUTCFullYear(from.getUTCFullYear() - 1);
 
-  const requestResult = await requestJsonWithRetry<
-    GraphQLResponse<GithubOverviewQueryData>
-  >({
-    url: GITHUB_GRAPHQL_API,
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${GITHUB_TOKEN}`,
-      Accept: "application/vnd.github+json",
-      "User-Agent": "gorkemkaryol.dev",
-      "X-GitHub-Api-Version": "2022-11-28",
-    },
-    body: {
-      query: GITHUB_OVERVIEW_QUERY,
-      variables: {
-        username: PUBLIC_GITHUB_USERNAME,
-        repoQuery: buildRepoQuery(PUBLIC_GITHUB_USERNAME),
-        from: from.toISOString(),
-        to: to.toISOString(),
-      },
-    },
-    timeoutMs: 12_000,
-    retries: 1,
-  });
+      const requestResult = await requestJsonWithRetry<
+        GraphQLResponse<GithubOverviewQueryData>
+      >({
+        url: GITHUB_GRAPHQL_API,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github+json",
+          "User-Agent": "gorkemkaryol.dev",
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+        body: {
+          query: GITHUB_OVERVIEW_QUERY,
+          variables: {
+            username: PUBLIC_GITHUB_USERNAME,
+            repoQuery: buildRepoQuery(PUBLIC_GITHUB_USERNAME),
+            from: from.toISOString(),
+            to: to.toISOString(),
+          },
+        },
+        timeoutMs: 12_000,
+        retries: 1,
+      });
 
-  if (!requestResult.ok) {
-    return requestResult;
-  }
-
-  const graphQLPayload = requestResult.data.data;
-  const graphQLErrors = graphQLPayload.errors ?? [];
-  const hasRateLimitError = graphQLErrors.some((error) =>
-    error.message.toLowerCase().includes("rate limit"),
-  );
-
-  if (graphQLErrors.length > 0) {
-    return fail({
-      code: hasRateLimitError ? "RATE_LIMITED" : "UPSTREAM_ERROR",
-      message: "GitHub GraphQL query failed",
-      retryable: hasRateLimitError,
-      details: graphQLErrors.map((error) => error.message).join(" | "),
-    });
-  }
-
-  const queryData = graphQLPayload.data;
-
-  if (!queryData) {
-    return fail({
-      code: "UPSTREAM_ERROR",
-      message: "GitHub response did not include data",
-      retryable: true,
-    });
-  }
-
-  const projectNodes = queryData.search?.nodes ?? [];
-  const projects: GithubProject[] = projectNodes
-    .filter((node) => Boolean(node?.name && node?.url) && !node?.isFork)
-    .map((node) => ({
-      name: node.name ?? "unknown",
-      description: node.description ?? "No description provided.",
-      url: node.url ?? "",
-      stargazerCount: node.stargazerCount ?? 0,
-      updatedAt: node.updatedAt ?? "",
-      topics:
-        node.repositoryTopics?.nodes
-          ?.map((topicNode) => topicNode.topic?.name)
-          .filter((topic): topic is string => Boolean(topic)) ?? [],
-      primaryLanguage:
-        node.primaryLanguage?.name != null
-          ? {
-              name: node.primaryLanguage.name,
-              color: node.primaryLanguage.color,
-            }
-          : null,
-    }));
-
-  const contributionDays =
-    queryData.user?.contributionsCollection?.contributionCalendar?.weeks
-      ?.flatMap((week) => week.contributionDays ?? [])
-      .map((day) => ({
-        date: day.date,
-        count: day.contributionCount,
-        level: mapContributionLevel(day.contributionLevel),
-      })) ?? [];
-
-  const contributions: GithubContributionCalendar | null =
-    contributionDays.length > 0
-      ? {
-          totalContributions:
-            queryData.user?.contributionsCollection?.contributionCalendar
-              ?.totalContributions ?? 0,
-          days: contributionDays,
-        }
-      : null;
-
-  const rateLimit = queryData.rateLimit
-    ? {
-        limit: queryData.rateLimit.limit ?? 0,
-        remaining: queryData.rateLimit.remaining ?? 0,
-        resetAt: queryData.rateLimit.resetAt ?? "",
-        cost: queryData.rateLimit.cost ?? 0,
+      if (!requestResult.ok) {
+        return requestResult;
       }
-    : mapRateLimitFromHeaders(requestResult.data.headers);
 
-  if ((rateLimit?.remaining ?? 1) <= 0) {
-    return fail({
-      code: "RATE_LIMITED",
-      message: "GitHub API rate limit exceeded",
-      retryable: true,
-      details: rateLimit?.resetAt
-        ? `Resets at ${rateLimit.resetAt}`
-        : "No reset time returned by upstream",
-    });
-  }
+      const graphQLPayload = requestResult.data.data;
+      const graphQLErrors = graphQLPayload.errors ?? [];
+      const hasRateLimitError = graphQLErrors.some((error) =>
+        error.message.toLowerCase().includes("rate limit"),
+      );
 
-  return ok({
-    username: PUBLIC_GITHUB_USERNAME,
-    projects,
-    contributions,
-    rateLimit,
-  });
+      if (graphQLErrors.length > 0) {
+        return fail({
+          code: hasRateLimitError ? "RATE_LIMITED" : "UPSTREAM_ERROR",
+          message: "GitHub GraphQL query failed",
+          retryable: hasRateLimitError,
+          details: graphQLErrors.map((error) => error.message).join(" | "),
+        });
+      }
+
+      const queryData = graphQLPayload.data;
+
+      if (!queryData) {
+        return fail({
+          code: "UPSTREAM_ERROR",
+          message: "GitHub response did not include data",
+          retryable: true,
+        });
+      }
+
+      const projectNodes = queryData.search?.nodes ?? [];
+      const projects: GithubProject[] = projectNodes
+        .filter((node) => Boolean(node?.name && node?.url) && !node?.isFork)
+        .map((node) => ({
+          name: node.name ?? "unknown",
+          description: node.description ?? "No description provided.",
+          url: node.url ?? "",
+          stargazerCount: node.stargazerCount ?? 0,
+          updatedAt: node.updatedAt ?? "",
+          topics:
+            node.repositoryTopics?.nodes
+              ?.map((topicNode) => topicNode.topic?.name)
+              .filter((topic): topic is string => Boolean(topic)) ?? [],
+          primaryLanguage:
+            node.primaryLanguage?.name != null
+              ? {
+                  name: node.primaryLanguage.name,
+                  color: node.primaryLanguage.color,
+                }
+              : null,
+        }));
+
+      const contributionDays =
+        queryData.user?.contributionsCollection?.contributionCalendar?.weeks
+          ?.flatMap((week) => week.contributionDays ?? [])
+          .map((day) => ({
+            date: day.date,
+            count: day.contributionCount,
+            level: mapContributionLevel(day.contributionLevel),
+          })) ?? [];
+
+      const contributions: GithubContributionCalendar | null =
+        contributionDays.length > 0
+          ? {
+              totalContributions:
+                queryData.user?.contributionsCollection?.contributionCalendar
+                  ?.totalContributions ?? 0,
+              days: contributionDays,
+            }
+          : null;
+
+      const rateLimit = queryData.rateLimit
+        ? {
+            limit: queryData.rateLimit.limit ?? 0,
+            remaining: queryData.rateLimit.remaining ?? 0,
+            resetAt: queryData.rateLimit.resetAt ?? "",
+            cost: queryData.rateLimit.cost ?? 0,
+          }
+        : mapRateLimitFromHeaders(requestResult.data.headers);
+
+      if ((rateLimit?.remaining ?? 1) <= 0) {
+        return fail({
+          code: "RATE_LIMITED",
+          message: "GitHub API rate limit exceeded",
+          retryable: true,
+          details: rateLimit?.resetAt
+            ? `Resets at ${rateLimit.resetAt}`
+            : "No reset time returned by upstream",
+        });
+      }
+
+      return ok({
+        username: PUBLIC_GITHUB_USERNAME,
+        projects,
+        contributions,
+        rateLimit,
+      });
+    },
+  );
 }

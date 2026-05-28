@@ -4,6 +4,7 @@ import {
   requestJsonWithRetry,
   type ServiceResult,
 } from "@/server/http";
+import { withCache } from "@/server/cache";
 
 const BASE = "https://api.interis.gorkemkaryol.dev/api/public";
 
@@ -45,29 +46,31 @@ export interface InterisData {
 export async function getInterisData(
   username: string,
 ): Promise<ServiceResult<InterisData>> {
-  const [top4Result, profileResult] = await Promise.all([
-    requestJsonWithRetry<Top4Response>({
-      url: `${BASE}/${username}/top4`,
-      method: "GET",
-      timeoutMs: 8_000,
-    }),
-    requestJsonWithRetry<InterisProfile>({
-      url: `${BASE}/${username}/profile`,
-      method: "GET",
-      timeoutMs: 8_000,
-    }),
-  ]);
+  return withCache(`interis-${username}`, 900, async () => {
+    const [top4Result, profileResult] = await Promise.all([
+      requestJsonWithRetry<Top4Response>({
+        url: `${BASE}/${username}/top4`,
+        method: "GET",
+        timeoutMs: 8_000,
+      }),
+      requestJsonWithRetry<InterisProfile>({
+        url: `${BASE}/${username}/profile`,
+        method: "GET",
+        timeoutMs: 8_000,
+      }),
+    ]);
 
-  if (!top4Result.ok) return top4Result;
-  if (!profileResult.ok) return profileResult;
+    if (!top4Result.ok) return top4Result;
+    if (!profileResult.ok) return profileResult;
 
-  const categories = top4Result.data.data.categories;
-  const cinema = categories.find((c) => c.key === "cinema")?.items ?? [];
-  const serial = categories.find((c) => c.key === "serial")?.items ?? [];
+    const categories = top4Result.data.data.categories;
+    const cinema = categories.find((c) => c.key === "cinema")?.items ?? [];
+    const serial = categories.find((c) => c.key === "serial")?.items ?? [];
 
-  return ok({
-    cinema,
-    serial,
-    profile: profileResult.data.data,
+    return ok({
+      cinema,
+      serial,
+      profile: profileResult.data.data,
+    });
   });
 }
