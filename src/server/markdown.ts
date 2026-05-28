@@ -35,6 +35,14 @@ function buildMarked(
 
   instance.use({
     renderer: {
+      html({ text }) {
+        // Escape raw HTML blocks to prevent XSS from malicious READMEs.
+        // Markdown-generated HTML (tables, code blocks, etc.) is safe and unaffected.
+        return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      },
       image({ href, title, text }) {
         const src = escapeAttr(resolveUrl(href ?? "", true));
         const alt = escapeAttr(text ?? "");
