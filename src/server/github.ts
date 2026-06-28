@@ -99,11 +99,46 @@ interface GithubOverviewQueryData {
     resetAt?: string;
     cost?: number;
   };
+  [key: string]: any; // Allow repo0, repo1, etc. aliases
 }
+
+export const EXTERNAL_REPOS = [
+  "WasteWise-Project/WasteWise",
+];
 
 const GITHUB_GRAPHQL_API = "https://api.github.com/graphql";
 
-const GITHUB_OVERVIEW_QUERY = `
+const REPO_FRAGMENT = `
+  name
+  description
+  url
+  stargazerCount
+  updatedAt
+  isFork
+  repositoryTopics(first: 4) {
+    nodes {
+      topic {
+        name
+      }
+    }
+  }
+  primaryLanguage {
+    name
+    color
+  }
+`;
+
+function buildGithubOverviewQuery() {
+  const externalRepoAliases = EXTERNAL_REPOS.map((repo, i) => {
+    const [owner, name] = repo.split("/");
+    return `
+    repo${i}: repository(owner: "${owner}", name: "${name}") {
+      ${REPO_FRAGMENT}
+    }
+    `;
+  }).join("");
+
+  return `
   query GithubOverview(
     $username: String!
     $repoQuery: String!
@@ -113,26 +148,11 @@ const GITHUB_OVERVIEW_QUERY = `
     search(query: $repoQuery, type: REPOSITORY, first: 12) {
       nodes {
         ... on Repository {
-          name
-          description
-          url
-          stargazerCount
-          updatedAt
-          isFork
-          repositoryTopics(first: 4) {
-            nodes {
-              topic {
-                name
-              }
-            }
-          }
-          primaryLanguage {
-            name
-            color
-          }
+          ${REPO_FRAGMENT}
         }
       }
     }
+    ${externalRepoAliases}
     user(login: $username) {
       contributionsCollection(from: $from, to: $to) {
         contributionCalendar {
@@ -154,7 +174,8 @@ const GITHUB_OVERVIEW_QUERY = `
       cost
     }
   }
-`;
+  `;
+}
 
 function mapContributionLevel(level: string): 0 | 1 | 2 | 3 | 4 {
   if (level === "FOURTH_QUARTILE") return 4;
@@ -235,8 +256,14 @@ export async function getRepoReadmeData(
 
   const { PUBLIC_GITHUB_USERNAME, GITHUB_TOKEN } = envResult.data;
 
+  let owner = PUBLIC_GITHUB_USERNAME;
+  const externalMatch = EXTERNAL_REPOS.find(r => r.endsWith(`/${repo}`));
+  if (externalMatch) {
+    owner = externalMatch.split('/')[0];
+  }
+
   return withCache(
-    `github-readme-${PUBLIC_GITHUB_USERNAME}-${repo}`,
+    `github-readme-${owner}-${repo}`,
     1800,
     async () => {
       const result = await requestJsonWithRetry<
@@ -252,7 +279,7 @@ export async function getRepoReadmeData(
         },
         body: {
           query: REPO_README_QUERY,
-          variables: { owner: PUBLIC_GITHUB_USERNAME, name: repo },
+          variables: { owner, name: repo },
         },
         timeoutMs: 10_000,
         retries: 1,
@@ -271,7 +298,7 @@ export async function getRepoReadmeData(
         null;
 
       return {
-        owner: PUBLIC_GITHUB_USERNAME,
+        owner,
         repo,
         defaultBranch: repository.defaultBranchRef?.name ?? "main",
         repoUrl: repository.url,
@@ -298,7 +325,7 @@ export async function getGithubProjects(
   const { PUBLIC_GITHUB_USERNAME, GITHUB_TOKEN } = envResult.data;
 
   return withCache(
-    `github-projects-${PUBLIC_GITHUB_USERNAME}`,
+    `github-projects-v2-${PUBLIC_GITHUB_USERNAME}`,
     600,
     async () => {
       const to = new Date();
@@ -317,7 +344,7 @@ export async function getGithubProjects(
           "X-GitHub-Api-Version": "2022-11-28",
         },
         body: {
-          query: GITHUB_OVERVIEW_QUERY,
+          query: buildGithubOverviewQuery(),
           variables: {
             username: PUBLIC_GITHUB_USERNAME,
             repoQuery: buildRepoQuery(PUBLIC_GITHUB_USERNAME),
@@ -359,6 +386,15 @@ export async function getGithubProjects(
       }
 
       const projectNodes = queryData.search?.nodes ?? [];
+      
+      // Append any explicitly fetched external repos
+      EXTERNAL_REPOS.forEach((_, i) => {
+        const externalRepo = queryData[`repo${i}`];
+        if (externalRepo) {
+          projectNodes.push(externalRepo);
+        }
+      });
+
       const projects: GithubProject[] = projectNodes
         .filter((node) => Boolean(node?.name && node?.url) && !node?.isFork)
         .map((node) => ({
@@ -378,7 +414,8 @@ export async function getGithubProjects(
                   color: node.primaryLanguage.color,
                 }
               : null,
-        }));
+        }))
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
       const contributionDays =
         queryData.user?.contributionsCollection?.contributionCalendar?.weeks
