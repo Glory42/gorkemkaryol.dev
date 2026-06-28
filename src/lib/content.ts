@@ -133,14 +133,21 @@ export const techItems: TechItem[] = [
       "It was a mental challenge and still one of the best technical decisions I made.",
   },
   {
-    title: "Mouse",
-    spec: "Logitech G302",
-    description: "I have been using it for years, and it still does the job.",
+    title: "Editor",
+    spec: "Zed",
+    description:
+      "Because waiting for VSCode to open was slowly ruining my life.",
   },
   {
-    title: "Keyboard",
-    spec: "Inca IKG-441 Blue Switch",
-    description: "Best price-performance blue switch keyboard I have used.",
+    title: "Terminal",
+    spec: "Foot",
+    description: "It’s so fast I make typos before I even think of them.",
+  },
+  {
+    title: "Browser",
+    spec: "Helium Browser",
+    description:
+      "Because mainstream browsers were eating my RAM for breakfast.",
   },
 ];
 

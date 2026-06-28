@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Keyboard, Monitor, Mouse, Terminal } from "lucide-react";
+import { Code, Globe, Keyboard, Layers, Monitor, Mouse, Terminal } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
 import { ContactLinks } from "@/components/ui/ContactLinks";
 import { LiveClock } from "@/components/ui/LiveClock";
@@ -20,7 +20,10 @@ function iconFor(title: string) {
   const t = title.toLowerCase();
   if (t.includes("mouse")) return Mouse;
   if (t.includes("keyboard")) return Keyboard;
-  if (t.includes("os") || t.includes("linux") || t.includes("arch")) return Terminal;
+  if (t.includes("os") || t.includes("linux") || t.includes("arch")) return Layers;
+  if (t.includes("terminal")) return Terminal;
+  if (t.includes("editor")) return Code;
+  if (t.includes("browser")) return Globe;
   return Monitor;
 }
 
