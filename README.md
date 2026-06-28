@@ -2,7 +2,7 @@
 
 Personal portfolio built with TanStack Start, deployed on Cloudflare Workers.
 
-![Preview](./public/preview/Preview-Image.png)
+![Preview](./public/preview/Preview-ImageV2.png)
 
 ## Stack
 
