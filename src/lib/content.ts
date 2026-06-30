@@ -1,6 +1,10 @@
 export const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w185";
 export const INTERIS_BASE = "https://interis.gorkemkaryol.dev";
 
+export const EXTERNAL_REPOS = [
+  "WasteWise-Project/WasteWise",
+];
+
 export interface NavigationItem {
   href: "/" | "/projects" | "/interests" | "/experience" | "/cool";
   label: string;
@@ -25,6 +29,7 @@ export interface TechItem {
   title: string;
   spec: string;
   description: string;
+  iconId: "monitor" | "layers" | "code" | "terminal" | "globe";
 }
 
 export interface BandItem {
@@ -125,29 +130,34 @@ export const techItems: TechItem[] = [
     spec: "ASUS Zenbook UM3402YAR",
     description:
       "I have been using this for more than a year. It is light, stable, and reliable.",
+    iconId: "monitor",
   },
   {
     title: "OS",
     spec: "Arch Linux, Hyprland",
     description:
       "It was a mental challenge and still one of the best technical decisions I made.",
+    iconId: "layers",
   },
   {
     title: "Editor",
     spec: "Zed",
     description:
       "Because waiting for VSCode to open was slowly ruining my life.",
+    iconId: "code",
   },
   {
     title: "Terminal",
     spec: "Foot",
     description: "It’s so fast I make typos before I even think of them.",
+    iconId: "terminal",
   },
   {
     title: "Browser",
     spec: "Helium Browser",
     description:
       "Because mainstream browsers were eating my RAM for breakfast.",
+    iconId: "globe",
   },
 ];
 

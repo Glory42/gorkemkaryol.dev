@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Code, Globe, Keyboard, Layers, Monitor, Mouse, Terminal } from "lucide-react";
+import { Code, Globe, Layers, Monitor, Terminal } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
 import { ContactLinks } from "@/components/ui/ContactLinks";
 import { LiveClock } from "@/components/ui/LiveClock";
 import { RotatingPrompt } from "@/components/ui/RotatingPrompt";
-import { contactItems, introText, techItems } from "@/lib/content";
+import { contactItems, introText, techItems, type TechItem } from "@/lib/content";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -16,16 +16,13 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-function iconFor(title: string) {
-  const t = title.toLowerCase();
-  if (t.includes("mouse")) return Mouse;
-  if (t.includes("keyboard")) return Keyboard;
-  if (t.includes("os") || t.includes("linux") || t.includes("arch")) return Layers;
-  if (t.includes("terminal")) return Terminal;
-  if (t.includes("editor")) return Code;
-  if (t.includes("browser")) return Globe;
-  return Monitor;
-}
+const IconMap: Record<TechItem["iconId"], React.ElementType> = {
+  monitor: Monitor,
+  layers: Layers,
+  code: Code,
+  terminal: Terminal,
+  globe: Globe,
+};
 
 function HomePage() {
   return (
@@ -78,7 +75,7 @@ function HomePage() {
 
         <div className="flex flex-col">
           {techItems.map((item, i) => {
-            const Icon = iconFor(item.title);
+            const Icon = IconMap[item.iconId];
             return (
               <div key={item.title}>
                 <div className="group flex items-center gap-4">
