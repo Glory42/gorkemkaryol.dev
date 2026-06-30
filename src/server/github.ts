@@ -6,6 +6,7 @@ import {
   type ServiceResult,
 } from "@/server/http";
 import { withCache } from "@/server/cache";
+import { EXTERNAL_REPOS } from "@/lib/content";
 
 export interface GithubProject {
   name: string;
@@ -52,27 +53,29 @@ interface GraphQLResponse<T> {
   errors?: GraphQLError[];
 }
 
-interface GithubOverviewQueryData {
-  search?: {
+interface RepositoryNode {
+  name?: string;
+  description?: string | null;
+  url?: string;
+  stargazerCount?: number;
+  updatedAt?: string;
+  isFork?: boolean;
+  repositoryTopics?: {
     nodes?: Array<{
-      name?: string;
-      description?: string | null;
-      url?: string;
-      stargazerCount?: number;
-      updatedAt?: string;
-      isFork?: boolean;
-      repositoryTopics?: {
-        nodes?: Array<{
-          topic?: {
-            name?: string;
-          } | null;
-        }>;
-      };
-      primaryLanguage?: {
+      topic?: {
         name?: string;
-        color?: string | null;
       } | null;
     }>;
+  };
+  primaryLanguage?: {
+    name?: string;
+    color?: string | null;
+  } | null;
+}
+
+interface GithubOverviewQueryData {
+  search?: {
+    nodes?: Array<RepositoryNode>;
   };
   user?: {
     contributionsCollection?: {
@@ -99,12 +102,8 @@ interface GithubOverviewQueryData {
     resetAt?: string;
     cost?: number;
   };
-  [key: string]: any; // Allow repo0, repo1, etc. aliases
+  [key: string]: unknown; // Allow repo0, repo1, etc. aliases
 }
-
-export const EXTERNAL_REPOS = [
-  "WasteWise-Project/WasteWise",
-];
 
 const GITHUB_GRAPHQL_API = "https://api.github.com/graphql";
 
@@ -385,15 +384,14 @@ export async function getGithubProjects(
         });
       }
 
-      const projectNodes = queryData.search?.nodes ?? [];
-      
-      // Append any explicitly fetched external repos
-      EXTERNAL_REPOS.forEach((_, i) => {
-        const externalRepo = queryData[`repo${i}`];
-        if (externalRepo) {
-          projectNodes.push(externalRepo);
-        }
-      });
+      const externalNodes = EXTERNAL_REPOS.map(
+        (_, i) => queryData[`repo${i}`] as RepositoryNode | undefined
+      ).filter((node): node is RepositoryNode => Boolean(node));
+
+      const projectNodes = [
+        ...(queryData.search?.nodes ?? []),
+        ...externalNodes,
+      ];
 
       const projects: GithubProject[] = projectNodes
         .filter((node) => Boolean(node?.name && node?.url) && !node?.isFork)
