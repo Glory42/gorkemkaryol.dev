@@ -65,8 +65,15 @@ export function ok<T>(data: T): ServiceResult<T> {
 
 export function publicResult<T>(result: ServiceResult<T>): ServiceResult<T> {
   if (!result.ok) {
-    const { details: _, ...rest } = result.error;
-    return { ok: false, error: rest as ServiceError };
+    const sanitizedError: ServiceError = {
+      code: result.error.code,
+      message: result.error.message,
+      retryable: result.error.retryable,
+    };
+    if (result.error.status !== undefined) {
+      sanitizedError.status = result.error.status;
+    }
+    return { ok: false, error: sanitizedError };
   }
   return result;
 }
@@ -99,7 +106,9 @@ export async function requestJsonWithRetry<T>(
         RETRYABLE_STATUS.has(response.status) && attempt < attempts - 1;
 
       if (!response.ok && shouldRetry) {
-        await delay(150 * (attempt + 1));
+        const backoff = 150 * (2 ** attempt);
+        const jitter = Math.random() * 50;
+        await delay(backoff + jitter);
         continue;
       }
 
@@ -155,7 +164,9 @@ export async function requestJsonWithRetry<T>(
       const retryable = attempt < attempts - 1;
 
       if (retryable) {
-        await delay(150 * (attempt + 1));
+        const backoff = 150 * (2 ** attempt);
+        const jitter = Math.random() * 50;
+        await delay(backoff + jitter);
         continue;
       }
 
