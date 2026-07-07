@@ -8,9 +8,10 @@ import { PageShell } from "@/components/layout/PageShell";
 import { BooksShelf } from "@/components/ui/BooksShelf";
 import { ErrorPanel } from "@/components/ui/ErrorPanel";
 import { Top4Grid } from "@/components/ui/Top4Grid";
+import { WatchingShelf } from "@/components/ui/WatchingShelf";
 import { favoriteBands, interestsIntro } from "@/lib/content";
 import { readRuntimeEnv } from "@/lib/env";
-import { getInterisData } from "@/server/interis";
+import { getInterisData, getCurrentlyWatchingSerials } from "@/server/interis";
 import { getLiteralData } from "@/server/literal";
 import { publicResult } from "@/server/http";
 
@@ -28,6 +29,13 @@ const getInterisDataServerFn = createServerFn({ method: "GET" }).handler(
   },
 );
 
+const getWatchingServerFn = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const runtimeEnv = readRuntimeEnv(workerEnv);
+    return publicResult(await getCurrentlyWatchingSerials(runtimeEnv.INTERIS_USERNAME, 2));
+  },
+);
+
 export const Route = createFileRoute("/interests")({
   head: () => ({
     meta: [
@@ -41,6 +49,7 @@ export const Route = createFileRoute("/interests")({
   loader: () => ({
     literal: defer(getLiteralDataServerFn()),
     interis: defer(getInterisDataServerFn()),
+    watching: defer(getWatchingServerFn()),
   }),
   component: InterestsPage,
 });
@@ -97,7 +106,7 @@ function SectionLoading() {
 
 
 function InterestsPage() {
-  const { literal, interis } = Route.useLoaderData();
+  const { literal, interis, watching } = Route.useLoaderData();
 
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-10 pt-[max(12px,1.5vh)]">
@@ -125,7 +134,7 @@ function InterestsPage() {
         )}
 
         <div className="flex flex-col gap-8 md:flex-row md:gap-10">
-          {/* Left: currently reading */}
+          {/* Left: currently reading + currently watching */}
           <div className="w-full md:w-[200px] md:shrink-0">
             <SectionLabel label="./interests/reading" />
             <Suspense fallback={<SectionLoading />}>
@@ -139,6 +148,21 @@ function InterestsPage() {
                 }
               </Await>
             </Suspense>
+
+            <div className="mt-8">
+              <SectionLabel label="./interests/watching" />
+              <Suspense fallback={<SectionLoading />}>
+                <Await promise={watching}>
+                  {(data) =>
+                    data.ok ? (
+                      <WatchingShelf serials={data.data} />
+                    ) : (
+                      <ErrorPanel title="Interis API Unavailable" error={data.error} />
+                    )
+                  }
+                </Await>
+              </Suspense>
+            </div>
           </div>
 
           {/* Right: favorites */}
