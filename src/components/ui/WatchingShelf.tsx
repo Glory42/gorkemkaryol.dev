@@ -24,7 +24,7 @@ export function WatchingShelf({ serials }: Props) {
             href={`${INTERIS_BASE}/serials/${serial.tmdbId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center gap-3 py-3 no-underline transition-transform hover:-translate-y-px"
+            className={`group flex items-center gap-3 pb-3 no-underline transition-transform hover:-translate-y-px ${i === 0 ? "" : "pt-3"}`}
           >
             {serial.posterPath ? (
               <img

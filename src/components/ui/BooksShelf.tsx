@@ -23,16 +23,20 @@ export function BooksShelf({ books }: Props) {
             href={`https://literal.club/book/${book.slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center gap-3 py-3 no-underline transition-transform hover:-translate-y-px"
+            className={`group flex items-center gap-3 pb-3 no-underline transition-transform hover:-translate-y-px ${i === 0 ? "" : "pt-3"}`}
           >
-            <img
-              src={book.cover}
-              alt={book.title}
-              loading="lazy"
-              width={36}
-              height={52}
-              className="h-[52px] w-[36px] shrink-0 object-cover"
-            />
+            {book.cover ? (
+              <img
+                src={book.cover}
+                alt={book.title}
+                loading="lazy"
+                width={36}
+                height={52}
+                className="h-[52px] w-[36px] shrink-0 object-cover"
+              />
+            ) : (
+              <div className="h-[52px] w-[36px] shrink-0 bg-[rgba(255,255,255,0.03)]" />
+            )}
             <div className="min-w-0 flex-1">
               <p className="text-[12px] font-medium leading-[1.3] text-[rgba(255,255,255,0.8)] transition-colors group-hover:text-[#a855f7]">
                 {book.title}
