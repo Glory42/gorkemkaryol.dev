@@ -256,6 +256,98 @@ export async function getLiteralData(
   });
 }
 
+export async function getAllBooksData(
+  runtimeEnv: RuntimeEnv,
+  finishedLimit = 50,
+): Promise<
+  ServiceResult<{ currentlyReading: LiteralBook[]; finishedBooks: LiteralBook[] }>
+> {
+  const envResult = requireLiteralEnv(runtimeEnv);
+
+  if (!envResult.ok) {
+    return fail({
+      code: "MISSING_ENV",
+      message: envResult.error.message,
+      retryable: false,
+      details: envResult.error.fields.join(", "),
+    });
+  }
+
+  const { LITERAL_EMAIL, LITERAL_PASSWORD } = envResult.data;
+
+  return withCache(`literal-all-books-${LITERAL_EMAIL}`, 3600, async () => {
+    const tokenResult = await getLiteralToken(LITERAL_EMAIL, LITERAL_PASSWORD);
+    if (!tokenResult.ok) return tokenResult;
+
+    const { token, profileId } = tokenResult.data;
+
+    const [readingResult, finishedResult] = await Promise.all([
+      requestJsonWithRetry<GraphQLResponse<ReadingQueryData>>({
+        url: LITERAL_GRAPHQL_API,
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: {
+          query: CURRENTLY_READING_QUERY,
+          variables: {
+            limit: 50,
+            offset: 0,
+            readingStatus: "IS_READING",
+            profileId,
+          },
+        },
+        timeoutMs: 12_000,
+        retries: 1,
+      }),
+      requestJsonWithRetry<GraphQLResponse<ReadingQueryData>>({
+        url: LITERAL_GRAPHQL_API,
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: {
+          query: CURRENTLY_READING_QUERY,
+          variables: {
+            limit: finishedLimit,
+            offset: 0,
+            readingStatus: "FINISHED",
+            profileId,
+          },
+        },
+        timeoutMs: 12_000,
+        retries: 1,
+      }),
+    ]);
+
+    if (!readingResult.ok) return readingResult;
+    if (!finishedResult.ok) return finishedResult;
+
+    const readingErrors = readingResult.data.data.errors ?? [];
+    if (readingErrors.length > 0) {
+      return fail({
+        code: "UPSTREAM_ERROR",
+        message: "Literal currently-reading query failed",
+        retryable: true,
+        details: readingErrors.map((e) => e.message).join(" | "),
+      });
+    }
+
+    const finishedErrors = finishedResult.data.data.errors ?? [];
+    if (finishedErrors.length > 0) {
+      return fail({
+        code: "UPSTREAM_ERROR",
+        message: "Literal finished-books query failed",
+        retryable: true,
+        details: finishedErrors.map((e) => e.message).join(" | "),
+      });
+    }
+
+    const currentlyReading =
+      readingResult.data.data.data?.booksByReadingStateAndProfile ?? [];
+    const finishedBooks =
+      finishedResult.data.data.data?.booksByReadingStateAndProfile ?? [];
+
+    return ok({ currentlyReading, finishedBooks });
+  });
+}
+
 export async function getCurrentlyReading(
   runtimeEnv: RuntimeEnv,
   limit = 3,
