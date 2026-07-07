@@ -47,6 +47,36 @@ export interface InterisData {
   profile: InterisProfile;
 }
 
+export interface CurrentlyWatchingSerial {
+  tmdbId: number;
+  title: string;
+  posterPath: string | null;
+  progressPercent: number;
+  watchedEpisodesCount: number;
+  numberOfEpisodes: number;
+  currentEpisode: {
+    seasonNumber: number;
+    episodeNumber: number;
+    name: string;
+  } | null;
+}
+
+export async function getCurrentlyWatchingSerials(
+  username: string,
+  limit = 2,
+): Promise<ServiceResult<CurrentlyWatchingSerial[]>> {
+  return withCache(`interis-watching-${username}`, 300, async () => {
+    const result = await requestJsonWithRetry<CurrentlyWatchingSerial[]>({
+      url: `${BASE}/${username}/serials/currently-watching?limit=${limit}`,
+      method: "GET",
+      timeoutMs: 8_000,
+    });
+
+    if (!result.ok) return result;
+    return ok(result.data.data);
+  });
+}
+
 export async function getInterisData(
   username: string,
 ): Promise<ServiceResult<InterisData>> {
