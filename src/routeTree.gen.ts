@@ -15,7 +15,10 @@ import { Route as ExperienceRouteImport } from './routes/experience'
 import { Route as CoolRouteImport } from './routes/cool'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
+import { Route as InterestsIndexRouteImport } from './routes/interests.index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
+import { Route as InterestsWatchingRouteImport } from './routes/interests.watching'
+import { Route as InterestsReadingRouteImport } from './routes/interests.reading'
 
 const ProjectsRoute = ProjectsRouteImport.update({
   id: '/projects',
@@ -47,27 +50,47 @@ const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ProjectsRoute,
 } as any)
+const InterestsIndexRoute = InterestsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => InterestsRoute,
+} as any)
 const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => ProjectsRoute,
+} as any)
+const InterestsWatchingRoute = InterestsWatchingRouteImport.update({
+  id: '/watching',
+  path: '/watching',
+  getParentRoute: () => InterestsRoute,
+} as any)
+const InterestsReadingRoute = InterestsReadingRouteImport.update({
+  id: '/reading',
+  path: '/reading',
+  getParentRoute: () => InterestsRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cool': typeof CoolRoute
   '/experience': typeof ExperienceRoute
-  '/interests': typeof InterestsRoute
+  '/interests': typeof InterestsRouteWithChildren
   '/projects': typeof ProjectsRouteWithChildren
+  '/interests/reading': typeof InterestsReadingRoute
+  '/interests/watching': typeof InterestsWatchingRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/interests/': typeof InterestsIndexRoute
   '/projects/': typeof ProjectsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cool': typeof CoolRoute
   '/experience': typeof ExperienceRoute
-  '/interests': typeof InterestsRoute
+  '/interests/reading': typeof InterestsReadingRoute
+  '/interests/watching': typeof InterestsWatchingRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/interests': typeof InterestsIndexRoute
   '/projects': typeof ProjectsIndexRoute
 }
 export interface FileRoutesById {
@@ -75,9 +98,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cool': typeof CoolRoute
   '/experience': typeof ExperienceRoute
-  '/interests': typeof InterestsRoute
+  '/interests': typeof InterestsRouteWithChildren
   '/projects': typeof ProjectsRouteWithChildren
+  '/interests/reading': typeof InterestsReadingRoute
+  '/interests/watching': typeof InterestsWatchingRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/interests/': typeof InterestsIndexRoute
   '/projects/': typeof ProjectsIndexRoute
 }
 export interface FileRouteTypes {
@@ -88,15 +114,20 @@ export interface FileRouteTypes {
     | '/experience'
     | '/interests'
     | '/projects'
+    | '/interests/reading'
+    | '/interests/watching'
     | '/projects/$slug'
+    | '/interests/'
     | '/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/cool'
     | '/experience'
-    | '/interests'
+    | '/interests/reading'
+    | '/interests/watching'
     | '/projects/$slug'
+    | '/interests'
     | '/projects'
   id:
     | '__root__'
@@ -105,7 +136,10 @@ export interface FileRouteTypes {
     | '/experience'
     | '/interests'
     | '/projects'
+    | '/interests/reading'
+    | '/interests/watching'
     | '/projects/$slug'
+    | '/interests/'
     | '/projects/'
   fileRoutesById: FileRoutesById
 }
@@ -113,7 +147,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CoolRoute: typeof CoolRoute
   ExperienceRoute: typeof ExperienceRoute
-  InterestsRoute: typeof InterestsRoute
+  InterestsRoute: typeof InterestsRouteWithChildren
   ProjectsRoute: typeof ProjectsRouteWithChildren
 }
 
@@ -161,6 +195,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsIndexRouteImport
       parentRoute: typeof ProjectsRoute
     }
+    '/interests/': {
+      id: '/interests/'
+      path: '/'
+      fullPath: '/interests/'
+      preLoaderRoute: typeof InterestsIndexRouteImport
+      parentRoute: typeof InterestsRoute
+    }
     '/projects/$slug': {
       id: '/projects/$slug'
       path: '/$slug'
@@ -168,8 +209,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsSlugRouteImport
       parentRoute: typeof ProjectsRoute
     }
+    '/interests/watching': {
+      id: '/interests/watching'
+      path: '/watching'
+      fullPath: '/interests/watching'
+      preLoaderRoute: typeof InterestsWatchingRouteImport
+      parentRoute: typeof InterestsRoute
+    }
+    '/interests/reading': {
+      id: '/interests/reading'
+      path: '/reading'
+      fullPath: '/interests/reading'
+      preLoaderRoute: typeof InterestsReadingRouteImport
+      parentRoute: typeof InterestsRoute
+    }
   }
 }
+
+interface InterestsRouteChildren {
+  InterestsReadingRoute: typeof InterestsReadingRoute
+  InterestsWatchingRoute: typeof InterestsWatchingRoute
+  InterestsIndexRoute: typeof InterestsIndexRoute
+}
+
+const InterestsRouteChildren: InterestsRouteChildren = {
+  InterestsReadingRoute: InterestsReadingRoute,
+  InterestsWatchingRoute: InterestsWatchingRoute,
+  InterestsIndexRoute: InterestsIndexRoute,
+}
+
+const InterestsRouteWithChildren = InterestsRoute._addFileChildren(
+  InterestsRouteChildren,
+)
 
 interface ProjectsRouteChildren {
   ProjectsSlugRoute: typeof ProjectsSlugRoute
@@ -189,7 +260,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CoolRoute: CoolRoute,
   ExperienceRoute: ExperienceRoute,
-  InterestsRoute: InterestsRoute,
+  InterestsRoute: InterestsRouteWithChildren,
   ProjectsRoute: ProjectsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
