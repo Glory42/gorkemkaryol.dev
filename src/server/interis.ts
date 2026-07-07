@@ -65,7 +65,7 @@ export async function getCurrentlyWatchingSerials(
   username: string,
   limit = 2,
 ): Promise<ServiceResult<CurrentlyWatchingSerial[]>> {
-  return withCache(`interis-watching-${username}`, 300, async () => {
+  return withCache(`interis-watching-${username}-${limit}`, 300, async () => {
     const result = await requestJsonWithRetry<CurrentlyWatchingSerial[]>({
       url: `${BASE}/${username}/serials/currently-watching?limit=${limit}`,
       method: "GET",
@@ -74,6 +74,60 @@ export async function getCurrentlyWatchingSerials(
 
     if (!result.ok) return result;
     return ok(result.data.data);
+  });
+}
+
+export interface WatchedSerial {
+  tmdbId: number;
+  title: string;
+  posterPath: string | null;
+  firstAirYear: number | null;
+  numberOfSeasons: number;
+  numberOfEpisodes: number;
+  mediaType: "tv";
+  lastInteractionAt: string;
+}
+
+export interface WatchedMovie {
+  tmdbId: number;
+  title: string;
+  posterPath: string | null;
+  releaseYear: number | null;
+  runtime: number | null;
+  mediaType: "movie";
+  lastInteractionAt: string;
+}
+
+export interface WatchedMedia {
+  serials: WatchedSerial[];
+  movies: WatchedMovie[];
+}
+
+export async function getWatchedMedia(
+  username: string,
+  limit = 200,
+): Promise<ServiceResult<WatchedMedia>> {
+  return withCache(`interis-watched-${username}-${limit}`, 900, async () => {
+    const [serialsResult, moviesResult] = await Promise.all([
+      requestJsonWithRetry<WatchedSerial[]>({
+        url: `${BASE}/${username}/serials/watched?limit=${limit}`,
+        method: "GET",
+        timeoutMs: 8_000,
+      }),
+      requestJsonWithRetry<WatchedMovie[]>({
+        url: `${BASE}/${username}/movies/watched?limit=${limit}`,
+        method: "GET",
+        timeoutMs: 8_000,
+      }),
+    ]);
+
+    if (!serialsResult.ok) return serialsResult;
+    if (!moviesResult.ok) return moviesResult;
+
+    return ok({
+      serials: serialsResult.data.data,
+      movies: moviesResult.data.data,
+    });
   });
 }
 
