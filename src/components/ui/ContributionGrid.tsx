@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { GithubContributionCalendar } from "@/server/github";
 
@@ -51,6 +51,22 @@ export function ContributionGrid({ calendar }: Props) {
     return () => observer.disconnect();
   }, []);
 
+  // Sorting/grouping only depends on `calendar`, not on hover — memoize so a
+  // pointermove-driven re-render (which fires many times a second while
+  // hovering the graph) doesn't re-sort and re-group 364 days every time.
+  const weeks = useMemo(() => {
+    if (!calendar) return [];
+    const sortedDays = calendar.days
+      .slice()
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const days = sortedDays.slice(-364);
+    const result: (typeof days)[] = [];
+    for (let i = 0; i < days.length; i += 7) {
+      result.push(days.slice(i, i + 7));
+    }
+    return result;
+  }, [calendar]);
+
   if (!calendar) {
     return (
       <EmptyState
@@ -58,16 +74,6 @@ export function ContributionGrid({ calendar }: Props) {
         description="No contribution data was returned by GitHub for the selected period."
       />
     );
-  }
-
-  const sortedDays = calendar.days
-    .slice()
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-  const days = sortedDays.slice(-364);
-  const weeks: (typeof days)[] = [];
-  for (let i = 0; i < days.length; i += 7) {
-    weeks.push(days.slice(i, i + 7));
   }
 
   const totalContributions = new Intl.NumberFormat("en-US").format(

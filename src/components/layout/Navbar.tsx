@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Briefcase, FolderGit2, Gamepad2, Heart, Menu, User, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -17,10 +17,6 @@ export function Navbar() {
     select: (state) => state.location.pathname,
   });
   const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
 
   return (
     <nav
@@ -67,6 +63,7 @@ export function Navbar() {
                 <Link
                   key={`mobile-${item.href}`}
                   to={item.href}
+                  onClick={() => setIsOpen(false)}
                   className={`focus-ring mono inline-flex items-center gap-2 px-2 py-2 text-[10px] tracking-[0.1em] uppercase no-underline transition-colors ${
                     isActive
                       ? "text-white"

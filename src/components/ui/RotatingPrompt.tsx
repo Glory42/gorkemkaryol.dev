@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Props {
   className?: string;
@@ -13,16 +13,21 @@ const DEFAULT_WORDS = [
 ];
 
 export function RotatingPrompt({ className, words = DEFAULT_WORDS }: Props) {
-  const phrases = useMemo(
-    () => (words.length > 0 ? words : DEFAULT_WORDS),
-    [words],
-  );
+  const phrases = words.length > 0 ? words : DEFAULT_WORDS;
+
+  // Callers pass `words` as an inline array literal, so its reference changes
+  // on every render. Reading it through a ref (instead of depending on it
+  // directly) keeps the timer effect from restarting — and the pending
+  // delay from resetting — whenever the parent re-renders.
+  const phrasesRef = useRef(phrases);
+  phrasesRef.current = phrases;
+
   const [wordIndex, setWordIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const current = phrases[wordIndex] ?? "";
+    const current = phrasesRef.current[wordIndex] ?? "";
 
     let delay = isDeleting ? 55 : 90;
     if (!isDeleting && charIndex === current.length) delay = 1300;
@@ -44,11 +49,11 @@ export function RotatingPrompt({ className, words = DEFAULT_WORDS }: Props) {
       }
 
       setIsDeleting(false);
-      setWordIndex((prev) => (prev + 1) % phrases.length);
+      setWordIndex((prev) => (prev + 1) % phrasesRef.current.length);
     }, delay);
 
     return () => window.clearTimeout(timer);
-  }, [charIndex, isDeleting, wordIndex, phrases]);
+  }, [charIndex, isDeleting, wordIndex]);
 
   const visible = (phrases[wordIndex] ?? "").slice(0, charIndex);
 

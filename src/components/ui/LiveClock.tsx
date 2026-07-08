@@ -18,17 +18,15 @@ export function LiveClock({
   const [time, setTime] = useState<string>("--:--:--");
 
   useEffect(() => {
-    const update = () => {
-      const formatter = new Intl.DateTimeFormat("en-GB", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-        timeZone: location,
-      });
+    const formatter = new Intl.DateTimeFormat("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+      timeZone: location,
+    });
 
-      setTime(formatter.format(new Date()));
-    };
+    const update = () => setTime(formatter.format(new Date()));
 
     update();
     const timer = window.setInterval(update, 1000);
