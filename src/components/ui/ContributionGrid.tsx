@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { GithubContributionCalendar } from "@/server/github";
 
@@ -6,7 +7,18 @@ interface Props {
   calendar: GithubContributionCalendar | null;
 }
 
-const LEVEL_BG: Record<number, string> = {
+interface Hover {
+  date: string;
+  count: number;
+  x: number;
+  y: number;
+}
+
+const CELL = 11;
+const GAP = 3;
+const RADIUS = 2;
+
+const LEVEL_FILL: Record<number, string> = {
   0: "rgba(255,255,255,0.03)",
   1: "rgba(168,85,247,0.18)",
   2: "rgba(168,85,247,0.38)",
@@ -14,18 +26,19 @@ const LEVEL_BG: Record<number, string> = {
   4: "#a855f7",
 };
 
-function formatDayLabel(date: string, count: number) {
+function formatPrettyDate(date: string) {
   const [year, month, day] = date.split("-").map(Number);
-  const prettyDate = new Date(Date.UTC(year, month - 1, day)).toLocaleDateString("en-US", {
+  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
-  const noun = count === 1 ? "contribution" : "contributions";
-  return `${count} ${noun} on ${prettyDate}`;
 }
 
-export function ContributionGrid({ username, calendar }: Props) {
+export function ContributionGrid({ calendar }: Props) {
+  const [hover, setHover] = useState<Hover | null>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
   if (!calendar) {
     return (
       <EmptyState
@@ -34,8 +47,6 @@ export function ContributionGrid({ username, calendar }: Props) {
       />
     );
   }
-
-  const profileUrl = username ? `https://github.com/${username}` : "https://github.com";
 
   const sortedDays = calendar.days
     .slice()
@@ -51,6 +62,25 @@ export function ContributionGrid({ username, calendar }: Props) {
     calendar.totalContributions,
   );
 
+  const width = weeks.length * (CELL + GAP) - GAP;
+  const height = 7 * (CELL + GAP) - GAP;
+
+  const handleMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    const target = e.target as Element;
+    const rect = target.closest("rect[data-date]") as SVGRectElement | null;
+    if (!rect || !wrapRef.current) {
+      setHover(null);
+      return;
+    }
+    const bounds = wrapRef.current.getBoundingClientRect();
+    setHover({
+      date: rect.getAttribute("data-date")!,
+      count: Number(rect.getAttribute("data-count") || "0"),
+      x: e.clientX - bounds.left,
+      y: e.clientY - bounds.top,
+    });
+  };
+
   return (
     <section>
       <div className="mb-4 flex items-center gap-3">
@@ -61,36 +91,49 @@ export function ContributionGrid({ username, calendar }: Props) {
         <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
       </div>
 
-      <div className="overflow-x-auto">
-      <div
-        className="grid"
-        style={{
-          gridTemplateColumns: `repeat(${weeks.length}, minmax(0, 1fr))`,
-          minWidth: `${weeks.length * 13}px`,
-          gap: "3px",
-        }}
-      >
-        {weeks.map((week, wi) => (
-          <div
-            key={wi}
-            className="grid grid-rows-7"
-            style={{ gap: "3px" }}
-          >
-            {week.map((day) => (
-              <a
+      <div ref={wrapRef} className="relative w-full" onPointerLeave={() => setHover(null)}>
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          preserveAspectRatio="xMidYMid meet"
+          className="h-auto w-full"
+          role="img"
+          aria-label={`${totalContributions} contributions in the last year`}
+          onPointerMove={handleMove}
+        >
+          {weeks.map((week, wi) =>
+            week.map((day, di) => (
+              <rect
                 key={day.date}
-                href={profileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={formatDayLabel(day.date, day.count)}
-                aria-label={formatDayLabel(day.date, day.count)}
-                className="focus-ring block aspect-square w-full rounded-[2px]"
-                style={{ backgroundColor: LEVEL_BG[day.level] }}
+                x={wi * (CELL + GAP)}
+                y={di * (CELL + GAP)}
+                width={CELL}
+                height={CELL}
+                rx={RADIUS}
+                ry={RADIUS}
+                fill={LEVEL_FILL[day.level]}
+                data-date={day.date}
+                data-count={day.count}
+                className="transition-opacity duration-150 hover:opacity-80"
               />
-            ))}
+            )),
+          )}
+        </svg>
+
+        {hover && (
+          <div
+            role="tooltip"
+            className="pointer-events-none absolute z-30 -translate-x-1/2 -translate-y-full border border-[rgba(168,85,247,0.4)] bg-black px-2.5 py-1.5"
+            style={{ left: hover.x, top: hover.y - 12 }}
+          >
+            <span className="mono whitespace-nowrap text-[10px] tracking-[0.02em]">
+              <span className="font-semibold text-[var(--accent-iris)]">{hover.count}</span>{" "}
+              <span className="text-[var(--text-2)]">
+                {hover.count === 1 ? "contribution" : "contributions"} on{" "}
+              </span>
+              <span className="text-[var(--text-1)]">{formatPrettyDate(hover.date)}</span>
+            </span>
           </div>
-        ))}
-      </div>
+        )}
       </div>
     </section>
   );
