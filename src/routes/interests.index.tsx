@@ -99,7 +99,7 @@ function SubLabel({ label, icon: Icon }: { label: string; icon: LucideIcon }) {
 function SkeletonItem() {
   return (
     <div className="flex items-center gap-3 py-3">
-      <div className="h-[52px] w-[36px] shrink-0 bg-[rgba(255,255,255,0.03)]" />
+      <div className="image-shimmer h-[52px] w-[36px] shrink-0" />
       <div className="flex-1 space-y-2">
         <div className="h-2.5 w-3/4 rounded bg-[rgba(255,255,255,0.04)]" />
         <div className="h-2 w-1/2 rounded bg-[rgba(255,255,255,0.03)]" />
@@ -110,10 +110,7 @@ function SkeletonItem() {
 
 function SectionLoading() {
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex justify-center py-2">
-        <div className="h-3.5 w-3.5 animate-spin rounded-full border border-[rgba(168,85,247,0.2)] border-t-[rgba(168,85,247,0.7)]" />
-      </div>
+    <div className="flex flex-col">
       <SkeletonItem />
       <div className="h-px bg-[rgba(255,255,255,0.04)]" />
       <SkeletonItem />
