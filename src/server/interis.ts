@@ -131,6 +131,21 @@ export async function getWatchedMedia(
   });
 }
 
+export async function getInterisProfile(
+  username: string,
+): Promise<ServiceResult<InterisProfile>> {
+  return withCache(`interis-profile-${username}`, 900, async () => {
+    const result = await requestJsonWithRetry<InterisProfile>({
+      url: `${BASE}/${username}/profile`,
+      method: "GET",
+      timeoutMs: 8_000,
+    });
+
+    if (!result.ok) return result;
+    return ok(result.data.data);
+  });
+}
+
 export async function getInterisData(
   username: string,
 ): Promise<ServiceResult<InterisData>> {

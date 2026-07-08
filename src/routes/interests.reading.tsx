@@ -57,7 +57,14 @@ function ReadingPage() {
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
       <div className="mx-auto max-w-[900px]">
-        <p className="mono mb-4 text-[11px] text-[#252525]">~$ cat ./interests/reading</p>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <p className="mono text-[11px] text-[#252525]">~$ cat ./interests/reading</p>
+          {result.ok && (
+            <p className="mono text-[10px] text-[rgba(168,85,247,0.45)]">
+              {result.data.finishedBooks.length} books read · {result.data.currentlyReading.length} reading
+            </p>
+          )}
+        </div>
 
         <div className="mb-6">
           <Link

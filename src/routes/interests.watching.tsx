@@ -10,6 +10,7 @@ import { INTERIS_BASE, TMDB_IMAGE_BASE } from "@/lib/content";
 import { readRuntimeEnv } from "@/lib/env";
 import {
   getCurrentlyWatchingSerials,
+  getInterisProfile,
   getWatchedMedia,
   type CurrentlyWatchingSerial,
   type WatchedMovie,
@@ -20,11 +21,12 @@ import { publicResult } from "@/server/http";
 const getWatchingPageDataServerFn = createServerFn({ method: "GET" }).handler(
   async () => {
     const runtimeEnv = readRuntimeEnv(workerEnv);
-    const [currentlyWatching, watched] = await Promise.all([
+    const [currentlyWatching, watched, profile] = await Promise.all([
       publicResult(await getCurrentlyWatchingSerials(runtimeEnv.INTERIS_USERNAME, 30)),
       publicResult(await getWatchedMedia(runtimeEnv.INTERIS_USERNAME, 200)),
+      publicResult(await getInterisProfile(runtimeEnv.INTERIS_USERNAME)),
     ]);
-    return { currentlyWatching, watched };
+    return { currentlyWatching, watched, profile };
   },
 );
 
@@ -176,12 +178,19 @@ function WatchedSection({
 }
 
 function WatchingPage() {
-  const { currentlyWatching, watched } = Route.useLoaderData();
+  const { currentlyWatching, watched, profile } = Route.useLoaderData();
 
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
       <div className="mx-auto max-w-[900px]">
-        <p className="mono mb-4 text-[11px] text-[#252525]">~$ cat ./interests/watching</p>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <p className="mono text-[11px] text-[#252525]">~$ cat ./interests/watching</p>
+          {profile.ok && (
+            <p className="mono text-[10px] text-[rgba(168,85,247,0.45)]">
+              {profile.data.stats.filmCount} films · {profile.data.stats.serialEntryCount} series watched
+            </p>
+          )}
+        </div>
 
         <div className="mb-6">
           <Link
