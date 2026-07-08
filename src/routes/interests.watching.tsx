@@ -1,11 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { env as workerEnv } from "cloudflare:workers";
-import { ChevronLeft } from "lucide-react";
 import { useMemo, useState } from "react";
 import { PageShell } from "@/components/layout/PageShell";
+import { BackLink } from "@/components/ui/BackLink";
 import { ErrorPanel } from "@/components/ui/ErrorPanel";
 import { PosterGrid, PosterGridSkeleton, type PosterGridItem } from "@/components/ui/PosterGrid";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { INTERIS_BASE, TMDB_IMAGE_BASE } from "@/lib/content";
 import { readRuntimeEnv } from "@/lib/env";
 import {
@@ -46,37 +47,12 @@ export const Route = createFileRoute("/interests/watching")({
   component: WatchingPage,
 });
 
-function SectionHeader({ sig }: { sig: string }) {
-  return (
-    <div className="mb-4 flex items-center gap-3">
-      <span className="mono text-[9px] tracking-[0.25em] text-[rgba(168,85,247,0.55)] uppercase">
-        {sig}
-      </span>
-      <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
-    </div>
-  );
-}
-
-function BackLink() {
-  return (
-    <div className="mb-6">
-      <Link
-        to="/interests"
-        className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#333] no-underline transition-colors hover:text-[rgba(168,85,247,0.85)]"
-      >
-        <ChevronLeft size={11} />
-        back to interests
-      </Link>
-    </div>
-  );
-}
-
 function WatchingPageSkeleton() {
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
       <div className="mx-auto max-w-[900px]">
         <p className="mono mb-4 text-[11px] text-[#252525]">~$ cat ./interests/watching</p>
-        <BackLink />
+        <BackLink to="/interests">back to interests</BackLink>
 
         <section className="mb-10">
           <SectionHeader sig="./currently-watching" />
@@ -229,7 +205,7 @@ function WatchingPage() {
           )}
         </div>
 
-        <BackLink />
+        <BackLink to="/interests">back to interests</BackLink>
 
         {currentlyWatching.ok && currentlyWatching.data.length > 0 && (
           <section className="mb-10">

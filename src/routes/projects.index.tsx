@@ -6,6 +6,7 @@ import { ContributionGrid } from "@/components/ui/ContributionGrid";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorPanel } from "@/components/ui/ErrorPanel";
 import { ProjectsGrid } from "@/components/ui/ProjectsGrid";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { readRuntimeEnv } from "@/lib/env";
 import { getGithubProjects } from "@/server/github";
 import { publicResult } from "@/server/http";
@@ -32,17 +33,6 @@ export const Route = createFileRoute("/projects/")({
   pendingComponent: ProjectsPageSkeleton,
   component: ProjectsPage,
 });
-
-function SectionHeader({ sig }: { sig: string; label?: string }) {
-  return (
-    <div className="mb-4 flex items-center gap-3">
-      <span className="mono text-[9px] tracking-[0.25em] text-[rgba(168,85,247,0.55)] uppercase">
-        {sig}
-      </span>
-      <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
-    </div>
-  );
-}
 
 function ProjectsPageSkeleton() {
   return (
@@ -78,7 +68,7 @@ function ProjectsPageSkeleton() {
         <div className="mb-8 h-px bg-[rgba(255,255,255,0.05)]" />
 
         <section>
-          <SectionHeader sig="/featured" label="Projects" />
+          <SectionHeader sig="/featured" />
           <div className="flex animate-pulse flex-col">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
