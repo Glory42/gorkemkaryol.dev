@@ -4,7 +4,7 @@ import { env as workerEnv } from "cloudflare:workers";
 import { ChevronLeft } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
 import { ErrorPanel } from "@/components/ui/ErrorPanel";
-import { PosterGrid, type PosterGridItem } from "@/components/ui/PosterGrid";
+import { PosterGrid, PosterGridSkeleton, type PosterGridItem } from "@/components/ui/PosterGrid";
 import { readRuntimeEnv } from "@/lib/env";
 import { getAllBooksData, type LiteralBook } from "@/server/literal";
 import { publicResult } from "@/server/http";
@@ -27,6 +27,8 @@ export const Route = createFileRoute("/interests/reading")({
     ],
   }),
   loader: async () => getAllBooksServerFn(),
+  pendingMs: 0,
+  pendingComponent: ReadingPageSkeleton,
   component: ReadingPage,
 });
 
@@ -38,6 +40,41 @@ function SectionHeader({ sig }: { sig: string }) {
       </span>
       <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
     </div>
+  );
+}
+
+function BackLink() {
+  return (
+    <div className="mb-6">
+      <Link
+        to="/interests"
+        className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#333] no-underline transition-colors hover:text-[rgba(168,85,247,0.85)]"
+      >
+        <ChevronLeft size={11} />
+        back to interests
+      </Link>
+    </div>
+  );
+}
+
+function ReadingPageSkeleton() {
+  return (
+    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
+      <div className="mx-auto max-w-[900px]">
+        <p className="mono mb-4 text-[11px] text-[#252525]">~$ cat ./interests/reading</p>
+        <BackLink />
+
+        <section className="mb-10">
+          <SectionHeader sig="./currently-reading" />
+          <PosterGridSkeleton count={4} />
+        </section>
+
+        <section>
+          <SectionHeader sig="./finished" />
+          <PosterGridSkeleton count={10} />
+        </section>
+      </div>
+    </PageShell>
   );
 }
 
@@ -66,15 +103,7 @@ function ReadingPage() {
           )}
         </div>
 
-        <div className="mb-6">
-          <Link
-            to="/interests"
-            className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#333] no-underline transition-colors hover:text-[rgba(168,85,247,0.85)]"
-          >
-            <ChevronLeft size={11} />
-            back to interests
-          </Link>
-        </div>
+        <BackLink />
 
         {!result.ok ? (
           <ErrorPanel title="Literal API Unavailable" error={result.error} />

@@ -63,3 +63,17 @@ export function PosterGrid({ items, emptyTitle, emptyDescription }: Props) {
     </div>
   );
 }
+
+export function PosterGridSkeleton({ count = 10 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-4 md:grid-cols-5">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i}>
+          <div className="image-shimmer aspect-[2/3] w-full" />
+          <div className="mt-2 h-2.5 w-[85%] rounded bg-[rgba(255,255,255,0.04)]" />
+          <div className="mt-1.5 h-2 w-1/2 rounded bg-[rgba(255,255,255,0.03)]" />
+        </div>
+      ))}
+    </div>
+  );
+}
