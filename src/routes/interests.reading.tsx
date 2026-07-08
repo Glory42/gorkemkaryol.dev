@@ -12,7 +12,7 @@ import { publicResult } from "@/server/http";
 const getAllBooksServerFn = createServerFn({ method: "GET" }).handler(
   async () => {
     const runtimeEnv = readRuntimeEnv(workerEnv);
-    return publicResult(await getAllBooksData(runtimeEnv, 50));
+    return publicResult(await getAllBooksData(runtimeEnv, 1000));
   },
 );
 

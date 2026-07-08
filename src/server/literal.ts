@@ -258,7 +258,7 @@ export async function getLiteralData(
 
 export async function getAllBooksData(
   runtimeEnv: RuntimeEnv,
-  finishedLimit = 50,
+  finishedLimit = 1000,
 ): Promise<
   ServiceResult<{ currentlyReading: LiteralBook[]; finishedBooks: LiteralBook[] }>
 > {
