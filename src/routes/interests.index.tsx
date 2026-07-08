@@ -219,7 +219,7 @@ function InterestsPage() {
 
               <div>
                 <SubLabel label="Bands" icon={Music} />
-                <div className="flex flex-col">
+                <div className="flex flex-col stagger">
                   {favoriteBands.map((band, i) => (
                     <div key={band.name}>
                       <a

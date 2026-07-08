@@ -18,7 +18,7 @@ export function WatchingShelf({ serials }: Props) {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col stagger">
       {serials.map((serial, i) => (
         <div key={serial.tmdbId}>
           <a

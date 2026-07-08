@@ -28,13 +28,13 @@ function HomePage() {
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pt-3 pb-16 md:pt-[max(24px,4vh)]">
       <div className="mx-auto max-w-[680px]">
-      <p className="mono mb-5 text-[11px] text-[#252525]">~$ whoami</p>
+      <p className="mono mb-5 text-[11px] text-[#252525] animate-fade-in">~$ whoami</p>
       <section className="mb-10">
-        <h1 className="mono mb-2 text-[clamp(20px,2.2vw,30px)] font-bold leading-[1.1] tracking-[-0.01em] text-white">
+        <h1 className="mono mb-2 text-[clamp(20px,2.2vw,30px)] font-bold leading-[1.1] tracking-[-0.01em] text-white animate-fade-in-down">
           Görkem Karyol
         </h1>
 
-        <div className="mb-3 flex items-center gap-2.5">
+        <div className="mb-3 flex items-center gap-2.5 animate-fade-in-down delay-50">
           <span className="mono text-[11px] text-[#444]">Istanbul, Türkiye</span>
           <span className="h-[10px] w-px bg-[rgba(255,255,255,0.07)]" />
           <span className="mono text-[11px] text-[#2e2e2e]">
@@ -47,7 +47,7 @@ function HomePage() {
           </span>
         </div>
 
-        <div className="mb-5 flex items-center gap-2">
+        <div className="mb-5 flex items-center gap-2 animate-fade-in-down delay-100">
           <span className="mono text-[11px] text-[rgba(168,85,247,0.65)]">→</span>
           <span className="inline-flex items-center">
             <RotatingPrompt
@@ -58,11 +58,13 @@ function HomePage() {
           </span>
         </div>
 
-        <p className="mb-5 text-[12px] leading-[1.75] text-[#444]">
+        <p className="mb-5 text-[12px] leading-[1.75] text-[#444] animate-fade-in-up delay-150">
           {introText}
         </p>
 
-        <ContactLinks items={contactItems} />
+        <div className="animate-fade-in-up delay-200">
+          <ContactLinks items={contactItems} />
+        </div>
       </section>
 
       <section>
@@ -73,7 +75,7 @@ function HomePage() {
           <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
         </div>
 
-        <div className="flex flex-col">
+        <div className="flex flex-col stagger">
           {techItems.map((item, i) => {
             const Icon = IconMap[item.iconId];
             return (

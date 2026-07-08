@@ -6,7 +6,7 @@ interface Props {
 
 export function ExperienceTimeline({ items }: Props) {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col stagger">
       {items.map((item, index) => (
         <div key={`${item.role}-${item.company}`}>
           <div className="group py-5">

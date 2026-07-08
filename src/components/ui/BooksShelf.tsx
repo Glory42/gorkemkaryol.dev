@@ -17,7 +17,7 @@ export function BooksShelf({ books }: Props) {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col stagger">
       {books.map((book, i) => (
         <div key={book.id}>
           <a

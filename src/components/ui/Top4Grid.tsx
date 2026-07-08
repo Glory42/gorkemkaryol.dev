@@ -20,7 +20,7 @@ export function Top4Grid({ items }: Props) {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col stagger">
       {items.map((item, i) => {
         const href = interisUrl(item);
         const inner = (

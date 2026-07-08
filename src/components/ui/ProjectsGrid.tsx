@@ -8,7 +8,7 @@ interface Props {
 
 export function ProjectsGrid({ repos }: Props) {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col stagger">
       {repos.map((repo) => {
         const tags = repo.topics.filter((t) => t !== "featured").slice(0, 3);
         const lang = repo.primaryLanguage?.name;
