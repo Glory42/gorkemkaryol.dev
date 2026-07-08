@@ -52,7 +52,7 @@ function HomePage() {
           <span className="inline-flex items-center">
             <RotatingPrompt
               className="mono text-[11px] text-[#555]"
-              words={["computer engineering student", "linux enjoyer", "web developer"]}
+              words={["software engineer", "linux enjoyer", "web developer"]}
             />
             <span className="mono text-[11px] text-[rgba(168,85,247,0.55)] animate-pulse">_</span>
           </span>
