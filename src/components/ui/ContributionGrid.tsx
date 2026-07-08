@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { GithubContributionCalendar } from "@/server/github";
 
@@ -14,9 +14,9 @@ interface Hover {
   y: number;
 }
 
-const CELL = 11;
 const GAP = 3;
 const RADIUS = 2;
+const FALLBACK_CELL = 11;
 
 const LEVEL_FILL: Record<number, string> = {
   0: "rgba(255,255,255,0.03)",
@@ -37,7 +37,19 @@ function formatPrettyDate(date: string) {
 
 export function ContributionGrid({ calendar }: Props) {
   const [hover, setHover] = useState<Hover | null>(null);
+  const [containerWidth, setContainerWidth] = useState<number | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) setContainerWidth(entry.contentRect.width);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   if (!calendar) {
     return (
@@ -62,7 +74,10 @@ export function ContributionGrid({ calendar }: Props) {
     calendar.totalContributions,
   );
 
-  const width = weeks.length * (CELL + GAP) - GAP;
+  const CELL = containerWidth
+    ? (containerWidth - (weeks.length - 1) * GAP) / weeks.length
+    : FALLBACK_CELL;
+  const width = containerWidth ?? weeks.length * (CELL + GAP) - GAP;
   const height = 7 * (CELL + GAP) - GAP;
 
   const handleMove = (e: React.PointerEvent<SVGSVGElement>) => {
