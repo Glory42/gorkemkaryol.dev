@@ -1,5 +1,6 @@
 import type { LiteralBook } from "@/server/literal";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 interface Props {
   books: LiteralBook[];
@@ -26,13 +27,14 @@ export function BooksShelf({ books }: Props) {
             className={`group flex items-center gap-3 pb-3 no-underline transition-transform hover:-translate-y-px ${i === 0 ? "" : "pt-3"}`}
           >
             {book.cover ? (
-              <img
+              <SmartImage
                 src={book.cover}
                 alt={book.title}
                 loading="lazy"
                 width={36}
                 height={52}
-                className="h-[52px] w-[36px] shrink-0 object-cover"
+                wrapperClassName="h-[52px] w-[36px] shrink-0"
+                className="h-full w-full object-cover"
               />
             ) : (
               <div className="h-[52px] w-[36px] shrink-0 bg-[rgba(255,255,255,0.03)]" />

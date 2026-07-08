@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/ui/EmptyState";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 export interface PosterGridItem {
   id: string | number;
@@ -31,13 +32,14 @@ export function PosterGrid({ items, emptyTitle, emptyDescription }: Props) {
           className="group block no-underline transition-transform hover:-translate-y-px"
         >
           {item.imageUrl ? (
-            <img
+            <SmartImage
               src={item.imageUrl}
               alt={item.title}
               loading="lazy"
               width={100}
               height={150}
-              className="aspect-[2/3] w-full object-cover"
+              wrapperClassName="aspect-[2/3] w-full"
+              className="h-full w-full object-cover"
             />
           ) : (
             <div className="aspect-[2/3] w-full bg-[rgba(255,255,255,0.03)]" />

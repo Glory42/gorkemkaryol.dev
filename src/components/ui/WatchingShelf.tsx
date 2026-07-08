@@ -1,6 +1,7 @@
 import { INTERIS_BASE, TMDB_IMAGE_BASE } from "@/lib/content";
 import type { CurrentlyWatchingSerial } from "@/server/interis";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 interface Props {
   serials: CurrentlyWatchingSerial[];
@@ -27,13 +28,14 @@ export function WatchingShelf({ serials }: Props) {
             className={`group flex items-center gap-3 pb-3 no-underline transition-transform hover:-translate-y-px ${i === 0 ? "" : "pt-3"}`}
           >
             {serial.posterPath ? (
-              <img
+              <SmartImage
                 src={`${TMDB_IMAGE_BASE}${serial.posterPath}`}
                 alt={serial.title}
                 loading="lazy"
                 width={36}
                 height={52}
-                className="h-[52px] w-[36px] shrink-0 object-cover"
+                wrapperClassName="h-[52px] w-[36px] shrink-0"
+                className="h-full w-full object-cover"
               />
             ) : (
               <div className="h-[52px] w-[36px] shrink-0 bg-[rgba(255,255,255,0.03)]" />

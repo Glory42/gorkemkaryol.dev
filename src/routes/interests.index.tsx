@@ -7,6 +7,7 @@ import { Suspense } from "react";
 import { PageShell } from "@/components/layout/PageShell";
 import { BooksShelf } from "@/components/ui/BooksShelf";
 import { ErrorPanel } from "@/components/ui/ErrorPanel";
+import { SmartImage } from "@/components/ui/SmartImage";
 import { Top4Grid } from "@/components/ui/Top4Grid";
 import { WatchingShelf } from "@/components/ui/WatchingShelf";
 import { favoriteBands, interestsIntro } from "@/lib/content";
@@ -227,13 +228,14 @@ function InterestsPage() {
                         rel="noopener noreferrer"
                         className="group flex items-center gap-3 py-3 no-underline transition-transform hover:-translate-y-px"
                       >
-                        <img
+                        <SmartImage
                           src={band.image}
                           alt={band.name}
                           loading="lazy"
                           width={36}
                           height={52}
-                          className="h-[52px] w-[36px] shrink-0 object-cover"
+                          wrapperClassName="h-[52px] w-[36px] shrink-0"
+                          className="h-full w-full object-cover"
                         />
                         <p className="text-[12px] font-medium leading-[1.3] text-[rgba(255,255,255,0.8)] transition-colors group-hover:text-[#a855f7]">
                           {band.name}

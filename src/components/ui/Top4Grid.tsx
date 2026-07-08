@@ -1,5 +1,6 @@
 import { INTERIS_BASE, TMDB_IMAGE_BASE } from "@/lib/content";
 import type { InterisTop4Item } from "@/server/interis";
+import { SmartImage } from "@/components/ui/SmartImage";
 
 function interisUrl(item: InterisTop4Item): string | null {
   if (!item.tmdbId) return null;
@@ -25,13 +26,14 @@ export function Top4Grid({ items }: Props) {
         const inner = (
           <div className="flex items-center gap-3 py-3">
             {item.posterPath ? (
-              <img
+              <SmartImage
                 src={`${TMDB_IMAGE_BASE}${item.posterPath}`}
                 alt={item.title ?? ""}
                 loading="lazy"
                 width={36}
                 height={52}
-                className="h-[52px] w-[36px] shrink-0 object-cover"
+                wrapperClassName="h-[52px] w-[36px] shrink-0"
+                className="h-full w-full object-cover"
               />
             ) : (
               <div className="h-[52px] w-[36px] shrink-0 bg-[rgba(255,255,255,0.03)]" />
