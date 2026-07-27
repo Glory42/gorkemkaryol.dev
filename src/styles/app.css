@@ -67,17 +67,6 @@ html {
   color: #ffffff;
 }
 
-.shell-grid {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  background-image:
-    linear-gradient(rgba(168, 85, 247, 0.013) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(168, 85, 247, 0.013) 1px, transparent 1px);
-  background-size: 44px 44px;
-}
-
 .panel {
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-md);

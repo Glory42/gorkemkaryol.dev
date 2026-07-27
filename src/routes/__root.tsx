@@ -40,7 +40,6 @@ function RootComponent() {
       <a href="#main-content" className="skip-link mono">
         Skip to content
       </a>
-      <div className="shell-grid" />
       <Navbar />
       <div className="flex-1 pt-[48px]">
         <Outlet />
