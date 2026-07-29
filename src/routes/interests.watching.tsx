@@ -51,7 +51,10 @@ function WatchingPageSkeleton() {
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
       <div className="mx-auto max-w-[900px]">
-        <p className="mono mb-4 text-[11px] text-[#252525]">~$ cat ./interests/watching</p>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <p className="mono text-[11px] text-[#252525]">~$ cat ./interests/watching</p>
+          <div className="h-2.5 w-44 animate-pulse rounded bg-[rgba(255,255,255,0.04)]" />
+        </div>
         <BackLink to="/interests">back to interests</BackLink>
 
         <section className="mb-10">

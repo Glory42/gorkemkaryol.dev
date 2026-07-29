@@ -127,7 +127,7 @@ function InterestsPage() {
       <section className="mx-auto max-w-[900px]">
         <p className="mono mb-2 text-[11px] text-[#252525]">~$ ls ./interests</p>
 
-        <Suspense fallback={<div className="mb-3" />}>
+        <Suspense fallback={<div className="mb-3 h-2.5 w-40 animate-pulse rounded bg-[rgba(255,255,255,0.04)]" />}>
           <Await promise={interis}>
             {(data) =>
               data.ok ? (
