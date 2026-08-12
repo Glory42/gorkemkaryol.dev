@@ -1,16 +1,7 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Briefcase, FolderGit2, Gamepad2, Heart, Menu, User, X } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { navigationItems } from "@/lib/content";
-
-const NAV_ICONS: Record<string, LucideIcon> = {
-  "/": User,
-  "/projects": FolderGit2,
-  "/experience": Briefcase,
-  "/interests": Heart,
-  "/cool": Gamepad2,
-};
 
 export function Navbar() {
   const pathname = useRouterState({
@@ -26,7 +17,7 @@ export function Navbar() {
       <div className="hidden items-center gap-6 md:flex">
         {navigationItems.map((item) => {
           const isActive = pathname === item.href;
-          const Icon = NAV_ICONS[item.href];
+          const Icon = item.icon;
           return (
             <Link
               key={item.href}
@@ -37,7 +28,7 @@ export function Navbar() {
                   : "text-[rgba(255,255,255,0.28)] hover:text-[rgba(255,255,255,0.65)]"
               }`}
             >
-              {Icon && <Icon size={11} />}
+              <Icon size={11} />
               {item.label}
             </Link>
           );
@@ -58,7 +49,7 @@ export function Navbar() {
           <div className="absolute right-0 mt-2 w-40 border border-[rgba(255,255,255,0.06)] bg-black p-3">
             {navigationItems.map((item) => {
               const isActive = pathname === item.href;
-              const Icon = NAV_ICONS[item.href];
+              const Icon = item.icon;
               return (
                 <Link
                   key={`mobile-${item.href}`}
@@ -70,7 +61,7 @@ export function Navbar() {
                       : "text-[rgba(255,255,255,0.3)] hover:text-white"
                   }`}
                 >
-                  {Icon && <Icon size={11} />}
+                  <Icon size={11} />
                   {item.label}
                 </Link>
               );

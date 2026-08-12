@@ -1,3 +1,6 @@
+import { Briefcase, FolderGit2, Gamepad2, Heart, User } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
 export const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w185";
 export const INTERIS_BASE = "https://interis.gorkemkaryol.dev";
 
@@ -8,6 +11,7 @@ export const EXTERNAL_REPOS = [
 export interface NavigationItem {
   href: "/" | "/projects" | "/interests" | "/experience" | "/cool";
   label: string;
+  icon: LucideIcon;
 }
 
 export interface ExperienceItem {
@@ -39,11 +43,11 @@ export interface BandItem {
 }
 
 export const navigationItems: NavigationItem[] = [
-  { href: "/", label: "me" },
-  { href: "/projects", label: "projects" },
-  { href: "/experience", label: "experience" },
-  { href: "/interests", label: "interests" },
-  { href: "/cool", label: "cool" },
+  { href: "/", label: "me", icon: User },
+  { href: "/projects", label: "projects", icon: FolderGit2 },
+  { href: "/experience", label: "experience", icon: Briefcase },
+  { href: "/interests", label: "interests", icon: Heart },
+  { href: "/cool", label: "cool", icon: Gamepad2 },
 ];
 
 export const workExperiences: ExperienceItem[] = [
