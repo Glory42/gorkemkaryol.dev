@@ -8,6 +8,18 @@ import { withCache } from "@/server/cache";
 
 const BASE = "https://api.interis.gorkemkaryol.dev/api/public";
 
+function requireUsername(username: string): ServiceResult<string> {
+  if (!username) {
+    return fail({
+      code: "MISSING_ENV",
+      message: "Missing required environment binding(s): INTERIS_USERNAME",
+      retryable: false,
+      details: "INTERIS_USERNAME",
+    });
+  }
+  return ok(username);
+}
+
 export interface InterisTop4Item {
   slot: number;
   mediaType: string;
@@ -65,6 +77,9 @@ export async function getCurrentlyWatchingSerials(
   username: string,
   limit = 2,
 ): Promise<ServiceResult<CurrentlyWatchingSerial[]>> {
+  const usernameResult = requireUsername(username);
+  if (!usernameResult.ok) return usernameResult;
+
   return withCache(`interis-watching-${username}-${limit}`, 300, async () => {
     const result = await requestJsonWithRetry<CurrentlyWatchingSerial[]>({
       url: `${BASE}/${username}/serials/currently-watching?limit=${limit}`,
@@ -107,6 +122,9 @@ export async function getWatchedMedia(
   username: string,
   limit = 200,
 ): Promise<ServiceResult<WatchedMedia>> {
+  const usernameResult = requireUsername(username);
+  if (!usernameResult.ok) return usernameResult;
+
   return withCache(`interis-watched-${username}-${limit}`, 900, async () => {
     const [serialsResult, moviesResult] = await Promise.all([
       requestJsonWithRetry<WatchedSerial[]>({
@@ -134,6 +152,9 @@ export async function getWatchedMedia(
 export async function getInterisProfile(
   username: string,
 ): Promise<ServiceResult<InterisProfile>> {
+  const usernameResult = requireUsername(username);
+  if (!usernameResult.ok) return usernameResult;
+
   return withCache(`interis-profile-${username}`, 900, async () => {
     const result = await requestJsonWithRetry<InterisProfile>({
       url: `${BASE}/${username}/profile`,
@@ -149,6 +170,9 @@ export async function getInterisProfile(
 export async function getInterisData(
   username: string,
 ): Promise<ServiceResult<InterisData>> {
+  const usernameResult = requireUsername(username);
+  if (!usernameResult.ok) return usernameResult;
+
   return withCache(`interis-${username}`, 900, async () => {
     const [top4Result, profileResult] = await Promise.all([
       requestJsonWithRetry<Top4Response>({
