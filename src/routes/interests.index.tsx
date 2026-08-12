@@ -5,15 +5,18 @@ import { BookOpen, Film, Music, Tv } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Suspense } from "react";
 import { PageShell } from "@/components/layout/PageShell";
-import { BooksShelf } from "@/components/ui/BooksShelf";
 import { ErrorPanel } from "@/components/ui/ErrorPanel";
+import { ShelfList, type ShelfItem } from "@/components/ui/ShelfList";
 import { SmartImage } from "@/components/ui/SmartImage";
-import { Top4Grid } from "@/components/ui/Top4Grid";
-import { WatchingShelf } from "@/components/ui/WatchingShelf";
-import { favoriteBands, interestsIntro } from "@/lib/content";
+import { favoriteBands, interestsIntro, INTERIS_BASE, TMDB_IMAGE_BASE } from "@/lib/content";
 import { readRuntimeEnv } from "@/lib/env";
-import { getInterisData, getCurrentlyWatchingSerials } from "@/server/interis";
-import { getLiteralData } from "@/server/literal";
+import {
+  getInterisData,
+  getCurrentlyWatchingSerials,
+  type CurrentlyWatchingSerial,
+  type InterisTop4Item,
+} from "@/server/interis";
+import { getLiteralData, type LiteralBook } from "@/server/literal";
 import { publicResult } from "@/server/http";
 
 const getLiteralDataServerFn = createServerFn({ method: "GET" }).handler(
@@ -54,6 +57,40 @@ export const Route = createFileRoute("/interests/")({
   }),
   component: InterestsPage,
 });
+
+function toBookShelfItem(book: LiteralBook): ShelfItem {
+  return {
+    id: book.id,
+    title: book.title,
+    subtitle: book.authors[0]?.name ?? "Unknown",
+    imageUrl: book.cover || null,
+    href: `https://literal.club/book/${book.slug}`,
+  };
+}
+
+function toWatchingShelfItem(serial: CurrentlyWatchingSerial): ShelfItem {
+  return {
+    id: serial.tmdbId,
+    title: serial.title,
+    subtitle: serial.currentEpisode
+      ? `Up Next: S${serial.currentEpisode.seasonNumber}E${serial.currentEpisode.episodeNumber}`
+      : `${serial.progressPercent}% watched`,
+    imageUrl: serial.posterPath ? `${TMDB_IMAGE_BASE}${serial.posterPath}` : null,
+    href: `${INTERIS_BASE}/serials/${serial.tmdbId}`,
+    progressPercent: serial.progressPercent,
+  };
+}
+
+function toTop4ShelfItem(item: InterisTop4Item): ShelfItem {
+  const segment = item.mediaType === "movie" ? "films" : "serials";
+  return {
+    id: item.slot,
+    title: item.title,
+    subtitle: item.releaseYear ? String(item.releaseYear) : null,
+    imageUrl: item.posterPath ? `${TMDB_IMAGE_BASE}${item.posterPath}` : null,
+    href: item.tmdbId ? `${INTERIS_BASE}/${segment}/${item.tmdbId}` : null,
+  };
+}
 
 function SectionLabel({
   label,
@@ -155,7 +192,11 @@ function InterestsPage() {
               <Await promise={literal}>
                 {(books) =>
                   books.ok ? (
-                    <BooksShelf books={books.data.currentlyReading.slice(0, 2).map((rs) => rs.book)} />
+                    <ShelfList
+                      items={books.data.currentlyReading.slice(0, 2).map((rs) => toBookShelfItem(rs.book))}
+                      emptyTitle="No books found"
+                      emptyDescription="No books currently in progress on Literal."
+                    />
                   ) : (
                     <ErrorPanel title="Literal API Unavailable" error={books.error} />
                   )
@@ -169,7 +210,11 @@ function InterestsPage() {
                 <Await promise={watching}>
                   {(data) =>
                     data.ok ? (
-                      <WatchingShelf serials={data.data} />
+                      <ShelfList
+                        items={data.data.map(toWatchingShelfItem)}
+                        emptyTitle="Nothing in progress"
+                        emptyDescription="No serials currently being watched on Interis."
+                      />
                     ) : (
                       <ErrorPanel title="Interis API Unavailable" error={data.error} />
                     )
@@ -198,11 +243,19 @@ function InterestsPage() {
                       <>
                         <div>
                           <SubLabel label="Films" icon={Film} />
-                          <Top4Grid items={data.data.cinema.slice(0, 2)} />
+                          <ShelfList
+                            items={data.data.cinema.slice(0, 2).map(toTop4ShelfItem)}
+                            emptyTitle="No picks added yet"
+                            emptyDescription="No top films added on Interis."
+                          />
                         </div>
                         <div>
                           <SubLabel label="Series" icon={Tv} />
-                          <Top4Grid items={data.data.serial.slice(0, 2)} />
+                          <ShelfList
+                            items={data.data.serial.slice(0, 2).map(toTop4ShelfItem)}
+                            emptyTitle="No picks added yet"
+                            emptyDescription="No top series added on Interis."
+                          />
                         </div>
                       </>
                     ) : (
@@ -252,7 +305,11 @@ function InterestsPage() {
                   <Await promise={literal}>
                     {(books) =>
                       books.ok ? (
-                        <BooksShelf books={books.data.favoriteBooks} />
+                        <ShelfList
+                          items={books.data.favoriteBooks.map(toBookShelfItem)}
+                          emptyTitle="No books found"
+                          emptyDescription="No favorite books found on Literal."
+                        />
                       ) : (
                         <ErrorPanel title="Literal API Unavailable" error={books.error} />
                       )
