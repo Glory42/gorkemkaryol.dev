@@ -156,11 +156,7 @@ export async function getInterisData(
         method: "GET",
         timeoutMs: 8_000,
       }),
-      requestJsonWithRetry<InterisProfile>({
-        url: `${BASE}/${username}/profile`,
-        method: "GET",
-        timeoutMs: 8_000,
-      }),
+      getInterisProfile(username),
     ]);
 
     if (!top4Result.ok) return top4Result;
@@ -173,7 +169,7 @@ export async function getInterisData(
     return ok({
       cinema,
       serial,
-      profile: profileResult.data.data,
+      profile: profileResult.data,
     });
   });
 }
