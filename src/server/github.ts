@@ -249,9 +249,16 @@ const REPO_README_QUERY = `
 export async function getRepoReadmeData(
   repo: string,
   runtimeEnv: RuntimeEnv,
-): Promise<GithubReadmeData | null> {
+): Promise<ServiceResult<GithubReadmeData | null>> {
   const envResult = requireGithubEnv(runtimeEnv);
-  if (!envResult.ok) return null;
+  if (!envResult.ok) {
+    return fail({
+      code: "MISSING_ENV",
+      message: envResult.error.message,
+      retryable: false,
+      details: envResult.error.fields.join(", "),
+    });
+  }
 
   const { PUBLIC_GITHUB_USERNAME, GITHUB_TOKEN } = envResult.data;
 
@@ -262,9 +269,9 @@ export async function getRepoReadmeData(
   }
 
   return withCache(
-    `github-readme-${owner}-${repo}`,
+    `github-readme-v2-${owner}-${repo}`,
     1800,
-    async () => {
+    async (): Promise<ServiceResult<GithubReadmeData | null>> => {
       const result = await requestJsonWithRetry<
         GraphQLResponse<RepoReadmeQueryData>
       >({
@@ -284,10 +291,10 @@ export async function getRepoReadmeData(
         retries: 1,
       });
 
-      if (!result.ok) return null;
+      if (!result.ok) return result;
 
       const repository = result.data.data?.data?.repository;
-      if (!repository) return null;
+      if (!repository) return ok(null);
 
       const readme =
         repository.readmeMd?.text ??
@@ -296,13 +303,13 @@ export async function getRepoReadmeData(
         repository.readmePlain?.text ??
         null;
 
-      return {
+      return ok({
         owner,
         repo,
         defaultBranch: repository.defaultBranchRef?.name ?? "main",
         repoUrl: repository.url,
         readme,
-      };
+      });
     },
   );
 }

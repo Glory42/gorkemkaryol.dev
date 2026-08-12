@@ -4,10 +4,19 @@ import { env as workerEnv } from "cloudflare:workers";
 import { ChevronLeft, ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/ui/icons";
 import { PageShell } from "@/components/layout/PageShell";
+import { ErrorPanel } from "@/components/ui/ErrorPanel";
 import { ReadmeArticle } from "@/components/ui/ReadmeArticle";
 import { readRuntimeEnv } from "@/lib/env";
 import { getRepoReadmeData } from "@/server/github";
 import { renderMarkdownToHTML } from "@/server/markdown";
+import { ok, publicResult, type ServiceResult } from "@/server/http";
+
+interface ReadmePageData {
+  repo: string;
+  repoUrl: string;
+  html: string;
+  hadError: boolean;
+}
 
 const getRepoReadmeServerFn = createServerFn({ method: "GET" })
   .inputValidator((data: string) => {
@@ -16,26 +25,27 @@ const getRepoReadmeServerFn = createServerFn({ method: "GET" })
   })
   .handler(async ({ data: slug }) => {
     const runtimeEnv = readRuntimeEnv(workerEnv);
-    const readmeData = await getRepoReadmeData(slug, runtimeEnv);
+    const result = publicResult(await getRepoReadmeData(slug, runtimeEnv));
 
-    if (!readmeData || readmeData.readme === null) {
-      return null;
+    if (!result.ok) return result;
+    if (result.data === null || result.data.readme === null) {
+      return ok(null);
     }
 
     const { html, hadError } = renderMarkdownToHTML(
-      readmeData.readme,
-      readmeData.owner,
-      readmeData.repo,
-      readmeData.defaultBranch,
-      readmeData.repoUrl,
+      result.data.readme,
+      result.data.owner,
+      result.data.repo,
+      result.data.defaultBranch,
+      result.data.repoUrl,
     );
 
-    return {
-      repo: readmeData.repo,
-      repoUrl: readmeData.repoUrl,
+    return ok({
+      repo: result.data.repo,
+      repoUrl: result.data.repoUrl,
       html,
       hadError,
-    };
+    });
   });
 
 export const Route = createFileRoute("/projects/$slug")({
@@ -46,9 +56,9 @@ export const Route = createFileRoute("/projects/$slug")({
     ],
   }),
   loader: async ({ params }) => {
-    const data = await getRepoReadmeServerFn({ data: params.slug });
-    if (!data) throw notFound();
-    return data;
+    const result = await getRepoReadmeServerFn({ data: params.slug });
+    if (result.ok && result.data === null) throw notFound();
+    return result;
   },
   pendingMs: 0,
   pendingComponent: ProjectReadmeSkeleton,
@@ -104,13 +114,28 @@ function ProjectReadmeSkeleton() {
 }
 
 function ProjectReadmePage() {
-  const data = Route.useLoaderData() as {
-    repo: string;
-    repoUrl: string;
-    html: string;
-    hadError: boolean;
-  };
-  const { repo, repoUrl, html, hadError } = data;
+  const result = Route.useLoaderData() as ServiceResult<ReadmePageData | null>;
+
+  if (!result.ok) {
+    return (
+      <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
+        <div className="mx-auto min-w-0 max-w-[860px] overflow-hidden">
+          <div className="mb-4 flex items-center justify-between">
+            <Link
+              to="/projects"
+              className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#333] no-underline transition-colors hover:text-[rgba(168,85,247,0.85)]"
+            >
+              <ChevronLeft size={11} />
+              back to projects
+            </Link>
+          </div>
+          <ErrorPanel title="GitHub API Unavailable" error={result.error} />
+        </div>
+      </PageShell>
+    );
+  }
+
+  const { repo, repoUrl, html, hadError } = result.data as ReadmePageData;
 
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
