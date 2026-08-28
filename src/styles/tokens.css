@@ -8,8 +8,43 @@
   --text-2: #888888;
   --text-3: #444444;
 
-  --accent-iris: #a855f7;
+  /*
+   * Section accent. `--accent` is the plain hex (for CSS that just needs the
+   * colour); `--accent-rgb` is a space-separated channel triple so Tailwind's
+   * `accent/<opacity>` and `rgb(var(--accent-rgb) / a)` math work.
+   *
+   * The value here is the default (home / "me"). Each section overrides it via
+   * a `[data-accent="…"]` block below; the attribute lives on the root wrapper
+   * in __root.tsx, so everything inside — nav included — inherits it.
+   */
+  --accent: #a855f7;
+  --accent-rgb: 168 85 247;
 
   --radius-sm: 0;
   --radius-md: 0;
+}
+
+[data-accent="me"] {
+  --accent: #a855f7;
+  --accent-rgb: 168 85 247;
+}
+
+[data-accent="projects"] {
+  --accent: #22c55e;
+  --accent-rgb: 34 197 94;
+}
+
+[data-accent="experience"] {
+  --accent: #f43f5e;
+  --accent-rgb: 244 63 94;
+}
+
+[data-accent="interests"] {
+  --accent: #3b82f6;
+  --accent-rgb: 59 130 246;
+}
+
+[data-accent="cool"] {
+  --accent: #f5b301;
+  --accent-rgb: 245 179 1;
 }

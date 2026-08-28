@@ -22,7 +22,7 @@ export function ProjectsGrid({ repos }: Props) {
               <Link
                 to="/projects/$slug"
                 params={{ slug: repo.name }}
-                className="focus-ring mono block text-[14px] font-semibold text-white no-underline transition-colors duration-150 group-hover:text-[#a855f7]"
+                className="focus-ring mono block text-[14px] font-semibold text-white no-underline transition-colors duration-150 group-hover:text-accent"
               >
                 {repo.name}
               </Link>
@@ -42,7 +42,7 @@ export function ProjectsGrid({ repos }: Props) {
                   {tags.map((tag) => (
                     <span
                       key={tag}
-                      className="mono border border-[rgba(168,85,247,0.3)] px-[6px] py-[2px] text-[8px] tracking-[0.08em] text-[rgba(168,85,247,0.65)]"
+                      className="mono border border-accent/[0.3] px-[6px] py-[2px] text-[8px] tracking-[0.08em] text-accent/[0.65]"
                     >
                       {tag}
                     </span>
@@ -62,7 +62,7 @@ export function ProjectsGrid({ repos }: Props) {
                 href={repo.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="focus-ring text-[#2a2a2a] transition-colors hover:text-[#a855f7]"
+                className="focus-ring text-[#2a2a2a] transition-colors hover:text-accent"
                 aria-label={`Open ${repo.name} on GitHub`}
               >
                 <ExternalLink size={10} />

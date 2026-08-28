@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { FALLBACK_ACCENT_RGB, readAccentRgb } from "@/lib/accent";
 import type { GithubContributionCalendar } from "@/server/github";
 
 interface Props {
@@ -18,13 +19,17 @@ const GAP = 3;
 const RADIUS = 2;
 const FALLBACK_CELL = 11;
 
-const LEVEL_FILL: Record<number, string> = {
-  0: "rgba(255,255,255,0.03)",
-  1: "rgba(168,85,247,0.18)",
-  2: "rgba(168,85,247,0.38)",
-  3: "rgba(168,85,247,0.62)",
-  4: "#a855f7",
-};
+// SVG `fill=` attributes can't resolve `var()`, so the ramp is built in JS from
+// the section accent read on mount (level 0 stays a fixed white wash).
+function levelFill(accentRgb: string): Record<number, string> {
+  return {
+    0: "rgba(255,255,255,0.03)",
+    1: `rgb(${accentRgb} / 0.18)`,
+    2: `rgb(${accentRgb} / 0.38)`,
+    3: `rgb(${accentRgb} / 0.62)`,
+    4: `rgb(${accentRgb})`,
+  };
+}
 
 function formatPrettyDate(date: string) {
   const [year, month, day] = date.split("-").map(Number);
@@ -38,9 +43,11 @@ function formatPrettyDate(date: string) {
 export function ContributionGrid({ calendar }: Props) {
   const [hover, setHover] = useState<Hover | null>(null);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
+  const [accentRgb, setAccentRgb] = useState(FALLBACK_ACCENT_RGB);
   const wrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setAccentRgb(readAccentRgb(wrapRef.current));
     const el = wrapRef.current;
     if (!el) return;
     const observer = new ResizeObserver((entries) => {
@@ -50,6 +57,8 @@ export function ContributionGrid({ calendar }: Props) {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  const fills = useMemo(() => levelFill(accentRgb), [accentRgb]);
 
   // Sorting/grouping only depends on `calendar`, not on hover — memoize so a
   // pointermove-driven re-render (which fires many times a second while
@@ -105,9 +114,9 @@ export function ContributionGrid({ calendar }: Props) {
   return (
     <section>
       <div className="mb-4 flex items-center gap-3">
-        <span className="mono text-[9px] tracking-[0.25em] text-[rgba(168,85,247,0.4)] uppercase">
+        <span className="mono text-[9px] tracking-[0.25em] text-accent/[0.4] uppercase">
           ./projects/contributions —{" "}
-          <span className="text-[rgba(168,85,247,0.65)]">{totalContributions}</span>
+          <span className="text-accent/[0.65]">{totalContributions}</span>
         </span>
         <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
       </div>
@@ -131,7 +140,7 @@ export function ContributionGrid({ calendar }: Props) {
                 height={CELL}
                 rx={RADIUS}
                 ry={RADIUS}
-                fill={LEVEL_FILL[day.level]}
+                fill={fills[day.level]}
                 data-date={day.date}
                 data-count={day.count}
                 className="transition-opacity duration-150 hover:opacity-80"
@@ -143,11 +152,11 @@ export function ContributionGrid({ calendar }: Props) {
         {hover && (
           <div
             role="tooltip"
-            className="pointer-events-none absolute z-30 -translate-x-1/2 -translate-y-full border border-[rgba(168,85,247,0.4)] bg-black px-2.5 py-1.5"
+            className="pointer-events-none absolute z-30 -translate-x-1/2 -translate-y-full border border-accent/[0.4] bg-black px-2.5 py-1.5"
             style={{ left: hover.x, top: hover.y - 12 }}
           >
             <span className="mono whitespace-nowrap text-[10px] tracking-[0.02em]">
-              <span className="font-semibold text-[var(--accent-iris)]">{hover.count}</span>{" "}
+              <span className="font-semibold text-accent">{hover.count}</span>{" "}
               <span className="text-[var(--text-2)]">
                 {hover.count === 1 ? "contribution" : "contributions"} on{" "}
               </span>

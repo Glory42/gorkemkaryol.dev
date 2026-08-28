@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { accentMix, FALLBACK_ACCENT_RGB, readAccentRgb } from "@/lib/accent";
 
 const BW = 10, BH = 20, CELL = 22;
 const W = BW * CELL, H = BH * CELL;
@@ -8,15 +9,23 @@ type Board = (string | null)[][];
 type Shape = number[][];
 type Phase = "idle" | "playing" | "over";
 
-const PIECES: { shape: Shape; color: string }[] = [
-  { shape: [[1, 1, 1, 1]], color: "#c084fc" },
-  { shape: [[1, 1], [1, 1]], color: "#a855f7" },
-  { shape: [[0, 1, 0], [1, 1, 1]], color: "#9333ea" },
-  { shape: [[0, 1, 1], [1, 1, 0]], color: "#7c3aed" },
-  { shape: [[1, 1, 0], [0, 1, 1]], color: "#6d28d9" },
-  { shape: [[1, 0, 0], [1, 1, 1]], color: "#8b5cf6" },
-  { shape: [[0, 0, 1], [1, 1, 1]], color: "#d8b4fe" },
+// Each piece keeps a fixed shape and a `tint` — how far to push the section
+// accent toward white (+) or black (−) so the seven pieces stay visually
+// distinct in whatever colour the section is.
+const PIECE_DEFS: { shape: Shape; tint: number }[] = [
+  { shape: [[1, 1, 1, 1]], tint: 0.35 },
+  { shape: [[1, 1], [1, 1]], tint: 0 },
+  { shape: [[0, 1, 0], [1, 1, 1]], tint: -0.15 },
+  { shape: [[0, 1, 1], [1, 1, 0]], tint: -0.28 },
+  { shape: [[1, 1, 0], [0, 1, 1]], tint: -0.4 },
+  { shape: [[1, 0, 0], [1, 1, 1]], tint: -0.08 },
+  { shape: [[0, 0, 1], [1, 1, 1]], tint: 0.6 },
 ];
+
+// Resolved from the section accent on mount; seeded with the purple fallback so
+// a piece rolled during the first render still has a colour. Only ever holds
+// the (single) /cool accent, and games remount on tab switch.
+let PIECE_PALETTE = PIECE_DEFS.map((d) => accentMix(FALLBACK_ACCENT_RGB, d.tint));
 
 function mkBoard(): Board {
   return Array.from({ length: BH }, () => Array<string | null>(BW).fill(null));
@@ -34,7 +43,10 @@ function fits(board: Board, shape: Shape, px: number, py: number): boolean {
     }
   return true;
 }
-function randPiece() { return { ...PIECES[Math.floor(Math.random() * PIECES.length)] }; }
+function randPiece() {
+  const i = Math.floor(Math.random() * PIECE_DEFS.length);
+  return { shape: PIECE_DEFS[i].shape, color: PIECE_PALETTE[i] };
+}
 
 export function TetrisGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -48,6 +60,8 @@ export function TetrisGame() {
   });
   const rafRef = useRef<number>(0);
   const loopRef = useRef<FrameRequestCallback>(() => {});
+  // Canvas can't read the CSS var — cache the section accent triple on mount.
+  const accentRef = useRef(FALLBACK_ACCENT_RGB);
   const [ui, setUi] = useState<{ score: number; level: number; lines: number; phase: Phase }>({
     score: 0, level: 1, lines: 0, phase: "idle",
   });
@@ -92,7 +106,7 @@ export function TetrisGame() {
       cur.shape.forEach((row, dy) => row.forEach((v, dx) => {
         if (!v) return;
         if (ghostY !== cur.y) {
-          ctx.fillStyle = "rgba(168,85,247,0.12)";
+          ctx.fillStyle = `rgb(${accentRef.current} / 0.12)`;
           ctx.fillRect((cur.x + dx) * CELL + 1, (ghostY + dy) * CELL + 1, CELL - 2, CELL - 2);
         }
         ctx.fillStyle = cur.color;
@@ -170,6 +184,10 @@ export function TetrisGame() {
   }
 
   useEffect(() => {
+    const rgb = readAccentRgb(canvasRef.current);
+    accentRef.current = rgb;
+    PIECE_PALETTE = PIECE_DEFS.map((d) => accentMix(rgb, d.tint));
+    game.current.next = randPiece();
     draw();
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
@@ -239,11 +257,11 @@ export function TetrisGame() {
             </p>
             {ui.phase === "over" && (
               <>
-                <p className="mono text-[9px] text-[rgba(168,85,247,0.65)]">score — {ui.score}</p>
+                <p className="mono text-[9px] text-accent/[0.65]">score — {ui.score}</p>
                 <p className="mono text-[8px] text-[#333]">level {ui.level} · {ui.lines} lines</p>
               </>
             )}
-            <button onClick={start} className="mono border border-[rgba(168,85,247,0.4)] px-5 py-2 text-[9px] tracking-[0.18em] text-[rgba(168,85,247,0.8)] transition-colors hover:border-[#a855f7] hover:text-[#a855f7]">
+            <button onClick={start} className="mono border border-accent/[0.4] px-5 py-2 text-[9px] tracking-[0.18em] text-accent/[0.8] transition-colors hover:border-accent hover:text-accent">
               {ui.phase === "over" ? "RESTART" : "START"}
             </button>
             <p className="mono text-center text-[8px] leading-[1.8] text-[#2a2a2a]">
@@ -260,7 +278,7 @@ export function TetrisGame() {
             <button
               key={label}
               {...tb(action)}
-              className="mono select-none border border-[rgba(168,85,247,0.25)] py-3 text-[13px] text-[rgba(168,85,247,0.6)] active:border-[#a855f7] active:text-[#a855f7]"
+              className="mono select-none border border-accent/[0.25] py-3 text-[13px] text-accent/[0.6] active:border-accent active:text-accent"
             >
               {label}
             </button>
@@ -272,7 +290,7 @@ export function TetrisGame() {
       {/* Side panel — only shown while playing */}
       {ui.phase === "playing" && <div className="flex flex-col gap-5 pt-1">
         <div>
-          <p className="mono mb-2 text-[8px] tracking-[0.18em] text-[rgba(168,85,247,0.4)]">NEXT</p>
+          <p className="mono mb-2 text-[8px] tracking-[0.18em] text-accent/[0.4]">NEXT</p>
           <canvas
             ref={nextRef} width={NW} height={NH}
             className="border border-[rgba(255,255,255,0.05)]"
@@ -282,7 +300,7 @@ export function TetrisGame() {
           {([["SCORE", ui.score], ["LEVEL", ui.level], ["LINES", ui.lines]] as [string, number][]).map(([label, val]) => (
             <div key={label}>
               <p className="mono text-[7px] tracking-[0.18em] text-[#2a2a2a]">{label}</p>
-              <p className="mono text-[12px] text-[rgba(168,85,247,0.65)]">{val}</p>
+              <p className="mono text-[12px] text-accent/[0.65]">{val}</p>
             </div>
           ))}
         </div>

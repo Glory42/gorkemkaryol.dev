@@ -7,7 +7,7 @@ export function NotFound() {
       className="mx-auto w-full max-w-4xl px-4 pb-16 pt-[90px] md:px-8"
     >
       <section className="panel p-6">
-        <p className="mono text-[11px] tracking-[0.15em] text-[rgba(168,85,247,0.65)]">
+        <p className="mono text-[11px] tracking-[0.15em] text-accent/[0.65]">
           404
         </p>
         <h1 className="mono mt-2 text-xl text-white">Route not found</h1>

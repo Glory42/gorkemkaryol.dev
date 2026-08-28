@@ -35,7 +35,7 @@ function ShelfRow({ item, isFirst }: { item: ShelfItem; isFirst: boolean }) {
         <div className="h-[52px] w-[36px] shrink-0 bg-[rgba(255,255,255,0.03)]" />
       )}
       <div className="min-w-0 flex-1">
-        <p className="text-[12px] font-medium leading-[1.3] text-[rgba(255,255,255,0.8)] transition-colors group-hover:text-[#a855f7]">
+        <p className="text-[12px] font-medium leading-[1.3] text-[rgba(255,255,255,0.8)] transition-colors group-hover:text-accent">
           {item.title}
         </p>
         {item.subtitle && (
@@ -44,7 +44,7 @@ function ShelfRow({ item, isFirst }: { item: ShelfItem; isFirst: boolean }) {
         {item.progressPercent !== undefined && (
           <div className="mt-1.5 h-[2px] w-full overflow-hidden rounded-full bg-[rgba(255,255,255,0.05)]">
             <div
-              className="h-full rounded-full bg-[rgba(168,85,247,0.45)]"
+              className="h-full rounded-full bg-accent/[0.45]"
               style={{ width: `${item.progressPercent}%` }}
             />
           </div>

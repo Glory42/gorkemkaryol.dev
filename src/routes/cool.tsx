@@ -45,8 +45,8 @@ function CoolPage() {
               onClick={() => setActive(g.id)}
               className={`mono border px-4 py-2 text-[9px] tracking-[0.15em] transition-colors ${
                 active === g.id
-                  ? "border-[rgba(168,85,247,0.5)] text-[#a855f7]"
-                  : "border-[rgba(255,255,255,0.06)] text-[#333] hover:border-[rgba(168,85,247,0.3)] hover:text-[rgba(168,85,247,0.7)]"
+                  ? "border-accent/[0.5] text-accent"
+                  : "border-[rgba(255,255,255,0.06)] text-[#333] hover:border-accent/[0.3] hover:text-accent/[0.7]"
               }`}
             >
               {g.label}

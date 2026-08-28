@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { FALLBACK_ACCENT_RGB, readAccentRgb } from "@/lib/accent";
 
 const COLS = 24, ROWS = 24, CELL = 15;
 const W = COLS * CELL, H = ROWS * CELL;
@@ -27,6 +28,8 @@ export function SnakeGame() {
   const timerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const tickRef = useRef<() => void>(() => {});
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  // Canvas can't read the CSS var — cache the section accent triple on mount.
+  const accentRef = useRef(FALLBACK_ACCENT_RGB);
   const [ui, setUi] = useState<{ score: number; phase: Phase; mode: Mode }>({ score: 0, phase: "idle", mode: "walls" });
 
   function draw() {
@@ -36,12 +39,12 @@ export function SnakeGame() {
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, W, H);
     // food
-    ctx.fillStyle = "#a855f7";
+    ctx.fillStyle = `rgb(${accentRef.current})`;
     ctx.fillRect(food.x * CELL + 2, food.y * CELL + 2, CELL - 4, CELL - 4);
     // snake
     snake.forEach((p, i) => {
       const alpha = i === 0 ? 1 : Math.max(0.18, 0.82 - i * 0.032);
-      ctx.fillStyle = i === 0 ? "#fff" : `rgba(168,85,247,${alpha})`;
+      ctx.fillStyle = i === 0 ? "#fff" : `rgb(${accentRef.current} / ${alpha})`;
       ctx.fillRect(p.x * CELL + 1, p.y * CELL + 1, CELL - 2, CELL - 2);
     });
   }
@@ -102,6 +105,7 @@ export function SnakeGame() {
   }
 
   useEffect(() => {
+    accentRef.current = readAccentRgb(canvasRef.current);
     draw();
     return () => clearInterval(timerRef.current);
   }, []);
@@ -134,10 +138,10 @@ export function SnakeGame() {
   const ModeBtn = ({ m, label }: { m: Mode; label: string }) => (
     <button
       onClick={() => start(m)}
-      className={`mono border px-4 py-2 text-[9px] tracking-[0.15em] transition-colors hover:border-[#a855f7] hover:text-[#a855f7] ${
+      className={`mono border px-4 py-2 text-[9px] tracking-[0.15em] transition-colors hover:border-accent hover:text-accent ${
         ui.mode === m && ui.phase !== "idle"
-          ? "border-[rgba(168,85,247,0.5)] text-[#a855f7]"
-          : "border-[rgba(168,85,247,0.35)] text-[rgba(168,85,247,0.75)]"
+          ? "border-accent/[0.5] text-accent"
+          : "border-accent/[0.35] text-accent/[0.75]"
       }`}
     >
       {label}
@@ -150,7 +154,7 @@ export function SnakeGame() {
         <canvas
           ref={canvasRef} width={W} height={H} tabIndex={0}
           onKeyDown={onKey} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
-          className="block cursor-pointer border border-[rgba(255,255,255,0.06)] outline-none focus:border-[rgba(168,85,247,0.25)]"
+          className="block cursor-pointer border border-[rgba(255,255,255,0.06)] outline-none focus:border-accent/[0.25]"
           style={{ touchAction: "none" }}
         />
         {ui.phase !== "playing" && (
@@ -159,7 +163,7 @@ export function SnakeGame() {
               {ui.phase === "over" ? "GAME OVER" : "SNAKE"}
             </p>
             {ui.phase === "over" && (
-              <p className="mono text-[9px] text-[rgba(168,85,247,0.65)]">score — {ui.score}</p>
+              <p className="mono text-[9px] text-accent/[0.65]">score — {ui.score}</p>
             )}
             <div className="flex flex-col items-center gap-3">
               <p className="mono text-[8px] text-[#444]">
@@ -174,7 +178,7 @@ export function SnakeGame() {
           </div>
         )}
       </div>
-      {ui.phase !== "idle" && <p className="mono text-[9px] text-[rgba(168,85,247,0.45)]">score — {ui.score}</p>}
+      {ui.phase !== "idle" && <p className="mono text-[9px] text-accent/[0.45]">score — {ui.score}</p>}
     </div>
   );
 }

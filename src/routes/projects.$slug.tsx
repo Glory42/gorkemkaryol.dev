@@ -92,7 +92,7 @@ function ProjectReadmeSkeleton() {
         <div className="mb-4 flex items-center justify-between">
           <Link
             to="/projects"
-            className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#333] no-underline transition-colors hover:text-[rgba(168,85,247,0.85)]"
+            className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#333] no-underline transition-colors hover:text-accent/[0.85]"
           >
             <ChevronLeft size={11} />
             back to projects
@@ -123,7 +123,7 @@ function ProjectReadmePage() {
           <div className="mb-4 flex items-center justify-between">
             <Link
               to="/projects"
-              className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#333] no-underline transition-colors hover:text-[rgba(168,85,247,0.85)]"
+              className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#333] no-underline transition-colors hover:text-accent/[0.85]"
             >
               <ChevronLeft size={11} />
               back to projects
@@ -145,7 +145,7 @@ function ProjectReadmePage() {
         <div className="mb-4 flex items-center justify-between">
           <Link
             to="/projects"
-            className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#333] no-underline transition-colors hover:text-[rgba(168,85,247,0.85)]"
+            className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#333] no-underline transition-colors hover:text-accent/[0.85]"
           >
             <ChevronLeft size={11} />
             back to projects
@@ -154,7 +154,7 @@ function ProjectReadmePage() {
             href={repoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.08em] text-[#333] no-underline transition-colors hover:text-[rgba(168,85,247,0.85)]"
+            className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.08em] text-[#333] no-underline transition-colors hover:text-accent/[0.85]"
             aria-label={`Open ${repo} on GitHub`}
           >
             <GithubIcon size={12} />

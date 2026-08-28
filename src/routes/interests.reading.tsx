@@ -76,7 +76,7 @@ function ReadingPage() {
         <div className="mb-4 flex items-center justify-between gap-3">
           <p className="mono text-[11px] text-[#252525]">~$ cat ./interests/reading</p>
           {result.ok && (
-            <p className="mono text-[10px] text-[rgba(168,85,247,0.45)]">
+            <p className="mono text-[10px] text-accent/[0.45]">
               {result.data.finishedBooks.length} books read · {result.data.currentlyReading.length} reading
             </p>
           )}

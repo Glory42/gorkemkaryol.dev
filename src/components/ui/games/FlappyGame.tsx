@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { FALLBACK_ACCENT_RGB, readAccentRgb } from "@/lib/accent";
 
 const W = 280, H = 420;
 const BIRD_X = 65, BIRD_R = 10;
@@ -20,24 +21,27 @@ export function FlappyGame() {
   });
   const rafRef = useRef<number>(0);
   const loopRef = useRef<FrameRequestCallback>(() => {});
+  // Canvas can't read the CSS var — cache the section accent triple on mount.
+  const accentRef = useRef(FALLBACK_ACCENT_RGB);
   const [ui, setUi] = useState<{ score: number; phase: Phase }>({ score: 0, phase: "idle" });
 
   function draw() {
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
+    const accent = accentRef.current;
     const { y, pipes } = game.current;
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, W, H);
     // pipes
-    ctx.fillStyle = "rgba(168,85,247,0.45)";
+    ctx.fillStyle = `rgb(${accent} / 0.45)`;
     pipes.forEach(p => {
       ctx.fillRect(p.x, 0, PIPE_W, p.topH);
       ctx.fillRect(p.x, p.topH + GAP, PIPE_W, H - p.topH - GAP);
       // pipe caps
-      ctx.fillStyle = "rgba(168,85,247,0.65)";
+      ctx.fillStyle = `rgb(${accent} / 0.65)`;
       ctx.fillRect(p.x - 3, p.topH - 10, PIPE_W + 6, 10);
       ctx.fillRect(p.x - 3, p.topH + GAP, PIPE_W + 6, 10);
-      ctx.fillStyle = "rgba(168,85,247,0.45)";
+      ctx.fillStyle = `rgb(${accent} / 0.45)`;
     });
     // bird — tilts with velocity
     const tilt = Math.max(-0.45, Math.min(0.9, game.current.vy * 0.075));
@@ -45,7 +49,7 @@ export function FlappyGame() {
     ctx.translate(BIRD_X, y);
     ctx.rotate(tilt);
     // wing
-    ctx.fillStyle = "rgba(168,85,247,0.65)";
+    ctx.fillStyle = `rgb(${accent} / 0.65)`;
     ctx.beginPath();
     ctx.ellipse(-1, 5, 8, 4, -0.3, 0, Math.PI * 2);
     ctx.fill();
@@ -126,6 +130,7 @@ export function FlappyGame() {
   }
 
   useEffect(() => {
+    accentRef.current = readAccentRgb(canvasRef.current);
     draw();
     return () => cancelAnimationFrame(rafRef.current!);
   }, []);
@@ -154,7 +159,7 @@ export function FlappyGame() {
         <canvas
           ref={canvasRef} width={W} height={H} tabIndex={0}
           onKeyDown={onKey} onClick={onClick} onTouchStart={onTouch}
-          className="block cursor-pointer border border-[rgba(255,255,255,0.06)] outline-none focus:border-[rgba(168,85,247,0.25)]"
+          className="block cursor-pointer border border-[rgba(255,255,255,0.06)] outline-none focus:border-accent/[0.25]"
           style={{ touchAction: "none" }}
         />
         {ui.phase !== "playing" && (
@@ -163,11 +168,11 @@ export function FlappyGame() {
               {ui.phase === "over" ? "GAME OVER" : "FLAPPY BIRD"}
             </p>
             {ui.phase === "over" && (
-              <p className="mono text-[9px] text-[rgba(168,85,247,0.65)]">score — {ui.score}</p>
+              <p className="mono text-[9px] text-accent/[0.65]">score — {ui.score}</p>
             )}
             <button
               onClick={start}
-              className="mono border border-[rgba(168,85,247,0.4)] px-5 py-2 text-[9px] tracking-[0.18em] text-[rgba(168,85,247,0.8)] transition-colors hover:border-[#a855f7] hover:text-[#a855f7]"
+              className="mono border border-accent/[0.4] px-5 py-2 text-[9px] tracking-[0.18em] text-accent/[0.8] transition-colors hover:border-accent hover:text-accent"
             >
               {ui.phase === "over" ? "RESTART" : "START"}
             </button>
@@ -175,7 +180,7 @@ export function FlappyGame() {
           </div>
         )}
       </div>
-      {ui.phase !== "idle" && <p className="mono text-[9px] text-[rgba(168,85,247,0.45)]">score — {ui.score}</p>}
+      {ui.phase !== "idle" && <p className="mono text-[9px] text-accent/[0.45]">score — {ui.score}</p>}
     </div>
   );
 }

@@ -48,13 +48,13 @@ function HomePage() {
         </div>
 
         <div className="mb-5 flex items-center gap-2 animate-fade-in-down delay-100">
-          <span className="mono text-[11px] text-[rgba(168,85,247,0.65)]">→</span>
+          <span className="mono text-[11px] text-accent/[0.65]">→</span>
           <span className="inline-flex items-center">
             <RotatingPrompt
               className="mono text-[11px] text-[#555]"
               words={["software engineer", "linux enjoyer", "web developer"]}
             />
-            <span className="mono text-[11px] text-[rgba(168,85,247,0.55)] animate-pulse">_</span>
+            <span className="mono text-[11px] text-accent/[0.55] animate-pulse">_</span>
           </span>
         </div>
 
@@ -69,7 +69,7 @@ function HomePage() {
 
       <section>
         <div className="mb-5 flex items-center gap-3">
-          <span className="mono text-[9px] tracking-[0.25em] text-[rgba(168,85,247,0.55)] uppercase">
+          <span className="mono text-[9px] tracking-[0.25em] text-accent/[0.55] uppercase">
             ./me/setup
           </span>
           <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
@@ -82,7 +82,7 @@ function HomePage() {
               <div key={item.title}>
                 <div className="group flex items-center gap-4">
                   <Icon size={13} className="shrink-0 text-[#282828]" />
-                  <span className="mono w-[180px] shrink-0 text-[12px] text-[rgba(255,255,255,0.7)] transition-colors duration-150 group-hover:text-[#a855f7]">
+                  <span className="mono w-[180px] shrink-0 text-[12px] text-[rgba(255,255,255,0.7)] transition-colors duration-150 group-hover:text-accent">
                     {item.spec}
                   </span>
                   <span className="mono text-[11px] text-[#333] italic">

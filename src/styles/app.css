@@ -41,7 +41,10 @@ a {
 /* scrollbar */
 html {
   scrollbar-width: thin;
-  scrollbar-color: rgba(168, 85, 247, 0.25) transparent;
+  /* Firefox reads this off <html>, which sits above [data-accent], so it stays
+     on the :root default. Chrome/Safari use the ::-webkit rules below, which
+     the __root.tsx effect keeps in sync with the section accent. */
+  scrollbar-color: rgb(var(--accent-rgb) / 0.25) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -54,16 +57,16 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(168, 85, 247, 0.25);
+  background: rgb(var(--accent-rgb) / 0.25);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(168, 85, 247, 0.45);
+  background: rgb(var(--accent-rgb) / 0.45);
 }
 
 ::selection {
-  background: rgba(168, 85, 247, 0.42);
+  background: rgb(var(--accent-rgb) / 0.42);
   color: #ffffff;
 }
 
@@ -78,7 +81,7 @@ html {
 }
 
 .focus-ring:focus-visible {
-  outline: 2px solid var(--accent-iris);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -136,12 +139,12 @@ html {
 }
 
 .readme-prose a {
-  color: rgba(168, 85, 247, 0.88);
+  color: rgb(var(--accent-rgb) / 0.88);
   text-underline-offset: 3px;
 }
 
 .readme-prose a:hover {
-  color: #a855f7;
+  color: var(--accent);
 }
 
 .readme-prose code {
@@ -173,7 +176,7 @@ html {
 }
 
 .readme-prose blockquote {
-  border-left: 2px solid rgba(168, 85, 247, 0.55);
+  border-left: 2px solid rgb(var(--accent-rgb) / 0.55);
   margin-left: 0;
   padding-left: 1rem;
   color: rgba(255, 255, 255, 0.3);
@@ -227,7 +230,7 @@ html {
   background-image: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 0%,
-    rgba(168, 85, 247, 0.08) 50%,
+    rgb(var(--accent-rgb) / 0.08) 50%,
     rgba(255, 255, 255, 0) 100%
   );
   background-size: 200% 100%;

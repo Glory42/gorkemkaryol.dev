@@ -24,7 +24,7 @@ export function Navbar() {
               to={item.href}
               className={`focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.12em] uppercase no-underline transition-colors duration-150 ${
                 isActive
-                  ? "text-white"
+                  ? "text-accent"
                   : "text-[rgba(255,255,255,0.28)] hover:text-[rgba(255,255,255,0.65)]"
               }`}
             >
@@ -57,7 +57,7 @@ export function Navbar() {
                   onClick={() => setIsOpen(false)}
                   className={`focus-ring mono inline-flex items-center gap-2 px-2 py-2 text-[10px] tracking-[0.1em] uppercase no-underline transition-colors ${
                     isActive
-                      ? "text-white"
+                      ? "text-accent"
                       : "text-[rgba(255,255,255,0.3)] hover:text-white"
                   }`}
                 >

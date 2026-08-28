@@ -95,7 +95,7 @@ function FilterTabs({
           onClick={() => onChange(f.key)}
           className={`focus-ring cursor-pointer border px-3 py-1.5 transition-colors ${
             active === f.key
-              ? "border-[rgba(168,85,247,0.5)] text-[#a855f7]"
+              ? "border-accent/[0.5] text-accent"
               : "border-[rgba(255,255,255,0.06)] text-[#444] hover:text-[rgba(255,255,255,0.65)]"
           }`}
         >
@@ -202,7 +202,7 @@ function WatchingPage() {
         <div className="mb-4 flex items-center justify-between gap-3">
           <p className="mono text-[11px] text-[#252525]">~$ cat ./interests/watching</p>
           {profile.ok && (
-            <p className="mono text-[10px] text-[rgba(168,85,247,0.45)]">
+            <p className="mono text-[10px] text-accent/[0.45]">
               {profile.data.stats.filmCount} films · {profile.data.stats.serialEntryCount} series watched
             </p>
           )}

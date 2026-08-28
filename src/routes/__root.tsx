@@ -1,14 +1,17 @@
 /// <reference types="vite/client" />
 
+import { useEffect } from "react";
 import type { ReactNode } from "react";
 import {
   HeadContent,
   Outlet,
   Scripts,
   createRootRoute,
+  useRouterState,
 } from "@tanstack/react-router";
 import { FooterBadge } from "@/components/layout/FooterBadge";
 import { Navbar } from "@/components/layout/Navbar";
+import { accentForPath } from "@/lib/content";
 import appCss from "@/styles/app.css?url";
 
 export const Route = createRootRoute({
@@ -35,8 +38,22 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  });
+  const accent = accentForPath(pathname);
+
+  // `data-accent` on this wrapper is the source of truth and is set during
+  // render, so it's correct on the server — no first-paint flash. It's mirrored
+  // onto <html> in an effect (post-hydration, never during render — see the
+  // PageShell comment for why) purely so the page-level ::-webkit-scrollbar,
+  // which is painted above this wrapper, can track the section accent too.
+  useEffect(() => {
+    document.documentElement.dataset.accent = accent;
+  }, [accent]);
+
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col" data-accent={accent}>
       <a href="#main-content" className="skip-link mono">
         Skip to content
       </a>

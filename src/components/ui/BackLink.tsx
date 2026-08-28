@@ -12,7 +12,7 @@ export function BackLink({ to, children }: Props) {
     <div className="mb-6">
       <Link
         to={to}
-        className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#333] no-underline transition-colors hover:text-[rgba(168,85,247,0.85)]"
+        className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#333] no-underline transition-colors hover:text-accent/[0.85]"
       >
         <ChevronLeft size={11} />
         {children}
