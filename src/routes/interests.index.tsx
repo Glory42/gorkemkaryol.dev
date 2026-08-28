@@ -204,7 +204,7 @@ function InterestsPage() {
               </Await>
             </Suspense>
 
-            <div className="mt-8">
+            <div className="mt-4">
               <SectionLabel label="./interests/watching" href="/interests/watching" />
               <Suspense fallback={<SectionLoading />}>
                 <Await promise={watching}>
