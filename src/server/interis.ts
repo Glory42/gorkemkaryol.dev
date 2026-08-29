@@ -1,23 +1,31 @@
-import {
-  fail,
-  ok,
-  requestJsonWithRetry,
-  type ServiceResult,
-} from "@/server/http";
-import { withCache } from "@/server/cache";
+import { fail, ok, type ServiceResult } from "@/server/http";
+import { workersRuntime, type RuntimePort } from "@/server/runtime";
+import { createUpstreamClient, type UpstreamClient } from "@/server/upstream";
 
 const BASE = "https://api.interis.gorkemkaryol.dev/api/public";
 
-function requireUsername(username: string): ServiceResult<string> {
-  if (!username) {
-    return fail({
-      code: "MISSING_ENV",
-      message: "Missing required environment binding(s): INTERIS_USERNAME",
-      retryable: false,
-      details: "INTERIS_USERNAME",
-    });
-  }
-  return ok(username);
+/**
+ * A client scoped to one Interis account. The `INTERIS_USERNAME` check rides
+ * along as the client `guard`: with no username, every call fails with
+ * `MISSING_ENV` and never hits the network.
+ */
+function interisClient(username: string, runtime?: RuntimePort): UpstreamClient {
+  return createUpstreamClient({
+    base: `${BASE}/${username}`,
+    defaultTtl: 900,
+    timeoutMs: 8_000,
+    cacheScope: `interis:${username}`,
+    guard: username
+      ? ok(username)
+      : fail({
+          code: "MISSING_ENV",
+          message:
+            "Missing required environment binding(s): INTERIS_USERNAME",
+          retryable: false,
+          details: "INTERIS_USERNAME",
+        }),
+    runtime: runtime ?? workersRuntime(),
+  });
 }
 
 export interface InterisTop4Item {
@@ -73,25 +81,6 @@ export interface CurrentlyWatchingSerial {
   } | null;
 }
 
-export async function getCurrentlyWatchingSerials(
-  username: string,
-  limit = 2,
-): Promise<ServiceResult<CurrentlyWatchingSerial[]>> {
-  const usernameResult = requireUsername(username);
-  if (!usernameResult.ok) return usernameResult;
-
-  return withCache(`interis-watching-${username}-${limit}`, 300, async () => {
-    const result = await requestJsonWithRetry<CurrentlyWatchingSerial[]>({
-      url: `${BASE}/${username}/serials/currently-watching?limit=${limit}`,
-      method: "GET",
-      timeoutMs: 8_000,
-    });
-
-    if (!result.ok) return result;
-    return ok(result.data.data);
-  });
-}
-
 export interface WatchedSerial {
   tmdbId: number;
   title: string;
@@ -118,82 +107,57 @@ export interface WatchedMedia {
   movies: WatchedMovie[];
 }
 
+export async function getCurrentlyWatchingSerials(
+  username: string,
+  limit = 2,
+  runtime?: RuntimePort,
+): Promise<ServiceResult<CurrentlyWatchingSerial[]>> {
+  return interisClient(username, runtime).get<CurrentlyWatchingSerial[]>(
+    `/serials/currently-watching?limit=${limit}`,
+    { ttl: 300 },
+  );
+}
+
 export async function getWatchedMedia(
   username: string,
   limit = 200,
+  runtime?: RuntimePort,
 ): Promise<ServiceResult<WatchedMedia>> {
-  const usernameResult = requireUsername(username);
-  if (!usernameResult.ok) return usernameResult;
+  const client = interisClient(username, runtime);
+  const [serials, movies] = await Promise.all([
+    client.get<WatchedSerial[]>(`/serials/watched?limit=${limit}`),
+    client.get<WatchedMovie[]>(`/movies/watched?limit=${limit}`),
+  ]);
 
-  return withCache(`interis-watched-${username}-${limit}`, 900, async () => {
-    const [serialsResult, moviesResult] = await Promise.all([
-      requestJsonWithRetry<WatchedSerial[]>({
-        url: `${BASE}/${username}/serials/watched?limit=${limit}`,
-        method: "GET",
-        timeoutMs: 8_000,
-      }),
-      requestJsonWithRetry<WatchedMovie[]>({
-        url: `${BASE}/${username}/movies/watched?limit=${limit}`,
-        method: "GET",
-        timeoutMs: 8_000,
-      }),
-    ]);
-
-    if (!serialsResult.ok) return serialsResult;
-    if (!moviesResult.ok) return moviesResult;
-
-    return ok({
-      serials: serialsResult.data.data,
-      movies: moviesResult.data.data,
-    });
-  });
+  if (!serials.ok) return serials;
+  if (!movies.ok) return movies;
+  return ok({ serials: serials.data, movies: movies.data });
 }
 
 export async function getInterisProfile(
   username: string,
+  runtime?: RuntimePort,
 ): Promise<ServiceResult<InterisProfile>> {
-  const usernameResult = requireUsername(username);
-  if (!usernameResult.ok) return usernameResult;
-
-  return withCache(`interis-profile-${username}`, 900, async () => {
-    const result = await requestJsonWithRetry<InterisProfile>({
-      url: `${BASE}/${username}/profile`,
-      method: "GET",
-      timeoutMs: 8_000,
-    });
-
-    if (!result.ok) return result;
-    return ok(result.data.data);
-  });
+  return interisClient(username, runtime).get<InterisProfile>("/profile");
 }
 
 export async function getInterisData(
   username: string,
+  runtime?: RuntimePort,
 ): Promise<ServiceResult<InterisData>> {
-  const usernameResult = requireUsername(username);
-  if (!usernameResult.ok) return usernameResult;
+  const client = interisClient(username, runtime);
+  const [top4, profile] = await Promise.all([
+    client.get<Top4Response>("/top4"),
+    getInterisProfile(username, runtime),
+  ]);
 
-  return withCache(`interis-${username}`, 900, async () => {
-    const [top4Result, profileResult] = await Promise.all([
-      requestJsonWithRetry<Top4Response>({
-        url: `${BASE}/${username}/top4`,
-        method: "GET",
-        timeoutMs: 8_000,
-      }),
-      getInterisProfile(username),
-    ]);
+  if (!top4.ok) return top4;
+  if (!profile.ok) return profile;
 
-    if (!top4Result.ok) return top4Result;
-    if (!profileResult.ok) return profileResult;
-
-    const categories = top4Result.data.data.categories;
-    const cinema = categories.find((c) => c.key === "cinema")?.items ?? [];
-    const serial = categories.find((c) => c.key === "serial")?.items ?? [];
-
-    return ok({
-      cinema,
-      serial,
-      profile: profileResult.data,
-    });
+  const { categories } = top4.data;
+  return ok({
+    cinema: categories.find((c) => c.key === "cinema")?.items ?? [],
+    serial: categories.find((c) => c.key === "serial")?.items ?? [],
+    profile: profile.data,
   });
 }

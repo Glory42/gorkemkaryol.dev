@@ -1,3 +1,5 @@
+import { workersRuntime, type HttpPort } from "@/server/runtime";
+
 export interface ServiceError {
   code:
     | "HTTP_ERROR"
@@ -31,6 +33,8 @@ interface JsonRequestOptions {
   body?: unknown;
   timeoutMs?: number;
   retries?: number;
+  /** Transport seam. Defaults to the Workers `fetch` global; tests inject a fake. */
+  http?: HttpPort;
 }
 
 const RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
@@ -84,13 +88,14 @@ export async function requestJsonWithRetry<T>(
   const timeoutMs = options.timeoutMs ?? 12_000;
   const retries = options.retries ?? 1;
   const attempts = Math.max(1, retries + 1);
+  const http = options.http ?? workersRuntime().http;
 
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
-      const response = await fetch(options.url, {
+      const response = await http.fetch(options.url, {
         method: options.method ?? "POST",
         headers: {
           "Content-Type": "application/json",

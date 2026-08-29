@@ -1,33 +1,20 @@
-const CACHE_ORIGIN = "https://portfolio-cache.internal";
+import { workersRuntime, type CachePort } from "@/server/runtime";
 
+/**
+ * Read-through cache. The storage lives behind a {@link CachePort} so tests can
+ * pass an in-memory `Map` instead of the Workers `caches` global; production
+ * calls fall through to {@link workersRuntime}.
+ */
 export async function withCache<T>(
   key: string,
   ttlSeconds: number,
   fn: () => Promise<T>,
+  cache: CachePort = workersRuntime().cache,
 ): Promise<T> {
-  if (typeof caches === "undefined") {
-    return fn();
-  }
-
-  const store = await caches.open("default");
-  const req = new Request(`${CACHE_ORIGIN}/${encodeURIComponent(key)}`);
-
-  const hit = await store.match(req);
-  if (hit) {
-    return (await hit.json()) as T;
-  }
+  const hit = await cache.get<T>(key);
+  if (hit !== undefined) return hit;
 
   const result = await fn();
-
-  await store.put(
-    req,
-    new Response(JSON.stringify(result), {
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": `public, max-age=${ttlSeconds}`,
-      },
-    }),
-  );
-
+  await cache.set(key, result, ttlSeconds);
   return result;
 }

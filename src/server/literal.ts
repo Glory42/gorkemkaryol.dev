@@ -1,11 +1,7 @@
 import { requireLiteralEnv, type RuntimeEnv } from "@/lib/env";
-import {
-  fail,
-  ok,
-  requestJsonWithRetry,
-  type ServiceResult,
-} from "@/server/http";
-import { withCache } from "@/server/cache";
+import { fail, ok, type ServiceResult } from "@/server/http";
+import { workersRuntime, type RuntimePort } from "@/server/runtime";
+import { createUpstreamClient, type UpstreamClient } from "@/server/upstream";
 
 export interface LiteralBook {
   id: string;
@@ -25,45 +21,22 @@ export interface LiteralData {
   favoriteBooks: LiteralBook[];
 }
 
-interface GraphQLError {
-  message: string;
-}
-
-interface GraphQLResponse<T> {
-  data?: T;
-  errors?: GraphQLError[];
-}
-
 interface LoginMutationData {
   login?: {
     token?: string;
-    profile?: {
-      id?: string;
-    };
+    profile?: { id?: string };
   };
 }
 
 interface ReadingQueryData {
-  booksByReadingStateAndProfile?: Array<{
-    id: string;
-    slug: string;
-    title: string;
-    cover: string;
-    authors: Array<{ name: string }>;
-  }>;
+  booksByReadingStateAndProfile?: LiteralBook[];
 }
 
 interface ShelfBySlugQueryData {
   shelf?: {
     id: string;
     slug: string;
-    books: Array<{
-      id: string;
-      slug: string;
-      title: string;
-      cover: string;
-      authors: Array<{ name: string }>;
-    }>;
+    books: LiteralBook[];
   };
 }
 
@@ -122,237 +95,153 @@ const SHELF_BY_SLUG_QUERY = `
   }
 `;
 
-async function getLiteralToken(
-  email: string,
-  password: string,
-): Promise<ServiceResult<{ token: string; profileId: string }>> {
-  return withCache(`literal-token-${email}`, 1200, async () => {
-    const loginResult = await requestJsonWithRetry<
-      GraphQLResponse<LoginMutationData>
-    >({
-      url: LITERAL_GRAPHQL_API,
-      method: "POST",
-      body: {
-        query: LOGIN_MUTATION,
-        variables: { email, password },
-      },
-      timeoutMs: 12_000,
-      retries: 1,
+type LiteralCredentials = ServiceResult<{ email: string; password: string }>;
+
+function literalCredentials(runtimeEnv: RuntimeEnv): LiteralCredentials {
+  const result = requireLiteralEnv(runtimeEnv);
+  if (!result.ok) {
+    return fail({
+      code: "MISSING_ENV",
+      message: result.error.message,
+      retryable: false,
+      details: result.error.fields.join(", "),
     });
-
-    if (!loginResult.ok) return loginResult;
-
-    const loginPayload = loginResult.data.data;
-    const loginErrors = loginPayload.errors ?? [];
-
-    if (loginErrors.length > 0) {
-      return fail({
-        code: "UPSTREAM_ERROR",
-        message: "Literal login mutation failed",
-        retryable: false,
-        details: loginErrors.map((e) => e.message).join(" | "),
-      });
-    }
-
-    const token = loginPayload.data?.login?.token ?? "";
-    const profileId = loginPayload.data?.login?.profile?.id ?? "";
-
-    if (!token || !profileId) {
-      return fail({
-        code: "UNAUTHORIZED",
-        message: "Literal login did not return a valid token/profile",
-        retryable: false,
-      });
-    }
-
-    return ok({ token, profileId });
+  }
+  return ok({
+    email: result.data.LITERAL_EMAIL,
+    password: result.data.LITERAL_PASSWORD,
   });
+}
+
+function literalClient(
+  credentials: LiteralCredentials,
+  runtime?: RuntimePort,
+): UpstreamClient {
+  return createUpstreamClient({
+    base: LITERAL_GRAPHQL_API,
+    defaultTtl: 3600,
+    timeoutMs: 12_000,
+    retries: 1,
+    cacheScope: `literal:${credentials.ok ? credentials.data.email : "?"}`,
+    guard: credentials,
+    runtime: runtime ?? workersRuntime(),
+  });
+}
+
+async function getLiteralToken(
+  client: UpstreamClient,
+  credentials: LiteralCredentials,
+): Promise<ServiceResult<{ token: string; profileId: string }>> {
+  if (!credentials.ok) return fail(credentials.error);
+
+  const result = await client.gql<LoginMutationData>(LOGIN_MUTATION, {
+    variables: {
+      email: credentials.data.email,
+      password: credentials.data.password,
+    },
+    ttl: 1200,
+    label: "Literal login",
+  });
+
+  if (!result.ok) return result;
+
+  const token = result.data.login?.token ?? "";
+  const profileId = result.data.login?.profile?.id ?? "";
+
+  if (!token || !profileId) {
+    return fail({
+      code: "UNAUTHORIZED",
+      message: "Literal login did not return a valid token/profile",
+      retryable: false,
+    });
+  }
+
+  return ok({ token, profileId });
+}
+
+function readingVariables(
+  profileId: string,
+  limit: number,
+  readingStatus: "IS_READING" | "FINISHED",
+) {
+  return { limit, offset: 0, readingStatus, profileId };
 }
 
 export async function getLiteralData(
   runtimeEnv: RuntimeEnv,
   readingLimit = 3,
+  runtime?: RuntimePort,
 ): Promise<ServiceResult<LiteralData>> {
-  const envResult = requireLiteralEnv(runtimeEnv);
+  const credentials = literalCredentials(runtimeEnv);
+  const client = literalClient(credentials, runtime);
 
-  if (!envResult.ok) {
-    return fail({
-      code: "MISSING_ENV",
-      message: envResult.error.message,
-      retryable: false,
-      details: envResult.error.fields.join(", "),
-    });
-  }
+  const tokenResult = await getLiteralToken(client, credentials);
+  if (!tokenResult.ok) return tokenResult;
 
-  const { LITERAL_EMAIL, LITERAL_PASSWORD } = envResult.data;
+  const authHeaders = { Authorization: `Bearer ${tokenResult.data.token}` };
 
-  return withCache(`literal-data-${LITERAL_EMAIL}`, 3600, async () => {
-    const tokenResult = await getLiteralToken(LITERAL_EMAIL, LITERAL_PASSWORD);
-    if (!tokenResult.ok) return tokenResult;
+  const [reading, shelf] = await Promise.all([
+    client.gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
+      headers: authHeaders,
+      variables: readingVariables(
+        tokenResult.data.profileId,
+        readingLimit,
+        "IS_READING",
+      ),
+      label: "Literal currently-reading",
+    }),
+    client.gql<ShelfBySlugQueryData>(SHELF_BY_SLUG_QUERY, {
+      headers: authHeaders,
+      variables: { shelfSlug: "favorits-b4k6z82" },
+      label: "Literal shelves",
+    }),
+  ]);
 
-    const { token, profileId } = tokenResult.data;
+  if (!reading.ok) return reading;
+  if (!shelf.ok) return shelf;
 
-    const [readingResult, shelfResult] = await Promise.all([
-      requestJsonWithRetry<GraphQLResponse<ReadingQueryData>>({
-        url: LITERAL_GRAPHQL_API,
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: {
-          query: CURRENTLY_READING_QUERY,
-          variables: {
-            limit: readingLimit,
-            offset: 0,
-            readingStatus: "IS_READING",
-            profileId,
-          },
-        },
-        timeoutMs: 12_000,
-        retries: 1,
-      }),
-      requestJsonWithRetry<GraphQLResponse<ShelfBySlugQueryData>>({
-        url: LITERAL_GRAPHQL_API,
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: {
-          query: SHELF_BY_SLUG_QUERY,
-          variables: { shelfSlug: "favorits-b4k6z82" },
-        },
-        timeoutMs: 12_000,
-        retries: 1,
-      }),
-    ]);
-
-    if (!readingResult.ok) return readingResult;
-    if (!shelfResult.ok) return shelfResult;
-
-    const readingErrors = readingResult.data.data.errors ?? [];
-    if (readingErrors.length > 0) {
-      return fail({
-        code: "UPSTREAM_ERROR",
-        message: "Literal currently-reading query failed",
-        retryable: true,
-        details: readingErrors.map((e) => e.message).join(" | "),
-      });
-    }
-
-    const shelvesErrors = shelfResult.data.data.errors ?? [];
-    if (shelvesErrors.length > 0) {
-      return fail({
-        code: "UPSTREAM_ERROR",
-        message: "Literal shelves query failed",
-        retryable: true,
-        details: shelvesErrors.map((e) => e.message).join(" | "),
-      });
-    }
-
-    const currentlyReading =
-      readingResult.data.data.data?.booksByReadingStateAndProfile?.map(
-        (book) => ({ status: "IS_READING" as const, book }),
-      ) ?? [];
-
-    const favoriteBooks = (shelfResult.data.data.data?.shelf?.books ?? []).slice(0, 2);
-
-    return ok({ currentlyReading, favoriteBooks });
+  return ok({
+    currentlyReading: (reading.data.booksByReadingStateAndProfile ?? []).map(
+      (book) => ({ status: "IS_READING" as const, book }),
+    ),
+    favoriteBooks: (shelf.data.shelf?.books ?? []).slice(0, 2),
   });
 }
 
 export async function getAllBooksData(
   runtimeEnv: RuntimeEnv,
   finishedLimit = 1000,
+  runtime?: RuntimePort,
 ): Promise<
   ServiceResult<{ currentlyReading: LiteralBook[]; finishedBooks: LiteralBook[] }>
 > {
-  const envResult = requireLiteralEnv(runtimeEnv);
+  const credentials = literalCredentials(runtimeEnv);
+  const client = literalClient(credentials, runtime);
 
-  if (!envResult.ok) {
-    return fail({
-      code: "MISSING_ENV",
-      message: envResult.error.message,
-      retryable: false,
-      details: envResult.error.fields.join(", "),
-    });
-  }
+  const tokenResult = await getLiteralToken(client, credentials);
+  if (!tokenResult.ok) return tokenResult;
 
-  const { LITERAL_EMAIL, LITERAL_PASSWORD } = envResult.data;
+  const authHeaders = { Authorization: `Bearer ${tokenResult.data.token}` };
+  const { profileId } = tokenResult.data;
 
-  return withCache(`literal-all-books-${LITERAL_EMAIL}`, 3600, async () => {
-    const tokenResult = await getLiteralToken(LITERAL_EMAIL, LITERAL_PASSWORD);
-    if (!tokenResult.ok) return tokenResult;
+  const [reading, finished] = await Promise.all([
+    client.gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
+      headers: authHeaders,
+      variables: readingVariables(profileId, 50, "IS_READING"),
+      label: "Literal currently-reading",
+    }),
+    client.gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
+      headers: authHeaders,
+      variables: readingVariables(profileId, finishedLimit, "FINISHED"),
+      label: "Literal finished-books",
+    }),
+  ]);
 
-    const { token, profileId } = tokenResult.data;
+  if (!reading.ok) return reading;
+  if (!finished.ok) return finished;
 
-    const [readingResult, finishedResult] = await Promise.all([
-      requestJsonWithRetry<GraphQLResponse<ReadingQueryData>>({
-        url: LITERAL_GRAPHQL_API,
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: {
-          query: CURRENTLY_READING_QUERY,
-          variables: {
-            limit: 50,
-            offset: 0,
-            readingStatus: "IS_READING",
-            profileId,
-          },
-        },
-        timeoutMs: 12_000,
-        retries: 1,
-      }),
-      requestJsonWithRetry<GraphQLResponse<ReadingQueryData>>({
-        url: LITERAL_GRAPHQL_API,
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: {
-          query: CURRENTLY_READING_QUERY,
-          variables: {
-            limit: finishedLimit,
-            offset: 0,
-            readingStatus: "FINISHED",
-            profileId,
-          },
-        },
-        timeoutMs: 12_000,
-        retries: 1,
-      }),
-    ]);
-
-    if (!readingResult.ok) return readingResult;
-    if (!finishedResult.ok) return finishedResult;
-
-    const readingErrors = readingResult.data.data.errors ?? [];
-    if (readingErrors.length > 0) {
-      return fail({
-        code: "UPSTREAM_ERROR",
-        message: "Literal currently-reading query failed",
-        retryable: true,
-        details: readingErrors.map((e) => e.message).join(" | "),
-      });
-    }
-
-    const finishedErrors = finishedResult.data.data.errors ?? [];
-    if (finishedErrors.length > 0) {
-      return fail({
-        code: "UPSTREAM_ERROR",
-        message: "Literal finished-books query failed",
-        retryable: true,
-        details: finishedErrors.map((e) => e.message).join(" | "),
-      });
-    }
-
-    const currentlyReading =
-      readingResult.data.data.data?.booksByReadingStateAndProfile ?? [];
-    const finishedBooks =
-      finishedResult.data.data.data?.booksByReadingStateAndProfile ?? [];
-
-    return ok({ currentlyReading, finishedBooks });
+  return ok({
+    currentlyReading: reading.data.booksByReadingStateAndProfile ?? [],
+    finishedBooks: finished.data.booksByReadingStateAndProfile ?? [],
   });
-}
-
-export async function getCurrentlyReading(
-  runtimeEnv: RuntimeEnv,
-  limit = 3,
-): Promise<ServiceResult<{ profileId: string; books: ReadingState[] }>> {
-  const result = await getLiteralData(runtimeEnv, limit);
-  if (!result.ok) return result;
-  return ok({ profileId: "", books: result.data.currentlyReading });
 }
