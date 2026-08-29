@@ -1,4 +1,4 @@
-import { Briefcase, FolderGit2, Gamepad2, Heart, User } from "lucide-react";
+import { Briefcase, FolderGit2, GamepadDirectional, Heart, User } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { AccentSlug } from "@/lib/accent";
 
@@ -15,7 +15,7 @@ export const navigationItems: NavigationItem[] = [
   { href: "/projects", label: "projects", icon: FolderGit2, accent: "projects" },
   { href: "/experience", label: "experience", icon: Briefcase, accent: "experience" },
   { href: "/interests", label: "interests", icon: Heart, accent: "interests" },
-  { href: "/playground", label: "playground", icon: Gamepad2, accent: "playground" },
+  { href: "/playground", label: "playground", icon: GamepadDirectional, accent: "playground" },
 ];
 
 // The nav item owning `pathname` — exact or a sub-route (`/projects/foo` →
