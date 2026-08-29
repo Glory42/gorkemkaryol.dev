@@ -18,18 +18,28 @@ export const navigationItems: NavigationItem[] = [
   { href: "/cool", label: "cool", icon: Gamepad2, accent: "cool" },
 ];
 
-/**
- * Resolve the section accent for a pathname. Sub-routes inherit their parent
- * section (`/projects/foo` → `projects`); anything unmatched — `/`, 404s —
- * falls back to `me` (the purple default in tokens.css).
- */
-export function accentForPath(pathname: string): AccentSlug {
-  const match = navigationItems
+// The nav item owning `pathname` — exact or a sub-route (`/projects/foo` →
+// projects). `/` and unmatched paths return undefined.
+function matchSection(pathname: string): NavigationItem | undefined {
+  return navigationItems
     .filter((item) => item.href !== "/")
     .filter(
       (item) =>
         pathname === item.href || pathname.startsWith(`${item.href}/`),
     )
     .sort((a, b) => b.href.length - a.href.length)[0];
-  return match?.accent ?? "me";
+}
+
+// Section accent for a pathname; unmatched (`/`, 404s) falls back to `me`.
+export function accentForPath(pathname: string): AccentSlug {
+  return matchSection(pathname)?.accent ?? "me";
+}
+
+// Href of the nav item to highlight for `pathname` — sub-routes keep their
+// parent active. `/` highlights "me"; a 404 highlights nothing.
+export function activeSectionHref(
+  pathname: string,
+): NavigationItem["href"] | undefined {
+  if (pathname === "/") return "/";
+  return matchSection(pathname)?.href;
 }

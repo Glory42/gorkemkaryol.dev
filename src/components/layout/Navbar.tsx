@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
-import { navigationItems } from "@/lib/navigation";
+import { activeSectionHref, navigationItems } from "@/lib/navigation";
 
 export function Navbar() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
+  const activeHref = activeSectionHref(pathname);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -16,7 +17,7 @@ export function Navbar() {
     >
       <div className="hidden items-center gap-6 md:flex">
         {navigationItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = item.href === activeHref;
           const Icon = item.icon;
           return (
             <Link
@@ -48,7 +49,7 @@ export function Navbar() {
         {isOpen && (
           <div className="absolute right-0 mt-2 w-40 border border-[rgba(255,255,255,0.06)] bg-black p-3">
             {navigationItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = item.href === activeHref;
               const Icon = item.icon;
               return (
                 <Link
