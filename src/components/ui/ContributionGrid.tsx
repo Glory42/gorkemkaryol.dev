@@ -60,9 +60,8 @@ export function ContributionGrid({ calendar }: Props) {
 
   const fills = useMemo(() => levelFill(accentRgb), [accentRgb]);
 
-  // Sorting/grouping only depends on `calendar`, not on hover — memoize so a
-  // pointermove-driven re-render (which fires many times a second while
-  // hovering the graph) doesn't re-sort and re-group 364 days every time.
+  // Memoized on `calendar` alone so pointermove re-renders don't re-sort and
+  // re-group 364 days many times a second while hovering.
   const weeks = useMemo(() => {
     if (!calendar) return [];
     const sortedDays = calendar.days

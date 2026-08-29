@@ -4,11 +4,8 @@ import { createUpstreamClient, type UpstreamClient } from "@/server/upstream";
 
 const BASE = "https://api.interis.gorkemkaryol.dev/api/public";
 
-/**
- * A client scoped to one Interis account. The `INTERIS_USERNAME` check rides
- * along as the client `guard`: with no username, every call fails with
- * `MISSING_ENV` and never hits the network.
- */
+// A client scoped to one Interis account. No username → the `guard` fails every
+// call with MISSING_ENV before any network hit.
 function interisClient(username: string, runtime?: RuntimePort): UpstreamClient {
   return createUpstreamClient({
     base: `${BASE}/${username}`,

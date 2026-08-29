@@ -15,10 +15,8 @@ const DEFAULT_WORDS = [
 export function RotatingPrompt({ className, words = DEFAULT_WORDS }: Props) {
   const phrases = words.length > 0 ? words : DEFAULT_WORDS;
 
-  // Callers pass `words` as an inline array literal, so its reference changes
-  // on every render. Reading it through a ref (instead of depending on it
-  // directly) keeps the timer effect from restarting — and the pending
-  // delay from resetting — whenever the parent re-renders.
+  // `words` is usually an inline literal (new ref each render). Read it via a ref
+  // so the timer effect doesn't restart on every parent re-render.
   const phrasesRef = useRef(phrases);
   phrasesRef.current = phrases;
 

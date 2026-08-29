@@ -1,10 +1,7 @@
 import { workersRuntime, type CachePort } from "@/server/runtime";
 
-/**
- * Read-through cache. The storage lives behind a {@link CachePort} so tests can
- * pass an in-memory `Map` instead of the Workers `caches` global; production
- * calls fall through to {@link workersRuntime}.
- */
+// Read-through cache over a CachePort — defaults to the Workers `caches` global,
+// tests pass an in-memory Map.
 export async function withCache<T>(
   key: string,
   ttlSeconds: number,

@@ -6,13 +6,8 @@ import {
 } from "@/server/http";
 import type { HttpPort } from "@/server/runtime";
 
-/**
- * GraphQL transport. A GraphQL endpoint answers `200 OK` even when the query
- * failed — the failure sits in an `errors` array in the body. Every caller used
- * to re-implement "inspect `errors[]`, map to `fail()`" and hop three `.data`
- * levels to reach the query data. This module owns that rule once: callers get
- * the query data or a `ServiceError`, nothing in between.
- */
+// GraphQL transport. A 200 can still be a failure (errors in the body), so this
+// owns "inspect errors[], map to fail()" once — callers get data or ServiceError.
 
 interface GraphQLError {
   message: string;

@@ -8,17 +8,8 @@ import { graphqlRequest, type GraphqlRequestOptions } from "@/server/graphql";
 import { withCache } from "@/server/cache";
 import { workersRuntime, type RuntimePort } from "@/server/runtime";
 
-/**
- * One interface for talking to an upstream. Each `get` / `gql` call owns what
- * every hand-written intake function used to re-derive: transport (retry +
- * timeout), read-through caching with a **derived** key, the base URL, and — via
- * `gql` — the GraphQL envelope. Exported intake functions shrink to typed
- * mappings over this.
- *
- * The cache key is built from the client's `cacheScope` plus the request shape
- * (path, or query + variables). Two call sites can no longer disagree on a
- * hand-typed key string — the collision class is gone by construction.
- */
+// One interface per upstream: `get` / `gql` own transport, caching, base URL and
+// the GraphQL envelope. Cache keys are derived from scope + request shape.
 
 export interface UpstreamClientOptions {
   /** Absolute base URL. `get(path)` appends `path`; `gql()` posts here. */
@@ -31,15 +22,11 @@ export interface UpstreamClientOptions {
   retries?: number;
   /** Sent on every request from this client. */
   headers?: Record<string, string>;
-  /**
-   * Namespaces this client's cache keys. Defaults to `base`; set it when the
-   * base alone doesn't distinguish two clients (e.g. per-account REST paths).
-   */
+  /** Namespaces cache keys. Defaults to `base`; set it when `base` alone
+   *  doesn't distinguish two clients (e.g. per-account REST paths). */
   cacheScope?: string;
-  /**
-   * When present and not ok, every call short-circuits to this failure without
-   * touching the network. Use it for env / precondition checks.
-   */
+  /** When present and not ok, every call short-circuits to this failure without
+   *  a network hit. Use it for env / precondition checks. */
   guard?: ServiceResult<unknown>;
   runtime?: RuntimePort;
 }

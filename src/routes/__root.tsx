@@ -43,11 +43,8 @@ function RootComponent() {
   });
   const accent = accentForPath(pathname);
 
-  // `data-accent` on this wrapper is the source of truth and is set during
-  // render, so it's correct on the server — no first-paint flash. It's mirrored
-  // onto <html> in an effect (post-hydration, never during render — see the
-  // PageShell comment for why) purely so the page-level ::-webkit-scrollbar,
-  // which is painted above this wrapper, can track the section accent too.
+  // `data-accent` on this wrapper is the SSR source of truth (no flash); mirror
+  // it onto <html> in an effect so the page-level scrollbar can track it too.
   useEffect(() => {
     document.documentElement.dataset.accent = accent;
   }, [accent]);

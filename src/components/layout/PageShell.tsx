@@ -6,17 +6,8 @@ interface Props {
   mainClassName?: string;
 }
 
-// The whole-page fade-in should only play once, on the very first paint of
-// the session. `<main>` gets a fresh DOM node on every client-side route
-// change (it's inside <Outlet />), so without this guard the CSS animation
-// would replay — and dim the entire page — on every internal navigation.
-//
-// The decision is made in an effect, never during render: reading/writing
-// this flag while rendering would make the very first client render depend
-// on state a server render can't see (and, since the SSR worker can reuse
-// its module scope across requests, on a previous *request's* state too),
-// producing a hydration mismatch. An effect only runs in the browser after
-// hydration, so the flag is purely a client-session concern.
+// Play the page fade-in once per session (else it replays on every client nav).
+// Set in an effect, not render — a render-time read would break hydration.
 let hasPlayedEntrance = false;
 
 export function PageShell({ children, mainClassName }: Props) {

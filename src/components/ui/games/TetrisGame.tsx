@@ -9,9 +9,8 @@ type Board = (string | null)[][];
 type Shape = number[][];
 type Phase = "idle" | "playing" | "over";
 
-// Each piece keeps a fixed shape and a `tint` — how far to push the section
-// accent toward white (+) or black (−) so the seven pieces stay visually
-// distinct in whatever colour the section is.
+// Each piece has a fixed shape and a `tint` (push the section accent toward
+// white/black) so the seven stay distinct in whatever colour the section is.
 const PIECE_DEFS: { shape: Shape; tint: number }[] = [
   { shape: [[1, 1, 1, 1]], tint: 0.35 },
   { shape: [[1, 1], [1, 1]], tint: 0 },
@@ -22,9 +21,8 @@ const PIECE_DEFS: { shape: Shape; tint: number }[] = [
   { shape: [[0, 0, 1], [1, 1, 1]], tint: 0.6 },
 ];
 
-// Resolved from the section accent on mount; seeded with the purple fallback so
-// a piece rolled during the first render still has a colour. Only ever holds
-// the (single) /cool accent, and games remount on tab switch.
+// Resolved from the section accent on mount; seeded with the fallback so a piece
+// rolled on the first render still has a colour.
 let PIECE_PALETTE = PIECE_DEFS.map((d) => accentMix(FALLBACK_ACCENT_RGB, d.tint));
 
 function mkBoard(): Board {

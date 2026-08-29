@@ -1,12 +1,5 @@
-/**
- * The seam under `fetch` and `caches`.
- *
- * Every upstream module used to reach straight for the global `fetch` and the
- * global `caches` object, so there was nowhere to stand a test. `RuntimePort`
- * is that place: production passes {@link workersRuntime} (the real Workers
- * globals), tests pass {@link createInMemoryRuntime} (a `Map` and a table of
- * canned responses). Two adapters, one interface.
- */
+// The seam under `fetch` and `caches`. Prod passes `workersRuntime` (real
+// globals); tests pass `createInMemoryRuntime` (a Map + canned responses).
 
 export interface HttpPort {
   fetch(url: string, init?: RequestInit): Promise<Response>;
@@ -23,9 +16,7 @@ export interface RuntimePort {
   cache: CachePort;
 }
 
-/* ------------------------------------------------------------------ *
- * Production adapter — the Cloudflare Workers globals.
- * ------------------------------------------------------------------ */
+// --- Production adapter: the Cloudflare Workers globals ---
 
 const CACHE_ORIGIN = "https://portfolio-cache.internal";
 
@@ -70,9 +61,7 @@ export function workersRuntime(): RuntimePort {
   return cachedWorkersRuntime;
 }
 
-/* ------------------------------------------------------------------ *
- * Test adapter — in-memory.
- * ------------------------------------------------------------------ */
+// --- Test adapter: in-memory ---
 
 export interface CannedResponse {
   /** Substring match against the request URL. */
