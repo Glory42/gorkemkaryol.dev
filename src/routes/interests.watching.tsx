@@ -7,7 +7,7 @@ import { BackLink } from "@/components/ui/BackLink";
 import { ErrorPanel } from "@/components/ui/ErrorPanel";
 import { PosterGrid, PosterGridSkeleton, type PosterGridItem } from "@/components/ui/PosterGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { INTERIS_BASE, TMDB_IMAGE_BASE } from "@/lib/content";
+import { INTERIS_BASE, TMDB_IMAGE_BASE } from "@/lib/interests-content";
 import { readRuntimeEnv } from "@/lib/env";
 import {
   getCurrentlyWatchingSerials,

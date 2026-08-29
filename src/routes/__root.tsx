@@ -11,7 +11,7 @@ import {
 } from "@tanstack/react-router";
 import { FooterBadge } from "@/components/layout/FooterBadge";
 import { Navbar } from "@/components/layout/Navbar";
-import { accentForPath } from "@/lib/content";
+import { accentForPath } from "@/lib/navigation";
 import appCss from "@/styles/app.css?url";
 
 export const Route = createRootRoute({

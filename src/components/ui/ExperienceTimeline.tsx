@@ -1,4 +1,4 @@
-import type { ExperienceItem } from "@/lib/content";
+import type { ExperienceItem } from "@/lib/resume";
 
 interface Props {
   items: ExperienceItem[];

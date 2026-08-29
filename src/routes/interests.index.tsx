@@ -8,7 +8,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { ErrorPanel } from "@/components/ui/ErrorPanel";
 import { ShelfList, type ShelfItem } from "@/components/ui/ShelfList";
 import { SmartImage } from "@/components/ui/SmartImage";
-import { favoriteBands, interestsIntro, INTERIS_BASE, TMDB_IMAGE_BASE } from "@/lib/content";
+import { favoriteBands, interestsIntro, INTERIS_BASE, TMDB_IMAGE_BASE } from "@/lib/interests-content";
 import { readRuntimeEnv } from "@/lib/env";
 import {
   getInterisData,

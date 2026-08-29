@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
-import { navigationItems } from "@/lib/content";
+import { navigationItems } from "@/lib/navigation";
 
 export function Navbar() {
   const pathname = useRouterState({

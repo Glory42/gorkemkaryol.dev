@@ -4,7 +4,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { ContactLinks } from "@/components/ui/ContactLinks";
 import { LiveClock } from "@/components/ui/LiveClock";
 import { RotatingPrompt } from "@/components/ui/RotatingPrompt";
-import { contactItems, introText, techItems, type TechItem } from "@/lib/content";
+import { contactItems, introText, techItems, type TechItem } from "@/lib/resume";
 
 export const Route = createFileRoute("/")({
   head: () => ({

@@ -1,5 +1,5 @@
 import { FileText, Mail } from "lucide-react";
-import type { ContactItem } from "@/lib/content";
+import type { ContactItem } from "@/lib/resume";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/icons";
 
 interface Props {

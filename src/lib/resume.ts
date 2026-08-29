@@ -1,22 +1,3 @@
-import { Briefcase, FolderGit2, Gamepad2, Heart, User } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import type { AccentSlug } from "@/lib/accent";
-
-export const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w185";
-export const INTERIS_BASE = "https://interis.gorkemkaryol.dev";
-
-export const EXTERNAL_REPOS = [
-  "WasteWise-Project/WasteWise",
-];
-
-export interface NavigationItem {
-  href: "/" | "/projects" | "/interests" | "/experience" | "/cool";
-  label: string;
-  icon: LucideIcon;
-  /** The section accent every route under `href` inherits. */
-  accent: AccentSlug;
-}
-
 export interface ExperienceItem {
   role: string;
   company: string;
@@ -37,36 +18,6 @@ export interface TechItem {
   spec: string;
   description: string;
   iconId: "monitor" | "layers" | "code" | "terminal" | "globe";
-}
-
-export interface BandItem {
-  name: string;
-  image: string;
-  url?: string;
-}
-
-export const navigationItems: NavigationItem[] = [
-  { href: "/", label: "me", icon: User, accent: "me" },
-  { href: "/projects", label: "projects", icon: FolderGit2, accent: "projects" },
-  { href: "/experience", label: "experience", icon: Briefcase, accent: "experience" },
-  { href: "/interests", label: "interests", icon: Heart, accent: "interests" },
-  { href: "/cool", label: "cool", icon: Gamepad2, accent: "cool" },
-];
-
-/**
- * Resolve the section accent for a pathname. Sub-routes inherit their parent
- * section (`/projects/foo` → `projects`); anything unmatched — `/`, 404s —
- * falls back to `me` (the purple default in tokens.css).
- */
-export function accentForPath(pathname: string): AccentSlug {
-  const match = navigationItems
-    .filter((item) => item.href !== "/")
-    .filter(
-      (item) =>
-        pathname === item.href || pathname.startsWith(`${item.href}/`),
-    )
-    .sort((a, b) => b.href.length - a.href.length)[0];
-  return match?.accent ?? "me";
 }
 
 export const workExperiences: ExperienceItem[] = [
@@ -181,21 +132,5 @@ export const techItems: TechItem[] = [
     description:
       "Because mainstream browsers were eating my RAM for breakfast.",
     iconId: "globe",
-  },
-];
-
-export const interestsIntro =
-  "This page captures the things I keep coming back to. Books, films, and series shape how I think, while basketball and skateboarding keep me moving. Recently, I’ve been building habits around the gym and playing guitar. Slow progress, but consistent.";
-
-export const favoriteBands: BandItem[] = [
-  {
-    name: "Radiohead",
-    image: "/radiohead.jpg",
-    url: "https://radiohead.com/",
-  },
-  {
-    name: "Deftones",
-    image: "/deftones.jpg",
-    url: "https://www.deftones.com/",
   },
 ];
