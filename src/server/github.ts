@@ -340,8 +340,9 @@ export async function getGithubProjects(
         from: from.toISOString(),
         to: to.toISOString(),
       },
-      // `from` / `to` move every call — pin the cache key to the query shape.
-      cacheKey: `overview:${PUBLIC_GITHUB_USERNAME}`,
+      // `from` / `to` move every call — key on the stable inputs instead, but
+      // include EXTERNAL_REPOS so adding one busts the cache immediately.
+      cacheKey: `overview:${PUBLIC_GITHUB_USERNAME}:${EXTERNAL_REPOS.join(",")}`,
       label: "GitHub",
       onMeta: ({ headers }) => {
         responseHeaders = headers;
