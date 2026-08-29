@@ -72,19 +72,16 @@ describe("getGithubProjects — mapping through the interface", () => {
     const result = await getGithubProjects(ENV, runtimeFor(overviewBody()));
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    const names = result.data.projects.map((p) => p.name);
+    const names = result.data.featured.map((p) => p.name);
     expect(names).not.toContain("a-fork");
     expect(names).toContain("newer");
   });
 
-  it("sorts projects by updatedAt descending, external repos included", async () => {
+  it("splits featured (own) from contributed (external), each newest first", async () => {
     const result = await getGithubProjects(ENV, runtimeFor(overviewBody()));
     if (!result.ok) throw new Error("expected ok");
-    expect(result.data.projects.map((p) => p.name)).toEqual([
-      "newer",
-      "WasteWise",
-      "older",
-    ]);
+    expect(result.data.featured.map((p) => p.name)).toEqual(["newer", "older"]);
+    expect(result.data.contributed.map((p) => p.name)).toEqual(["WasteWise"]);
   });
 
   it("maps GitHub contribution levels to the 0-4 ramp", async () => {

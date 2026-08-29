@@ -52,7 +52,10 @@ export interface GithubContributionCalendar {
 
 export interface GithubProjectsPayload {
   username: string;
-  projects: GithubProject[];
+  /** Your own repos tagged `topic:featured`. */
+  featured: GithubProject[];
+  /** Repos you don't own (from `EXTERNAL_REPOS`). */
+  contributed: GithubProject[];
   contributions: GithubContributionCalendar | null;
   rateLimit: {
     limit: number;
@@ -183,6 +186,34 @@ function buildGithubOverviewQuery() {
     }
   }
   `;
+}
+
+// Filter out forks and incomplete nodes, map to GithubProject, newest push first.
+function toProjects(nodes: Array<RepositoryNode | undefined>): GithubProject[] {
+  return nodes
+    .filter(
+      (node): node is RepositoryNode =>
+        Boolean(node?.name && node?.url) && !node?.isFork,
+    )
+    .map((node) => ({
+      name: node.name ?? "unknown",
+      description: node.description ?? "No description provided.",
+      url: node.url ?? "",
+      stargazerCount: node.stargazerCount ?? 0,
+      updatedAt: node.updatedAt ?? "",
+      topics:
+        node.repositoryTopics?.nodes
+          ?.map((topicNode) => topicNode.topic?.name)
+          .filter((topic): topic is string => Boolean(topic)) ?? [],
+      primaryLanguage:
+        node.primaryLanguage?.name != null
+          ? { name: node.primaryLanguage.name, color: node.primaryLanguage.color }
+          : null,
+    }))
+    .sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    );
 }
 
 function mapContributionLevel(level: string): 0 | 1 | 2 | 3 | 4 {
@@ -358,32 +389,8 @@ export async function getGithubProjects(
     (_, i) => queryData[`repo${i}`] as RepositoryNode | undefined,
   ).filter((node): node is RepositoryNode => Boolean(node));
 
-  const projectNodes = [...(queryData.search?.nodes ?? []), ...externalNodes];
-
-  const projects: GithubProject[] = projectNodes
-    .filter((node) => Boolean(node?.name && node?.url) && !node?.isFork)
-    .map((node) => ({
-      name: node.name ?? "unknown",
-      description: node.description ?? "No description provided.",
-      url: node.url ?? "",
-      stargazerCount: node.stargazerCount ?? 0,
-      updatedAt: node.updatedAt ?? "",
-      topics:
-        node.repositoryTopics?.nodes
-          ?.map((topicNode) => topicNode.topic?.name)
-          .filter((topic): topic is string => Boolean(topic)) ?? [],
-      primaryLanguage:
-        node.primaryLanguage?.name != null
-          ? {
-              name: node.primaryLanguage.name,
-              color: node.primaryLanguage.color,
-            }
-          : null,
-    }))
-    .sort(
-      (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-    );
+  const featured = toProjects(queryData.search?.nodes ?? []);
+  const contributed = toProjects(externalNodes);
 
   const contributionDays =
     queryData.user?.contributionsCollection?.contributionCalendar?.weeks
@@ -428,7 +435,8 @@ export async function getGithubProjects(
 
   return ok({
     username: PUBLIC_GITHUB_USERNAME,
-    projects,
+    featured,
+    contributed,
     contributions,
     rateLimit,
   });
