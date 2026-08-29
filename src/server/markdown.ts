@@ -23,10 +23,14 @@ function buildMarked(
       href.startsWith("http://") ||
       href.startsWith("https://") ||
       href.startsWith("//") ||
+      href.startsWith("/") ||
       href.startsWith("#")
     ) {
       return href;
     }
+    // No repo context (a hand-authored project page, not a GitHub README) —
+    // there's nothing to resolve a relative path against, so leave it as-is.
+    if (!owner || !repo) return href;
     const clean = href.replace(/^\.\//, "");
     return isImage ? `${rawBase}/${clean}` : `${blobBase}/${clean}`;
   }

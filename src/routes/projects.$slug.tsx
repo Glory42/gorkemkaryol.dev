@@ -7,15 +7,18 @@ import { PageShell } from "@/components/layout/PageShell";
 import { ErrorPanel } from "@/components/ui/ErrorPanel";
 import { ReadmeArticle } from "@/components/ui/ReadmeArticle";
 import { readRuntimeEnv } from "@/lib/env";
+import { findManualProject } from "@/lib/manual-projects";
 import { getRepoReadmeData } from "@/server/github";
 import { renderMarkdownToHTML } from "@/server/markdown";
 import { ok, publicResult, type ServiceResult } from "@/server/http";
 
 interface ReadmePageData {
   repo: string;
+  /** GitHub repo URL, or — for a manual project — the live product URL. */
   repoUrl: string;
   html: string;
   hadError: boolean;
+  kind: "github" | "manual";
 }
 
 const getRepoReadmeServerFn = createServerFn({ method: "GET" })
@@ -24,6 +27,24 @@ const getRepoReadmeServerFn = createServerFn({ method: "GET" })
     return data;
   })
   .handler(async ({ data: slug }) => {
+    const manual = findManualProject(slug);
+    if (manual) {
+      const { html, hadError } = renderMarkdownToHTML(
+        manual.readme,
+        "",
+        manual.slug,
+        "",
+        "",
+      );
+      return ok({
+        repo: manual.card.name,
+        repoUrl: manual.liveUrl,
+        html,
+        hadError,
+        kind: "manual" as const,
+      });
+    }
+
     const runtimeEnv = readRuntimeEnv(workerEnv);
     const result = publicResult(await getRepoReadmeData(slug, runtimeEnv));
 
@@ -45,6 +66,7 @@ const getRepoReadmeServerFn = createServerFn({ method: "GET" })
       repoUrl: result.data.repoUrl,
       html,
       hadError,
+      kind: "github" as const,
     });
   });
 
@@ -65,7 +87,7 @@ export const Route = createFileRoute("/projects/$slug")({
   notFoundComponent: () => (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
       <div className="mx-auto max-w-[860px]">
-        <p className="mono text-[11px] text-[#333]">404 — repository not found</p>
+        <p className="mono text-[11px] text-[#333]">404 — project not found</p>
         <div className="mt-4">
           <Link
             to="/projects"
@@ -135,7 +157,7 @@ function ProjectReadmePage() {
     );
   }
 
-  const { repo, repoUrl, html, hadError } = result.data as ReadmePageData;
+  const { repo, repoUrl, html, hadError, kind } = result.data as ReadmePageData;
 
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
@@ -155,11 +177,24 @@ function ProjectReadmePage() {
             target="_blank"
             rel="noopener noreferrer"
             className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.08em] text-[#333] no-underline transition-colors hover:text-accent/[0.85]"
-            aria-label={`Open ${repo} on GitHub`}
+            aria-label={
+              kind === "manual"
+                ? `Visit ${repo}`
+                : `Open ${repo} on GitHub`
+            }
           >
-            <GithubIcon size={12} />
-            open on github
-            <ExternalLink size={10} />
+            {kind === "manual" ? (
+              <>
+                visit site
+                <ExternalLink size={10} />
+              </>
+            ) : (
+              <>
+                <GithubIcon size={12} />
+                open on github
+                <ExternalLink size={10} />
+              </>
+            )}
           </a>
         </div>
 

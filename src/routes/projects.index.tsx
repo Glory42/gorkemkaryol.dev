@@ -8,6 +8,7 @@ import { ErrorPanel } from "@/components/ui/ErrorPanel";
 import { ProjectsGrid } from "@/components/ui/ProjectsGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { readRuntimeEnv } from "@/lib/env";
+import { manualProjects } from "@/lib/manual-projects";
 import { getGithubProjects } from "@/server/github";
 import { publicResult } from "@/server/http";
 
@@ -97,40 +98,45 @@ function ProjectsPageSkeleton() {
 function ProjectsPage() {
   const result = Route.useLoaderData();
 
+  // Manual entries lead (declaration order), then the GitHub feed. They still
+  // render when the GitHub fetch fails, so an outage can't hide them.
+  const githubProjects = result.ok ? result.data.projects : [];
+  const projects = [...manualProjects.map((p) => p.card), ...githubProjects];
+
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
       <section>
-        {!result.ok ? (
-          <>
-            <p className="mono mb-6 text-[11px] text-[#252525]">~$ ls -la ./projects</p>
-            <ErrorPanel title="GitHub API Unavailable" error={result.error} />
-          </>
-        ) : (
-          <div className="mx-auto max-w-[900px]">
-            <p className="mono mb-6 text-[11px] text-[#252525]">~$ ls -la ./projects</p>
+        <div className="mx-auto max-w-[900px]">
+          <p className="mono mb-6 text-[11px] text-[#252525]">~$ ls -la ./projects</p>
+
+          {result.ok ? (
             <section className="mb-8">
               <ContributionGrid
                 username={result.data.username}
                 calendar={result.data.contributions}
               />
             </section>
+          ) : (
+            <div className="mb-8">
+              <ErrorPanel title="GitHub API Unavailable" error={result.error} />
+            </div>
+          )}
 
-            <div className="mb-8 h-px bg-[rgba(255,255,255,0.05)]" />
+          <div className="mb-8 h-px bg-[rgba(255,255,255,0.05)]" />
 
-            <section>
-              <SectionHeader sig="./projects/featured" />
+          <section>
+            <SectionHeader sig="./projects/featured" />
 
-              {result.data.projects.length === 0 ? (
-                <EmptyState
-                  title="No featured repositories"
-                  description="Tag a repository with the 'featured' topic on GitHub to display it here."
-                />
-              ) : (
-                <ProjectsGrid repos={result.data.projects} />
-              )}
-            </section>
-          </div>
-        )}
+            {projects.length === 0 ? (
+              <EmptyState
+                title="No featured repositories"
+                description="Tag a repository with the 'featured' topic on GitHub to display it here."
+              />
+            ) : (
+              <ProjectsGrid repos={projects} />
+            )}
+          </section>
+        </div>
       </section>
     </PageShell>
   );
