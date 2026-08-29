@@ -3,7 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface Props {
-  to: "/interests";
+  to: "/interests" | "/playground";
   children: ReactNode;
 }
 

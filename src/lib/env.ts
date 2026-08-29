@@ -4,6 +4,8 @@ export interface RuntimeEnv {
   LITERAL_EMAIL: string;
   LITERAL_PASSWORD: string;
   INTERIS_USERNAME: string;
+  /** Optional. `src/server/nasa.ts` falls back to "DEMO_KEY" when unset. */
+  NASA_API_KEY: string;
 }
 
 type RuntimeEnvKey = keyof RuntimeEnv;
@@ -55,6 +57,7 @@ export function readRuntimeEnv(source: unknown): RuntimeEnv {
     LITERAL_EMAIL: asString(env.LITERAL_EMAIL),
     LITERAL_PASSWORD: asString(env.LITERAL_PASSWORD),
     INTERIS_USERNAME: asString(env.INTERIS_USERNAME),
+    NASA_API_KEY: asString(env.NASA_API_KEY),
   };
 }
 

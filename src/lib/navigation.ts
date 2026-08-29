@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import type { AccentSlug } from "@/lib/accent";
 
 export interface NavigationItem {
-  href: "/" | "/projects" | "/interests" | "/experience" | "/cool";
+  href: "/" | "/projects" | "/interests" | "/experience" | "/playground";
   label: string;
   icon: LucideIcon;
   /** The section accent every route under `href` inherits. */
@@ -15,7 +15,7 @@ export const navigationItems: NavigationItem[] = [
   { href: "/projects", label: "projects", icon: FolderGit2, accent: "projects" },
   { href: "/experience", label: "experience", icon: Briefcase, accent: "experience" },
   { href: "/interests", label: "interests", icon: Heart, accent: "interests" },
-  { href: "/cool", label: "cool", icon: Gamepad2, accent: "cool" },
+  { href: "/playground", label: "playground", icon: Gamepad2, accent: "playground" },
 ];
 
 // The nav item owning `pathname` — exact or a sub-route (`/projects/foo` →

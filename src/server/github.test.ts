@@ -9,6 +9,7 @@ const ENV: RuntimeEnv = {
   LITERAL_EMAIL: "",
   LITERAL_PASSWORD: "",
   INTERIS_USERNAME: "",
+  NASA_API_KEY: "",
 };
 
 function repoNode(over: Record<string, unknown> = {}) {

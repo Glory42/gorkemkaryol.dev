@@ -44,7 +44,7 @@
   --accent-rgb: 59 130 246;
 }
 
-[data-accent="cool"] {
+[data-accent="playground"] {
   --accent: #f5b301;
   --accent-rgb: 245 179 1;
 }

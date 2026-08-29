@@ -1,4 +1,9 @@
-export type AccentSlug = "me" | "projects" | "experience" | "interests" | "cool";
+export type AccentSlug =
+  | "me"
+  | "projects"
+  | "experience"
+  | "interests"
+  | "playground";
 
 /** Matches the `:root` default in tokens.css (the "me" / purple accent). */
 export const FALLBACK_ACCENT_RGB = "168 85 247";
