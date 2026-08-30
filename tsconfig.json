@@ -2,10 +2,11 @@
   "include": [
     "src/router.tsx",
     "src/routes/**/*.tsx",
-    "src/components/layout/**/*.tsx",
-    "src/components/ui/**/*.tsx",
-    "src/lib/*.ts",
-    "src/server/*.ts",
+    "src/components/**/*.tsx",
+    "src/features/**/*.ts",
+    "src/features/**/*.tsx",
+    "src/lib/**/*.ts",
+    "src/server/**/*.ts",
     "worker-configuration.d.ts"
   ],
   "compilerOptions": {

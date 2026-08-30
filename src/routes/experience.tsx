@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/layout/PageShell";
-import { ExperienceTimeline } from "@/components/ui/ExperienceTimeline";
-import { volunteeringExperiences, workExperiences } from "@/lib/resume";
+import { ExperienceTimeline } from "@/features/experience/components/ExperienceTimeline";
+import { volunteeringExperiences, workExperiences } from "@/features/experience/timeline";
 
 export const Route = createFileRoute("/experience")({
   head: () => ({

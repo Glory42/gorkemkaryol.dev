@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Code, Globe, Layers, Monitor, Terminal } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
-import { ContactLinks } from "@/components/ui/ContactLinks";
-import { LiveClock } from "@/components/ui/LiveClock";
-import { RotatingPrompt } from "@/components/ui/RotatingPrompt";
-import { contactItems, introText, techItems, type TechItem } from "@/lib/resume";
+import { ContactLinks } from "@/features/home/components/ContactLinks";
+import { LiveClock } from "@/features/home/components/LiveClock";
+import { RotatingPrompt } from "@/features/home/components/RotatingPrompt";
+import { contactItems, introText, techItems, type TechItem } from "@/features/home/content";
 
 export const Route = createFileRoute("/")({
   head: () => ({

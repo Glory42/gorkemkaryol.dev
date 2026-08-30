@@ -1,4 +1,4 @@
-import type { ServiceError } from "@/server/http";
+import type { ServiceError } from "@/server/common/http";
 
 interface Props {
   title: string;

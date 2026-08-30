@@ -9,40 +9,40 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ProjectsRouteImport } from './routes/projects'
-import { Route as PlaygroundRouteImport } from './routes/playground'
-import { Route as InterestsRouteImport } from './routes/interests'
 import { Route as ExperienceRouteImport } from './routes/experience'
+import { Route as ProjectsRouteRouteImport } from './routes/projects/route'
+import { Route as PlaygroundRouteRouteImport } from './routes/playground/route'
+import { Route as InterestsRouteRouteImport } from './routes/interests/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProjectsIndexRouteImport } from './routes/projects.index'
-import { Route as PlaygroundIndexRouteImport } from './routes/playground.index'
-import { Route as InterestsIndexRouteImport } from './routes/interests.index'
-import { Route as ProjectsSlugRouteImport } from './routes/projects.$slug'
-import { Route as PlaygroundWhoamiRouteImport } from './routes/playground.whoami'
-import { Route as PlaygroundSysinfoRouteImport } from './routes/playground.sysinfo'
-import { Route as PlaygroundSpaceRouteImport } from './routes/playground.space'
-import { Route as PlaygroundGamesRouteImport } from './routes/playground.games'
-import { Route as InterestsWatchingRouteImport } from './routes/interests.watching'
-import { Route as InterestsReadingRouteImport } from './routes/interests.reading'
+import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
+import { Route as PlaygroundIndexRouteImport } from './routes/playground/index'
+import { Route as InterestsIndexRouteImport } from './routes/interests/index'
+import { Route as ProjectsSlugRouteImport } from './routes/projects/$slug'
+import { Route as PlaygroundWhoamiRouteImport } from './routes/playground/whoami'
+import { Route as PlaygroundSysinfoRouteImport } from './routes/playground/sysinfo'
+import { Route as PlaygroundSpaceRouteImport } from './routes/playground/space'
+import { Route as PlaygroundGamesRouteImport } from './routes/playground/games'
+import { Route as InterestsWatchingRouteImport } from './routes/interests/watching'
+import { Route as InterestsReadingRouteImport } from './routes/interests/reading'
 
-const ProjectsRoute = ProjectsRouteImport.update({
+const ExperienceRoute = ExperienceRouteImport.update({
+  id: '/experience',
+  path: '/experience',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsRouteRoute = ProjectsRouteRouteImport.update({
   id: '/projects',
   path: '/projects',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlaygroundRoute = PlaygroundRouteImport.update({
+const PlaygroundRouteRoute = PlaygroundRouteRouteImport.update({
   id: '/playground',
   path: '/playground',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InterestsRoute = InterestsRouteImport.update({
+const InterestsRouteRoute = InterestsRouteRouteImport.update({
   id: '/interests',
   path: '/interests',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ExperienceRoute = ExperienceRouteImport.update({
-  id: '/experience',
-  path: '/experience',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -53,60 +53,60 @@ const IndexRoute = IndexRouteImport.update({
 const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => ProjectsRoute,
+  getParentRoute: () => ProjectsRouteRoute,
 } as any)
 const PlaygroundIndexRoute = PlaygroundIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => PlaygroundRoute,
+  getParentRoute: () => PlaygroundRouteRoute,
 } as any)
 const InterestsIndexRoute = InterestsIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => InterestsRoute,
+  getParentRoute: () => InterestsRouteRoute,
 } as any)
 const ProjectsSlugRoute = ProjectsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
-  getParentRoute: () => ProjectsRoute,
+  getParentRoute: () => ProjectsRouteRoute,
 } as any)
 const PlaygroundWhoamiRoute = PlaygroundWhoamiRouteImport.update({
   id: '/whoami',
   path: '/whoami',
-  getParentRoute: () => PlaygroundRoute,
+  getParentRoute: () => PlaygroundRouteRoute,
 } as any)
 const PlaygroundSysinfoRoute = PlaygroundSysinfoRouteImport.update({
   id: '/sysinfo',
   path: '/sysinfo',
-  getParentRoute: () => PlaygroundRoute,
+  getParentRoute: () => PlaygroundRouteRoute,
 } as any)
 const PlaygroundSpaceRoute = PlaygroundSpaceRouteImport.update({
   id: '/space',
   path: '/space',
-  getParentRoute: () => PlaygroundRoute,
+  getParentRoute: () => PlaygroundRouteRoute,
 } as any)
 const PlaygroundGamesRoute = PlaygroundGamesRouteImport.update({
   id: '/games',
   path: '/games',
-  getParentRoute: () => PlaygroundRoute,
+  getParentRoute: () => PlaygroundRouteRoute,
 } as any)
 const InterestsWatchingRoute = InterestsWatchingRouteImport.update({
   id: '/watching',
   path: '/watching',
-  getParentRoute: () => InterestsRoute,
+  getParentRoute: () => InterestsRouteRoute,
 } as any)
 const InterestsReadingRoute = InterestsReadingRouteImport.update({
   id: '/reading',
   path: '/reading',
-  getParentRoute: () => InterestsRoute,
+  getParentRoute: () => InterestsRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/interests': typeof InterestsRouteRouteWithChildren
+  '/playground': typeof PlaygroundRouteRouteWithChildren
+  '/projects': typeof ProjectsRouteRouteWithChildren
   '/experience': typeof ExperienceRoute
-  '/interests': typeof InterestsRouteWithChildren
-  '/playground': typeof PlaygroundRouteWithChildren
-  '/projects': typeof ProjectsRouteWithChildren
   '/interests/reading': typeof InterestsReadingRoute
   '/interests/watching': typeof InterestsWatchingRoute
   '/playground/games': typeof PlaygroundGamesRoute
@@ -135,10 +135,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/interests': typeof InterestsRouteRouteWithChildren
+  '/playground': typeof PlaygroundRouteRouteWithChildren
+  '/projects': typeof ProjectsRouteRouteWithChildren
   '/experience': typeof ExperienceRoute
-  '/interests': typeof InterestsRouteWithChildren
-  '/playground': typeof PlaygroundRouteWithChildren
-  '/projects': typeof ProjectsRouteWithChildren
   '/interests/reading': typeof InterestsReadingRoute
   '/interests/watching': typeof InterestsWatchingRoute
   '/playground/games': typeof PlaygroundGamesRoute
@@ -154,10 +154,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/experience'
     | '/interests'
     | '/playground'
     | '/projects'
+    | '/experience'
     | '/interests/reading'
     | '/interests/watching'
     | '/playground/games'
@@ -185,10 +185,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/experience'
     | '/interests'
     | '/playground'
     | '/projects'
+    | '/experience'
     | '/interests/reading'
     | '/interests/watching'
     | '/playground/games'
@@ -203,40 +203,40 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  InterestsRouteRoute: typeof InterestsRouteRouteWithChildren
+  PlaygroundRouteRoute: typeof PlaygroundRouteRouteWithChildren
+  ProjectsRouteRoute: typeof ProjectsRouteRouteWithChildren
   ExperienceRoute: typeof ExperienceRoute
-  InterestsRoute: typeof InterestsRouteWithChildren
-  PlaygroundRoute: typeof PlaygroundRouteWithChildren
-  ProjectsRoute: typeof ProjectsRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/experience': {
+      id: '/experience'
+      path: '/experience'
+      fullPath: '/experience'
+      preLoaderRoute: typeof ExperienceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/projects': {
       id: '/projects'
       path: '/projects'
       fullPath: '/projects'
-      preLoaderRoute: typeof ProjectsRouteImport
+      preLoaderRoute: typeof ProjectsRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/playground': {
       id: '/playground'
       path: '/playground'
       fullPath: '/playground'
-      preLoaderRoute: typeof PlaygroundRouteImport
+      preLoaderRoute: typeof PlaygroundRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/interests': {
       id: '/interests'
       path: '/interests'
       fullPath: '/interests'
-      preLoaderRoute: typeof InterestsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/experience': {
-      id: '/experience'
-      path: '/experience'
-      fullPath: '/experience'
-      preLoaderRoute: typeof ExperienceRouteImport
+      preLoaderRoute: typeof InterestsRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -251,91 +251,91 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/projects/'
       preLoaderRoute: typeof ProjectsIndexRouteImport
-      parentRoute: typeof ProjectsRoute
+      parentRoute: typeof ProjectsRouteRoute
     }
     '/playground/': {
       id: '/playground/'
       path: '/'
       fullPath: '/playground/'
       preLoaderRoute: typeof PlaygroundIndexRouteImport
-      parentRoute: typeof PlaygroundRoute
+      parentRoute: typeof PlaygroundRouteRoute
     }
     '/interests/': {
       id: '/interests/'
       path: '/'
       fullPath: '/interests/'
       preLoaderRoute: typeof InterestsIndexRouteImport
-      parentRoute: typeof InterestsRoute
+      parentRoute: typeof InterestsRouteRoute
     }
     '/projects/$slug': {
       id: '/projects/$slug'
       path: '/$slug'
       fullPath: '/projects/$slug'
       preLoaderRoute: typeof ProjectsSlugRouteImport
-      parentRoute: typeof ProjectsRoute
+      parentRoute: typeof ProjectsRouteRoute
     }
     '/playground/whoami': {
       id: '/playground/whoami'
       path: '/whoami'
       fullPath: '/playground/whoami'
       preLoaderRoute: typeof PlaygroundWhoamiRouteImport
-      parentRoute: typeof PlaygroundRoute
+      parentRoute: typeof PlaygroundRouteRoute
     }
     '/playground/sysinfo': {
       id: '/playground/sysinfo'
       path: '/sysinfo'
       fullPath: '/playground/sysinfo'
       preLoaderRoute: typeof PlaygroundSysinfoRouteImport
-      parentRoute: typeof PlaygroundRoute
+      parentRoute: typeof PlaygroundRouteRoute
     }
     '/playground/space': {
       id: '/playground/space'
       path: '/space'
       fullPath: '/playground/space'
       preLoaderRoute: typeof PlaygroundSpaceRouteImport
-      parentRoute: typeof PlaygroundRoute
+      parentRoute: typeof PlaygroundRouteRoute
     }
     '/playground/games': {
       id: '/playground/games'
       path: '/games'
       fullPath: '/playground/games'
       preLoaderRoute: typeof PlaygroundGamesRouteImport
-      parentRoute: typeof PlaygroundRoute
+      parentRoute: typeof PlaygroundRouteRoute
     }
     '/interests/watching': {
       id: '/interests/watching'
       path: '/watching'
       fullPath: '/interests/watching'
       preLoaderRoute: typeof InterestsWatchingRouteImport
-      parentRoute: typeof InterestsRoute
+      parentRoute: typeof InterestsRouteRoute
     }
     '/interests/reading': {
       id: '/interests/reading'
       path: '/reading'
       fullPath: '/interests/reading'
       preLoaderRoute: typeof InterestsReadingRouteImport
-      parentRoute: typeof InterestsRoute
+      parentRoute: typeof InterestsRouteRoute
     }
   }
 }
 
-interface InterestsRouteChildren {
+interface InterestsRouteRouteChildren {
   InterestsReadingRoute: typeof InterestsReadingRoute
   InterestsWatchingRoute: typeof InterestsWatchingRoute
   InterestsIndexRoute: typeof InterestsIndexRoute
 }
 
-const InterestsRouteChildren: InterestsRouteChildren = {
+const InterestsRouteRouteChildren: InterestsRouteRouteChildren = {
   InterestsReadingRoute: InterestsReadingRoute,
   InterestsWatchingRoute: InterestsWatchingRoute,
   InterestsIndexRoute: InterestsIndexRoute,
 }
 
-const InterestsRouteWithChildren = InterestsRoute._addFileChildren(
-  InterestsRouteChildren,
+const InterestsRouteRouteWithChildren = InterestsRouteRoute._addFileChildren(
+  InterestsRouteRouteChildren,
 )
 
-interface PlaygroundRouteChildren {
+interface PlaygroundRouteRouteChildren {
   PlaygroundGamesRoute: typeof PlaygroundGamesRoute
   PlaygroundSpaceRoute: typeof PlaygroundSpaceRoute
   PlaygroundSysinfoRoute: typeof PlaygroundSysinfoRoute
@@ -343,7 +343,7 @@ interface PlaygroundRouteChildren {
   PlaygroundIndexRoute: typeof PlaygroundIndexRoute
 }
 
-const PlaygroundRouteChildren: PlaygroundRouteChildren = {
+const PlaygroundRouteRouteChildren: PlaygroundRouteRouteChildren = {
   PlaygroundGamesRoute: PlaygroundGamesRoute,
   PlaygroundSpaceRoute: PlaygroundSpaceRoute,
   PlaygroundSysinfoRoute: PlaygroundSysinfoRoute,
@@ -351,30 +351,30 @@ const PlaygroundRouteChildren: PlaygroundRouteChildren = {
   PlaygroundIndexRoute: PlaygroundIndexRoute,
 }
 
-const PlaygroundRouteWithChildren = PlaygroundRoute._addFileChildren(
-  PlaygroundRouteChildren,
+const PlaygroundRouteRouteWithChildren = PlaygroundRouteRoute._addFileChildren(
+  PlaygroundRouteRouteChildren,
 )
 
-interface ProjectsRouteChildren {
+interface ProjectsRouteRouteChildren {
   ProjectsSlugRoute: typeof ProjectsSlugRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
 }
 
-const ProjectsRouteChildren: ProjectsRouteChildren = {
+const ProjectsRouteRouteChildren: ProjectsRouteRouteChildren = {
   ProjectsSlugRoute: ProjectsSlugRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
 }
 
-const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
-  ProjectsRouteChildren,
+const ProjectsRouteRouteWithChildren = ProjectsRouteRoute._addFileChildren(
+  ProjectsRouteRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  InterestsRouteRoute: InterestsRouteRouteWithChildren,
+  PlaygroundRouteRoute: PlaygroundRouteRouteWithChildren,
+  ProjectsRouteRoute: ProjectsRouteRouteWithChildren,
   ExperienceRoute: ExperienceRoute,
-  InterestsRoute: InterestsRouteWithChildren,
-  PlaygroundRoute: PlaygroundRouteWithChildren,
-  ProjectsRoute: ProjectsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
