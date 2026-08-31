@@ -45,6 +45,33 @@ function apodPageUrl(date: string): string {
   return `https://apod.nasa.gov/apod/ap${date.slice(2).replace(/-/g, "")}.html`;
 }
 
+// APOD video days hand us a YouTube URL; rewrite it to the nocookie embed host
+// our CSP frame-src allows. Returns null for players we can't frame (Vimeo etc).
+function youtubeEmbedUrl(raw: string): string | null {
+  try {
+    const u = new URL(raw);
+    const host = u.hostname.replace(/^www\./, "");
+    const id =
+      host === "youtu.be"
+        ? u.pathname.slice(1)
+        : host === "youtube.com" || host === "youtube-nocookie.com"
+          ? u.pathname.startsWith("/embed/")
+            ? u.pathname.slice(7)
+            : u.searchParams.get("v")
+          : null;
+    return id
+      ? `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&playsinline=1`
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+// Some APOD "video" days are a bare file (…/RomanLaunch_NASA.mp4), not a player.
+function isDirectVideo(url: string): boolean {
+  return /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|$)/i.test(url);
+}
+
 function ApodLightbox({ apod, onClose }: { apod: Apod; onClose: () => void }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -95,6 +122,8 @@ function ApodLightbox({ apod, onClose }: { apod: Apod; onClose: () => void }) {
 
 function ApodBlock({ apod }: { apod: Apod }) {
   const [open, setOpen] = useState(false);
+  const videoEmbed =
+    apod.mediaType === "video" ? youtubeEmbedUrl(apod.url) : null;
 
   return (
     <div>
@@ -120,6 +149,27 @@ function ApodBlock({ apod }: { apod: Apod }) {
             className="mx-auto max-h-[600px] w-auto max-w-full"
           />
         </button>
+      ) : videoEmbed ? (
+        <div className="aspect-video w-full bg-black">
+          <iframe
+            src={videoEmbed}
+            title={apod.title}
+            allow="autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="h-full w-full border-0"
+          />
+        </div>
+      ) : apod.mediaType === "video" && isDirectVideo(apod.url) ? (
+        <video
+          src={apod.url}
+          autoPlay
+          muted
+          loop
+          controls
+          playsInline
+          preload="metadata"
+          className="mx-auto max-h-[600px] w-full bg-black"
+        />
       ) : apod.thumbnailUrl ? (
         <a href={apod.url} target="_blank" rel="noopener noreferrer" className="block no-underline">
           <SmartImage
