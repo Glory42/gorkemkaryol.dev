@@ -8,6 +8,16 @@ function escapeAttr(str: string): string {
     .replace(/>/g, "&gt;");
 }
 
+// GitHub-style heading slug: lowercase, punctuation dropped, spaces to hyphens.
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/<[^>]+>/g, "")
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+}
+
 function buildMarked(
   owner: string,
   repo: string,
@@ -37,8 +47,25 @@ function buildMarked(
 
   const instance = new Marked();
 
+  // Give every heading a stable id so a README's own table-of-contents links
+  // (`#set-up-the-frontend`) have something to scroll to. Dupes get -1, -2.
+  const slugCounts = new Map<string, number>();
+  function uniqueSlug(text: string): string {
+    const base = slugify(text) || "section";
+    const n = slugCounts.get(base) ?? 0;
+    slugCounts.set(base, n + 1);
+    return n === 0 ? base : `${base}-${n}`;
+  }
+
   instance.use({
     renderer: {
+      heading({ tokens, depth }) {
+        // Slug from the rendered text (tags stripped in slugify), so a linked
+        // heading `## [Title](url)` still slugs to `title`, matching GitHub.
+        const inner = this.parser.parseInline(tokens);
+        const id = escapeAttr(uniqueSlug(inner));
+        return `<h${depth} id="${id}">${inner}</h${depth}>\n`;
+      },
       html({ text }) {
         // Escape raw HTML blocks to prevent XSS from malicious READMEs.
         // Markdown-generated HTML (tables, code blocks, etc.) is safe and unaffected.

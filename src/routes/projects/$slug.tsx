@@ -111,7 +111,7 @@ function ProjectReadmeSkeleton() {
 
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
-      <div className="mx-auto min-w-0 max-w-[860px] overflow-hidden">
+      <div className="mx-auto min-w-0 max-w-[860px] overflow-x-clip">
         <p className="mono mb-4 text-[11px] text-[#252525]">~$ cat ./projects/{slug}</p>
 
         <div className="mb-4 flex items-center justify-between">
@@ -144,7 +144,7 @@ function ProjectReadmePage() {
   if (!result.ok) {
     return (
       <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
-        <div className="mx-auto min-w-0 max-w-[860px] overflow-hidden">
+        <div className="mx-auto min-w-0 max-w-[860px] overflow-x-clip">
           <div className="mb-4 flex items-center justify-between">
             <Link
               to="/projects"
@@ -164,7 +164,7 @@ function ProjectReadmePage() {
 
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
-      <div className="mx-auto min-w-0 max-w-[860px] overflow-hidden">
+      <div className="mx-auto min-w-0 max-w-[860px] overflow-x-clip">
         <p className="mono mb-4 text-[11px] text-[#252525]">~$ cat ./projects/{repo}</p>
 
         <div className="mb-4 flex items-center justify-between">
