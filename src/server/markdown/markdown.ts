@@ -80,7 +80,7 @@ function buildMarked(
         const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
         return `<img src="${src}" alt="${alt}"${titleAttr} loading="lazy" />`;
       },
-      link({ href, title, text }) {
+      link({ href, title, tokens }) {
         const resolved = resolveUrl(href ?? "", false);
         const isExternal =
           resolved.startsWith("http://") || resolved.startsWith("https://");
@@ -89,7 +89,10 @@ function buildMarked(
         const externalAttrs = isExternal
           ? ` target="_blank" rel="noopener noreferrer nofollow"`
           : "";
-        return `<a href="${safeHref}"${titleAttr}${externalAttrs}>${text}</a>`;
+        // Render the inner tokens, not the raw text, so `[![badge](img)](url)`
+        // keeps its nested image instead of printing literal markdown.
+        const inner = this.parser.parseInline(tokens);
+        return `<a href="${safeHref}"${titleAttr}${externalAttrs}>${inner}</a>`;
       },
     },
   });
