@@ -3,7 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { PageShell } from "@/components/layout/PageShell";
 import { BackLink } from "@/components/ui/BackLink";
-import { ErrorPanel } from "@/components/ui/ErrorPanel";
+import { StatusPanel } from "@/components/ui/StatusPanel";
 import { PosterGrid, PosterGridSkeleton, type PosterGridItem } from "@/features/interests/components/PosterGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { INTERIS_BASE, TMDB_IMAGE_BASE } from "@/features/interests/content";
@@ -219,7 +219,7 @@ function WatchingPage() {
         )}
 
         {!watched.ok ? (
-          <ErrorPanel title="Interis API Unavailable" error={watched.error} />
+          <StatusPanel tone="error" title="Interis API Unavailable" error={watched.error} />
         ) : (
           <WatchedSection serials={watched.data.serials} movies={watched.data.movies} />
         )}

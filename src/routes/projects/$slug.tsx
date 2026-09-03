@@ -3,7 +3,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { ChevronLeft, ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/ui/icons";
 import { PageShell } from "@/components/layout/PageShell";
-import { ErrorPanel } from "@/components/ui/ErrorPanel";
+import { StatusPage } from "@/components/ui/StatusPage";
+import { StatusPanel } from "@/components/ui/StatusPanel";
 import { ReadmeArticle } from "@/features/projects/components/ReadmeArticle";
 import { findManualProject } from "@/features/projects/manual-projects";
 import { getRepoReadmeData } from "@/server/github/github";
@@ -85,20 +86,13 @@ export const Route = createFileRoute("/projects/$slug")({
   pendingMs: 0,
   pendingComponent: ProjectReadmeSkeleton,
   notFoundComponent: () => (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
-      <div className="mx-auto max-w-[860px]">
-        <p className="mono text-[11px] text-[#333]">404 — project not found</p>
-        <div className="mt-4">
-          <Link
-            to="/projects"
-            className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.1em] text-[#444] no-underline transition-colors hover:text-white"
-          >
-            <ChevronLeft size={11} />
-            back to projects
-          </Link>
-        </div>
-      </div>
-    </PageShell>
+    <StatusPage
+      variant="not-found"
+      title="Project not found"
+      message="No project matches that name."
+      backTo="/projects"
+      backLabel="back to projects"
+    />
   ),
   component: ProjectReadmePage,
 });
@@ -151,7 +145,7 @@ function ProjectReadmePage() {
               back to projects
             </Link>
           </div>
-          <ErrorPanel title="GitHub API Unavailable" error={result.error} />
+          <StatusPanel tone="error" title="GitHub API Unavailable" error={result.error} />
         </div>
       </PageShell>
     );

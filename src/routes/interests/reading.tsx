@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { PageShell } from "@/components/layout/PageShell";
 import { BackLink } from "@/components/ui/BackLink";
-import { ErrorPanel } from "@/components/ui/ErrorPanel";
+import { StatusPanel } from "@/components/ui/StatusPanel";
 import { PosterGrid, PosterGridSkeleton, type PosterGridItem } from "@/features/interests/components/PosterGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { getAllBooksData, type LiteralBook } from "@/server/literal/literal";
@@ -80,7 +80,7 @@ function ReadingPage() {
         <BackLink to="/interests">back to interests</BackLink>
 
         {!result.ok ? (
-          <ErrorPanel title="Literal API Unavailable" error={result.error} />
+          <StatusPanel tone="error" title="Literal API Unavailable" error={result.error} />
         ) : (
           <>
             <section className="mb-10">

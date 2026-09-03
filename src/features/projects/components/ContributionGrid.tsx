@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { StatusPanel } from "@/components/ui/StatusPanel";
 import { FALLBACK_ACCENT_RGB, readAccentRgb } from "@/lib/accent";
 import type { GithubContributionCalendar } from "@/server/github/github";
 
@@ -77,7 +77,7 @@ export function ContributionGrid({ calendar }: Props) {
 
   if (!calendar) {
     return (
-      <EmptyState
+      <StatusPanel tone="empty"
         title="No contribution activity"
         description="No contribution data was returned by GitHub for the selected period."
       />

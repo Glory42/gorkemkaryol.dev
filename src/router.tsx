@@ -1,14 +1,15 @@
 import { createRouter } from "@tanstack/react-router";
-import { DefaultCatchBoundary } from "@/components/ui/DefaultCatchBoundary";
-import { NotFound } from "@/components/ui/NotFound";
+import { StatusPage } from "@/components/ui/StatusPage";
 import { routeTree } from "./routeTree.gen";
 
 export function getRouter() {
   return createRouter({
     routeTree,
     defaultPreload: "intent",
-    defaultErrorComponent: DefaultCatchBoundary,
-    defaultNotFoundComponent: () => <NotFound />,
+    defaultErrorComponent: ({ error }) => (
+      <StatusPage variant="error" message={error.message || undefined} />
+    ),
+    defaultNotFoundComponent: () => <StatusPage variant="not-found" />,
     scrollRestoration: true,
   });
 }

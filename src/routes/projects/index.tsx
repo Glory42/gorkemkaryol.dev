@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { PageShell } from "@/components/layout/PageShell";
 import { ContributionGrid } from "@/features/projects/components/ContributionGrid";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { ErrorPanel } from "@/components/ui/ErrorPanel";
+import { StatusPanel } from "@/components/ui/StatusPanel";
 import { ProjectsGrid } from "@/features/projects/components/ProjectsGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { manualProjects } from "@/features/projects/manual-projects";
@@ -126,7 +125,7 @@ function ProjectsPage() {
             </section>
           ) : (
             <div className="mb-8">
-              <ErrorPanel title="GitHub API Unavailable" error={result.error} />
+              <StatusPanel tone="error" title="GitHub API Unavailable" error={result.error} />
             </div>
           )}
 
@@ -136,7 +135,8 @@ function ProjectsPage() {
             <section className="min-w-0 flex-1">
               <SectionHeader sig="./projects/featured" />
               {featured.length === 0 ? (
-                <EmptyState
+                <StatusPanel
+                  tone="empty"
                   title="No featured repositories"
                   description="Tag a repository with the 'featured' topic on GitHub to display it here."
                 />
@@ -150,7 +150,8 @@ function ProjectsPage() {
             <section className="min-w-0 flex-1">
               <SectionHeader sig="./projects/contributed" />
               {contributed.length === 0 ? (
-                <EmptyState
+                <StatusPanel
+                  tone="empty"
                   title="Nothing here yet"
                   description="External and company projects show up here."
                 />

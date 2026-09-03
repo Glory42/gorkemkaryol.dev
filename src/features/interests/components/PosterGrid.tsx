@@ -1,4 +1,4 @@
-import { EmptyState } from "@/components/ui/EmptyState";
+import { StatusPanel } from "@/components/ui/StatusPanel";
 import { SmartImage } from "@/components/ui/SmartImage";
 
 export interface PosterGridItem {
@@ -18,7 +18,7 @@ interface Props {
 
 export function PosterGrid({ items, emptyTitle, emptyDescription }: Props) {
   if (items.length === 0) {
-    return <EmptyState title={emptyTitle} description={emptyDescription} />;
+    return <StatusPanel tone="empty" title={emptyTitle} description={emptyDescription} />;
   }
 
   return (

@@ -4,7 +4,7 @@ import { BookOpen, Film, Music, Tv } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
 import { DataSection } from "@/components/ui/DataSection";
-import { ErrorPanel } from "@/components/ui/ErrorPanel";
+import { StatusPanel } from "@/components/ui/StatusPanel";
 import { ShelfList, type ShelfItem } from "@/features/interests/components/ShelfList";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { favoriteBands, interestsIntro, INTERIS_BASE, TMDB_IMAGE_BASE } from "@/features/interests/content";
@@ -222,7 +222,7 @@ function InterestsPage() {
                 }
                 renderError={(error) => (
                   <div className="col-span-2">
-                    <ErrorPanel title="Interis API Unavailable" error={error} />
+                    <StatusPanel tone="error" title="Interis API Unavailable" error={error} />
                   </div>
                 )}
               >

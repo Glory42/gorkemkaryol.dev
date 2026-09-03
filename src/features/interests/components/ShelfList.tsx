@@ -1,4 +1,4 @@
-import { EmptyState } from "@/components/ui/EmptyState";
+import { StatusPanel } from "@/components/ui/StatusPanel";
 import { SmartImage } from "@/components/ui/SmartImage";
 
 export interface ShelfItem {
@@ -71,7 +71,7 @@ function ShelfRow({ item, isFirst }: { item: ShelfItem; isFirst: boolean }) {
 
 export function ShelfList({ items, emptyTitle, emptyDescription }: Props) {
   if (items.length === 0) {
-    return <EmptyState title={emptyTitle} description={emptyDescription} />;
+    return <StatusPanel tone="empty" title={emptyTitle} description={emptyDescription} />;
   }
 
   return (
