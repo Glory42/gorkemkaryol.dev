@@ -45,6 +45,11 @@ export const manualProjects: ManualProject[] = [
   },
 ];
 
+// The one place a project slug is matched. Case-insensitive so a hand-typed
+// `/projects/gathin` resolves the same as the linked `/projects/Gathin`.
 export function findManualProject(slug: string): ManualProject | undefined {
-  return manualProjects.find((project) => project.slug === slug);
+  const wanted = slug.toLowerCase();
+  return manualProjects.find(
+    (project) => project.slug.toLowerCase() === wanted,
+  );
 }

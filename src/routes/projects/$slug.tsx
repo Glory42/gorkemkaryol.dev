@@ -8,76 +8,27 @@ import { SkeletonBlock } from "@/components/ui/Skeleton";
 import { StatusPage } from "@/components/ui/StatusPage";
 import { StatusPanel } from "@/components/ui/StatusPanel";
 import { ReadmeArticle } from "@/features/projects/components/ReadmeArticle";
-import { findManualProject } from "@/features/projects/manual-projects";
-import { getRepoReadmeData } from "@/server/github/github";
-import { renderMarkdownToHTML } from "@/server/markdown/markdown";
-import { ok, type ServiceResult } from "@/server/common/http";
+import {
+  getProjectReadme,
+  type ProjectReadme,
+} from "@/features/projects/projects";
+import type { ServiceResult } from "@/server/common/http";
 import { runSource } from "@/server/common/page-data";
 
-interface ReadmePageData {
-  repo: string;
-  /** GitHub repo URL, or — for a manual project — the live product URL. */
-  repoUrl: string;
-  html: string;
-  hadError: boolean;
-  kind: "github" | "manual";
-}
-
-const getRepoReadmeServerFn = createServerFn({ method: "GET" })
+const getProjectReadmeServerFn = createServerFn({ method: "GET" })
   .inputValidator((data: string) => {
     if (!/^[a-zA-Z0-9_.-]+$/.test(data)) throw new Error("Invalid slug");
     return data;
   })
-  .handler(async ({ data: slug }) => {
-    const manual = findManualProject(slug);
-    if (manual) {
-      const { html, hadError } = renderMarkdownToHTML(
-        manual.readme,
-        "",
-        manual.slug,
-        "",
-        "",
-      );
-      return ok({
-        repo: manual.card.name,
-        repoUrl: manual.liveUrl,
-        html,
-        hadError,
-        kind: "manual" as const,
-      });
-    }
-
-    const result = await runSource((env, ctx) =>
-      getRepoReadmeData(env, ctx, slug),
-    );
-
-    if (!result.ok) return result;
-    if (result.data === null || result.data.readme === null) {
-      return ok(null);
-    }
-
-    const { html, hadError } = renderMarkdownToHTML(
-      result.data.readme,
-      result.data.owner,
-      result.data.repo,
-      result.data.defaultBranch,
-      result.data.repoUrl,
-    );
-
-    return ok({
-      repo: result.data.repo,
-      repoUrl: result.data.repoUrl,
-      html,
-      hadError,
-      kind: "github" as const,
-    });
-  });
+  .handler(async ({ data: slug }) =>
+    runSource((env, ctx) => getProjectReadme(env, ctx, slug)),
+  );
 
 export const Route = createFileRoute("/projects/$slug")({
   head: ({ params }) =>
     pageHead(params.slug, `README for ${params.slug}.`),
   loader: async ({ params }) => {
-    const result = await getRepoReadmeServerFn({ data: params.slug });
+    const result = await getProjectReadmeServerFn({ data: params.slug });
     if (result.ok && result.data === null) throw notFound();
     return result;
   },
@@ -128,7 +79,9 @@ function ProjectReadmeSkeleton() {
 }
 
 function ProjectReadmePage() {
-  const result = Route.useLoaderData() as ServiceResult<ReadmePageData | null>;
+  // A validated createServerFn widens its result; the loader's notFound() throw
+  // is what actually gates null, so the cast just recovers the real shape.
+  const result = Route.useLoaderData() as ServiceResult<ProjectReadme | null>;
 
   if (!result.ok) {
     return (
@@ -149,12 +102,13 @@ function ProjectReadmePage() {
     );
   }
 
-  const { repo, repoUrl, html, hadError, kind } = result.data as ReadmePageData;
+  if (!result.data) return null;
+  const { kind, title, url, html, hadError } = result.data;
 
   return (
     <PageShell mainClassName={PAGE_MAIN}>
       <div className="mx-auto min-w-0 max-w-[860px] overflow-x-clip">
-        <TerminalPrompt cmd={`cat ./projects/${repo}`} className="mb-4" />
+        <TerminalPrompt cmd={`cat ./projects/${title}`} className="mb-4" />
 
         <div className="mb-4 flex items-center justify-between">
           <Link
@@ -165,14 +119,12 @@ function ProjectReadmePage() {
             back to projects
           </Link>
           <a
-            href={repoUrl}
+            href={url}
             target="_blank"
             rel="noopener noreferrer"
             className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.08em] text-[#333] no-underline transition-colors hover:text-accent/[0.85]"
             aria-label={
-              kind === "manual"
-                ? `Visit ${repo}`
-                : `Open ${repo} on GitHub`
+              kind === "manual" ? `Visit ${title}` : `Open ${title} on GitHub`
             }
           >
             {kind === "manual" ? (

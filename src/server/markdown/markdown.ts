@@ -105,15 +105,26 @@ export interface MarkdownResult {
   hadError: boolean;
 }
 
+// Repo coordinates for resolving a README's relative links and images. Omit
+// every field for a hand-authored page — relative paths are then left as-is.
+export interface MarkdownContext {
+  owner?: string;
+  repo?: string;
+  branch?: string;
+  repoUrl?: string;
+}
+
 export function renderMarkdownToHTML(
   markdown: string,
-  owner: string,
-  repo: string,
-  branch: string,
-  repoUrl: string,
+  ctx: MarkdownContext = {},
 ): MarkdownResult {
   try {
-    const markedInstance = buildMarked(owner, repo, branch, repoUrl);
+    const markedInstance = buildMarked(
+      ctx.owner ?? "",
+      ctx.repo ?? "",
+      ctx.branch ?? "",
+      ctx.repoUrl ?? "",
+    );
     const html = markedInstance.parse(markdown, { async: false }) as string;
     return { html, hadError: false };
   } catch {

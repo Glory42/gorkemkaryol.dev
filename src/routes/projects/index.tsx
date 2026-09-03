@@ -7,12 +7,11 @@ import { SkeletonBlock, SkeletonLine } from "@/components/ui/Skeleton";
 import { StatusPanel } from "@/components/ui/StatusPanel";
 import { ProjectsGrid } from "@/features/projects/components/ProjectsGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { manualProjects } from "@/features/projects/manual-projects";
-import { getGithubProjects } from "@/server/github/github";
+import { getProjects } from "@/features/projects/projects";
 import { runSource } from "@/server/common/page-data";
 
-const getGithubProjectsServerFn = createServerFn({ method: "GET" }).handler(() =>
-  runSource(getGithubProjects),
+const getProjectsServerFn = createServerFn({ method: "GET" }).handler(() =>
+  runSource(getProjects),
 );
 
 export const Route = createFileRoute("/projects/")({
@@ -21,7 +20,7 @@ export const Route = createFileRoute("/projects/")({
       "Projects",
       "Featured and contributed projects, plus contribution activity.",
     ),
-  loader: async () => getGithubProjectsServerFn(),
+  loader: async () => getProjectsServerFn(),
   pendingMs: 0,
   pendingComponent: ProjectsPageSkeleton,
   component: ProjectsPage,
@@ -100,13 +99,22 @@ function SkeletonColumn({ sig, rows }: { sig: string; rows: number }) {
 function ProjectsPage() {
   const result = Route.useLoaderData();
 
-  const featured = result.ok ? result.data.featured : [];
-  // Manual entries lead the contributed column; they render even when the
-  // GitHub fetch fails, so an outage can't hide them.
-  const contributed = [
-    ...manualProjects.map((p) => p.card),
-    ...(result.ok ? result.data.contributed : []),
-  ];
+  // getProjects degrades rather than fails; this guards the type, not a real path.
+  if (!result.ok) {
+    return (
+      <PageShell mainClassName={PAGE_MAIN}>
+        <section>
+          <div className="mx-auto max-w-[900px]">
+            <TerminalPrompt cmd="ls -la ./projects" className="mb-6" />
+            <StatusPanel tone="error" title="Projects Unavailable" error={result.error} />
+          </div>
+        </section>
+      </PageShell>
+    );
+  }
+
+  const { username, featured, contributed, contributions, githubError } =
+    result.data;
 
   return (
     <PageShell mainClassName={PAGE_MAIN}>
@@ -114,17 +122,17 @@ function ProjectsPage() {
         <div className="mx-auto max-w-[900px]">
           <TerminalPrompt cmd="ls -la ./projects" className="mb-6" />
 
-          {result.ok ? (
+          {githubError ? (
+            <div className="mb-8">
+              <StatusPanel tone="error" title="GitHub API Unavailable" error={githubError} />
+            </div>
+          ) : (
             <section className="mb-8">
               <ContributionGrid
-                username={result.data.username}
-                calendar={result.data.contributions}
+                username={username ?? ""}
+                calendar={contributions}
               />
             </section>
-          ) : (
-            <div className="mb-8">
-              <StatusPanel tone="error" title="GitHub API Unavailable" error={result.error} />
-            </div>
           )}
 
           <div className="mb-8 h-px bg-[rgba(255,255,255,0.05)]" />
