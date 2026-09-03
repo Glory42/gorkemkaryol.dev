@@ -2,8 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { PageShell } from "@/components/layout/PageShell";
+import { PAGE_MAIN, pageHead, TerminalPrompt } from "@/components/layout/page";
 import { BackLink } from "@/components/ui/BackLink";
-import { StatusPanel } from "@/components/ui/StatusPanel";
+import { ResultSection } from "@/components/ui/DataSection";
 import { PosterGrid, PosterGridSkeleton, type PosterGridItem } from "@/features/interests/components/PosterGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { INTERIS_BASE, TMDB_IMAGE_BASE } from "@/features/interests/content";
@@ -29,15 +30,11 @@ const getWatchingPageDataServerFn = createServerFn({ method: "GET" }).handler(
 );
 
 export const Route = createFileRoute("/interests/watching")({
-  head: () => ({
-    meta: [
-      { title: "Watching | Gorkem Karyol" },
-      {
-        name: "description",
-        content: "Currently watching, watched series, and watched films from Interis.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead(
+      "Watching",
+      "Currently watching, watched series, and watched films from Interis.",
+    ),
   loader: async () => getWatchingPageDataServerFn(),
   pendingMs: 0,
   pendingComponent: WatchingPageSkeleton,
@@ -46,10 +43,10 @@ export const Route = createFileRoute("/interests/watching")({
 
 function WatchingPageSkeleton() {
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
+    <PageShell mainClassName={PAGE_MAIN}>
       <div className="mx-auto max-w-[900px]">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <p className="mono text-[11px] text-[#252525]">~$ cat ./interests/watching</p>
+          <TerminalPrompt cmd="cat ./interests/watching" />
           <div className="h-2.5 w-44 animate-pulse rounded bg-[rgba(255,255,255,0.04)]" />
         </div>
         <BackLink to="/interests">back to interests</BackLink>
@@ -194,10 +191,10 @@ function WatchingPage() {
   const { currentlyWatching, watched, profile } = Route.useLoaderData();
 
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
+    <PageShell mainClassName={PAGE_MAIN}>
       <div className="mx-auto max-w-[900px]">
         <div className="mb-4 flex items-center justify-between gap-3">
-          <p className="mono text-[11px] text-[#252525]">~$ cat ./interests/watching</p>
+          <TerminalPrompt cmd="cat ./interests/watching" />
           {profile.ok && (
             <p className="mono text-[10px] text-accent/[0.45]">
               {profile.data.stats.filmCount} films · {profile.data.stats.serialEntryCount} series watched
@@ -218,11 +215,11 @@ function WatchingPage() {
           </section>
         )}
 
-        {!watched.ok ? (
-          <StatusPanel tone="error" title="Interis API Unavailable" error={watched.error} />
-        ) : (
-          <WatchedSection serials={watched.data.serials} movies={watched.data.movies} />
-        )}
+        <ResultSection result={watched} errorTitle="Interis API Unavailable">
+          {(data) => (
+            <WatchedSection serials={data.serials} movies={data.movies} />
+          )}
+        </ResultSection>
       </div>
     </PageShell>
   );

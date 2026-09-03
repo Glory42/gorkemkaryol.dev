@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
+import { pageHead } from "@/components/layout/page";
 import { EMPTY_EDGE_INFO, getEdgeInfo } from "@/server/edge/edge";
 import { runSource } from "@/server/common/page-data";
 
@@ -9,15 +10,11 @@ const edgeFn = createServerFn({ method: "GET" }).handler(() =>
 );
 
 export const Route = createFileRoute("/playground/whoami")({
-  head: () => ({
-    meta: [
-      { title: "whoami | Gorkem Karyol" },
-      {
-        name: "description",
-        content: "What the Cloudflare edge sees about your connection.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead(
+      "whoami",
+      "What the Cloudflare edge sees about your connection.",
+    ),
   loader: () => edgeFn(),
   component: WhoamiPage,
 });

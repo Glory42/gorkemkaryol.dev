@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { pageHead } from "@/components/layout/page";
 
 const LINES = [
   "~$ ./sysinfo --verbose",
@@ -14,12 +15,7 @@ const LINES = [
 ];
 
 export const Route = createFileRoute("/playground/sysinfo")({
-  head: () => ({
-    meta: [
-      { title: "sysinfo | Gorkem Karyol" },
-      { name: "description", content: "System diagnostics." },
-    ],
-  }),
+  head: () => pageHead("sysinfo", "System diagnostics."),
   component: SysinfoPage,
 });
 

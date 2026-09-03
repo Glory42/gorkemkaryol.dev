@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { PageShell } from "@/components/layout/PageShell";
+import { TerminalPrompt } from "@/components/layout/page";
 import { BackLink } from "@/components/ui/BackLink";
 
 export const Route = createFileRoute("/playground")({
@@ -13,9 +14,10 @@ function PlaygroundLayout() {
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-16 pt-[max(12px,1.5vh)]">
       <section className="mx-auto max-w-[900px]">
-        <p className="mono mb-3 text-[11px] text-[#252525]">
-          {sub ? `~$ cd ./playground/${sub}` : "~$ ls ./playground"}
-        </p>
+        <TerminalPrompt
+          cmd={sub ? `cd ./playground/${sub}` : "ls ./playground"}
+          className="mb-3"
+        />
         {sub ? (
           <BackLink to="/playground">back to playground</BackLink>
         ) : (

@@ -1,6 +1,7 @@
 import { createFileRoute, defer } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
+import { pageHead } from "@/components/layout/page";
 import { DataSection } from "@/components/ui/DataSection";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { SmartImage } from "@/components/ui/SmartImage";
@@ -15,16 +16,11 @@ const neoFn = createServerFn({ method: "GET" }).handler(() =>
 );
 
 export const Route = createFileRoute("/playground/space")({
-  head: () => ({
-    meta: [
-      { title: "Space | Gorkem Karyol" },
-      {
-        name: "description",
-        content:
-          "NASA's picture of the day and today's near-Earth asteroids.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead(
+      "Space",
+      "NASA's picture of the day and today's near-Earth asteroids.",
+    ),
   loader: () => ({
     apod: defer(apodFn()),
     neo: defer(neoFn()),

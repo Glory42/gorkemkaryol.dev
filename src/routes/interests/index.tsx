@@ -3,7 +3,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { BookOpen, Film, Music, Tv } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
+import { pageHead, TerminalPrompt } from "@/components/layout/page";
 import { DataSection } from "@/components/ui/DataSection";
+import { SkeletonBlock, SkeletonLine } from "@/components/ui/Skeleton";
 import { StatusPanel } from "@/components/ui/StatusPanel";
 import { ShelfList, type ShelfItem } from "@/features/interests/components/ShelfList";
 import { SmartImage } from "@/components/ui/SmartImage";
@@ -30,15 +32,8 @@ const getWatchingServerFn = createServerFn({ method: "GET" }).handler(() =>
 );
 
 export const Route = createFileRoute("/interests/")({
-  head: () => ({
-    meta: [
-      { title: "Interests | Gorkem Karyol" },
-      {
-        name: "description",
-        content: "Favorites and currently reading shelf from Literal.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead("Interests", "Favorites and currently reading shelf from Literal."),
   loader: () => ({
     literal: defer(getLiteralDataServerFn()),
     interis: defer(getInterisDataServerFn()),
@@ -127,8 +122,8 @@ function SkeletonItem() {
     <div className="flex items-center gap-3 py-3">
       <div className="image-shimmer h-[52px] w-[36px] shrink-0" />
       <div className="flex-1 space-y-2">
-        <div className="h-2.5 w-3/4 rounded bg-[rgba(255,255,255,0.04)]" />
-        <div className="h-2 w-1/2 rounded bg-[rgba(255,255,255,0.03)]" />
+        <SkeletonLine className="h-2.5 w-3/4" />
+        <SkeletonBlock className="h-2 w-1/2 rounded" />
       </div>
     </div>
   );
@@ -151,11 +146,11 @@ function InterestsPage() {
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pb-10 pt-[max(12px,1.5vh)]">
       <section className="mx-auto max-w-[900px]">
-        <p className="mono mb-2 text-[11px] text-[#252525]">~$ ls ./interests</p>
+        <TerminalPrompt cmd="ls ./interests" className="mb-2" />
 
         <DataSection
           promise={interis}
-          fallback={<div className="mb-3 h-2.5 w-40 animate-pulse rounded bg-[rgba(255,255,255,0.04)]" />}
+          fallback={<SkeletonLine className="mb-3 h-2.5 w-40 animate-pulse" />}
           renderError={() => <div className="mb-3" />}
         >
           {(data) => (

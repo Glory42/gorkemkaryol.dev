@@ -1,16 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { pageHead } from "@/components/layout/page";
 import { playgroundEntries } from "@/features/playground/registry";
 
 export const Route = createFileRoute("/playground/")({
-  head: () => ({
-    meta: [
-      { title: "Playground | Gorkem Karyol" },
-      {
-        name: "description",
-        content: "Games, a NASA data page, and other small web toys.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead("Playground", "Games, a NASA data page, and other small web toys."),
   component: PlaygroundHub,
 });
 

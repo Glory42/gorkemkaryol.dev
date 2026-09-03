@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { pageHead } from "@/components/layout/page";
 
 const SnakeGame = lazy(() =>
   import("@/features/playground/components/games/SnakeGame").then((m) => ({ default: m.SnakeGame })),
@@ -20,12 +21,8 @@ const GAMES = [
 type GameId = (typeof GAMES)[number]["id"];
 
 export const Route = createFileRoute("/playground/games")({
-  head: () => ({
-    meta: [
-      { title: "Games | Gorkem Karyol" },
-      { name: "description", content: "Snake, Flappy Bird, and Tetris in the browser." },
-    ],
-  }),
+  head: () =>
+    pageHead("Games", "Snake, Flappy Bird, and Tetris in the browser."),
   component: GamesPage,
 });
 

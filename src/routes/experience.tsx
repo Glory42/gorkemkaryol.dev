@@ -1,26 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/layout/PageShell";
+import { PAGE_MAIN, pageHead, TerminalPrompt } from "@/components/layout/page";
 import { ExperienceTimeline } from "@/features/experience/components/ExperienceTimeline";
 import { volunteeringExperiences, workExperiences } from "@/features/experience/timeline";
 
 export const Route = createFileRoute("/experience")({
-  head: () => ({
-    meta: [
-      { title: "Experience | Gorkem Karyol" },
-      {
-        name: "description",
-        content: "Work and community timeline of Gorkem Karyol.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead("Experience", "Work and community timeline of Gorkem Karyol."),
   component: ExperiencePage,
 });
 
 function ExperiencePage() {
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
+    <PageShell mainClassName={PAGE_MAIN}>
       <section className="mx-auto max-w-[900px]">
-        <p className="mono mb-6 text-[11px] text-[#252525]">~$ ls ./experience</p>
+        <TerminalPrompt cmd="ls ./experience" className="mb-6" />
 
         <div className="mb-2 flex items-center gap-3">
           <span className="mono text-[9px] tracking-[0.25em] text-accent/[0.4] uppercase">

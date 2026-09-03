@@ -13,6 +13,23 @@ interface Props<T> {
   renderError?: (error: ServiceError) => ReactNode;
 }
 
+function renderResult<T>(
+  result: ServiceResult<T>,
+  children: (data: T) => ReactNode,
+  errorTitle?: string,
+  renderError?: (error: ServiceError) => ReactNode,
+): ReactNode {
+  if (result.ok) return children(result.data);
+  if (renderError) return renderError(result.error);
+  return (
+    <StatusPanel
+      tone="error"
+      title={errorTitle ?? "Unavailable"}
+      error={result.error}
+    />
+  );
+}
+
 // Suspense + Await + the ok-branch + error StatusPanel in one place. The child
 // only ever sees resolved, successful data.
 export function DataSection<T>({
@@ -25,14 +42,24 @@ export function DataSection<T>({
   return (
     <Suspense fallback={fallback}>
       <Await promise={promise}>
-        {(result) =>
-          result.ok
-            ? children(result.data)
-            : renderError
-              ? renderError(result.error)
-              : <StatusPanel tone="error" title={errorTitle ?? "Unavailable"} error={result.error} />
-        }
+        {(result) => renderResult(result, children, errorTitle, renderError)}
       </Await>
     </Suspense>
   );
+}
+
+// The awaited twin of DataSection: same ok / error / renderError contract for a
+// ServiceResult a route loader already resolved, without the Suspense wrapper.
+export function ResultSection<T>({
+  result,
+  errorTitle,
+  children,
+  renderError,
+}: {
+  result: ServiceResult<T>;
+  errorTitle?: string;
+  children: (data: T) => ReactNode;
+  renderError?: (error: ServiceError) => ReactNode;
+}) {
+  return <>{renderResult(result, children, errorTitle, renderError)}</>;
 }

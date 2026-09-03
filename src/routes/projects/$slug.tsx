@@ -3,6 +3,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { ChevronLeft, ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/ui/icons";
 import { PageShell } from "@/components/layout/PageShell";
+import { PAGE_MAIN, pageHead, TerminalPrompt } from "@/components/layout/page";
+import { SkeletonBlock } from "@/components/ui/Skeleton";
 import { StatusPage } from "@/components/ui/StatusPage";
 import { StatusPanel } from "@/components/ui/StatusPanel";
 import { ReadmeArticle } from "@/features/projects/components/ReadmeArticle";
@@ -72,12 +74,8 @@ const getRepoReadmeServerFn = createServerFn({ method: "GET" })
   });
 
 export const Route = createFileRoute("/projects/$slug")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `${params.slug} | Gorkem Karyol` },
-      { name: "description", content: `README for ${params.slug}.` },
-    ],
-  }),
+  head: ({ params }) =>
+    pageHead(params.slug, `README for ${params.slug}.`),
   loader: async ({ params }) => {
     const result = await getRepoReadmeServerFn({ data: params.slug });
     if (result.ok && result.data === null) throw notFound();
@@ -101,9 +99,9 @@ function ProjectReadmeSkeleton() {
   const { slug } = Route.useParams();
 
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
+    <PageShell mainClassName={PAGE_MAIN}>
       <div className="mx-auto min-w-0 max-w-[860px] overflow-x-clip">
-        <p className="mono mb-4 text-[11px] text-[#252525]">~$ cat ./projects/{slug}</p>
+        <TerminalPrompt cmd={`cat ./projects/${slug}`} className="mb-4" />
 
         <div className="mb-4 flex items-center justify-between">
           <Link
@@ -117,12 +115,12 @@ function ProjectReadmeSkeleton() {
 
         <div className="space-y-3">
           <div className="h-4 w-1/3 rounded bg-[rgba(255,255,255,0.05)]" />
-          <div className="h-2.5 w-full rounded bg-[rgba(255,255,255,0.03)]" />
-          <div className="h-2.5 w-[92%] rounded bg-[rgba(255,255,255,0.03)]" />
-          <div className="h-2.5 w-[75%] rounded bg-[rgba(255,255,255,0.03)]" />
-          <div className="mt-4 h-2.5 w-full rounded bg-[rgba(255,255,255,0.03)]" />
-          <div className="h-2.5 w-[88%] rounded bg-[rgba(255,255,255,0.03)]" />
-          <div className="h-2.5 w-[60%] rounded bg-[rgba(255,255,255,0.03)]" />
+          <SkeletonBlock className="h-2.5 w-full rounded" />
+          <SkeletonBlock className="h-2.5 w-[92%] rounded" />
+          <SkeletonBlock className="h-2.5 w-[75%] rounded" />
+          <SkeletonBlock className="mt-4 h-2.5 w-full rounded" />
+          <SkeletonBlock className="h-2.5 w-[88%] rounded" />
+          <SkeletonBlock className="h-2.5 w-[60%] rounded" />
         </div>
       </div>
     </PageShell>
@@ -134,7 +132,7 @@ function ProjectReadmePage() {
 
   if (!result.ok) {
     return (
-      <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
+      <PageShell mainClassName={PAGE_MAIN}>
         <div className="mx-auto min-w-0 max-w-[860px] overflow-x-clip">
           <div className="mb-4 flex items-center justify-between">
             <Link
@@ -154,9 +152,9 @@ function ProjectReadmePage() {
   const { repo, repoUrl, html, hadError, kind } = result.data as ReadmePageData;
 
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
+    <PageShell mainClassName={PAGE_MAIN}>
       <div className="mx-auto min-w-0 max-w-[860px] overflow-x-clip">
-        <p className="mono mb-4 text-[11px] text-[#252525]">~$ cat ./projects/{repo}</p>
+        <TerminalPrompt cmd={`cat ./projects/${repo}`} className="mb-4" />
 
         <div className="mb-4 flex items-center justify-between">
           <Link

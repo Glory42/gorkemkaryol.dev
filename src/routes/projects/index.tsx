@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { PageShell } from "@/components/layout/PageShell";
+import { PAGE_MAIN, pageHead, TerminalPrompt } from "@/components/layout/page";
 import { ContributionGrid } from "@/features/projects/components/ContributionGrid";
+import { SkeletonBlock, SkeletonLine } from "@/components/ui/Skeleton";
 import { StatusPanel } from "@/components/ui/StatusPanel";
 import { ProjectsGrid } from "@/features/projects/components/ProjectsGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -14,15 +16,11 @@ const getGithubProjectsServerFn = createServerFn({ method: "GET" }).handler(() =
 );
 
 export const Route = createFileRoute("/projects/")({
-  head: () => ({
-    meta: [
-      { title: "Projects | Gorkem Karyol" },
-      {
-        name: "description",
-        content: "Featured and contributed projects, plus contribution activity.",
-      },
-    ],
-  }),
+  head: () =>
+    pageHead(
+      "Projects",
+      "Featured and contributed projects, plus contribution activity.",
+    ),
   loader: async () => getGithubProjectsServerFn(),
   pendingMs: 0,
   pendingComponent: ProjectsPageSkeleton,
@@ -31,13 +29,13 @@ export const Route = createFileRoute("/projects/")({
 
 function ProjectsPageSkeleton() {
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
+    <PageShell mainClassName={PAGE_MAIN}>
       <section>
         <div className="mx-auto max-w-[900px]">
-        <p className="mono mb-6 text-[11px] text-[#252525]">~$ ls -la ./projects</p>
+        <TerminalPrompt cmd="ls -la ./projects" className="mb-6" />
         <section className="mb-8 animate-pulse">
           <div className="mb-4 flex items-center gap-3">
-            <div className="h-2 w-32 rounded bg-[rgba(255,255,255,0.04)]" />
+            <SkeletonLine className="h-2 w-32" />
             <div className="h-px flex-1 bg-[rgba(255,255,255,0.04)]" />
           </div>
           <div className="overflow-x-auto">
@@ -84,14 +82,14 @@ function SkeletonColumn({ sig, rows }: { sig: string; rows: number }) {
             className="flex items-start gap-5 border-b border-[rgba(255,255,255,0.04)] py-5"
           >
             <div className="min-w-0 flex-1 space-y-2">
-              <div className="h-3 w-32 rounded bg-[rgba(255,255,255,0.04)]" />
-              <div className="h-2 w-48 rounded bg-[rgba(255,255,255,0.03)]" />
+              <SkeletonLine className="h-3 w-32" />
+              <SkeletonBlock className="h-2 w-48 rounded" />
               <div className="flex gap-2">
-                <div className="h-4 w-14 rounded bg-[rgba(255,255,255,0.04)]" />
-                <div className="h-4 w-14 rounded bg-[rgba(255,255,255,0.04)]" />
+                <SkeletonLine className="h-4 w-14" />
+                <SkeletonLine className="h-4 w-14" />
               </div>
             </div>
-            <div className="h-2 w-8 shrink-0 rounded bg-[rgba(255,255,255,0.04)]" />
+            <SkeletonLine className="h-2 w-8 shrink-0" />
           </div>
         ))}
       </div>
@@ -111,10 +109,10 @@ function ProjectsPage() {
   ];
 
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]">
+    <PageShell mainClassName={PAGE_MAIN}>
       <section>
         <div className="mx-auto max-w-[900px]">
-          <p className="mono mb-6 text-[11px] text-[#252525]">~$ ls -la ./projects</p>
+          <TerminalPrompt cmd="ls -la ./projects" className="mb-6" />
 
           {result.ok ? (
             <section className="mb-8">

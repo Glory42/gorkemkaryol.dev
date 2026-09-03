@@ -1,18 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Code, Globe, Layers, Monitor, Terminal } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
+import { pageHead, TerminalPrompt } from "@/components/layout/page";
 import { ContactLinks } from "@/features/home/components/ContactLinks";
 import { LiveClock } from "@/features/home/components/LiveClock";
 import { RotatingPrompt } from "@/features/home/components/RotatingPrompt";
 import { contactItems, introText, techItems, type TechItem } from "@/features/home/content";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Gorkem Karyol" },
-      { name: "description", content: "Personal portfolio of Gorkem Karyol." },
-    ],
-  }),
+  head: () => pageHead("", "Personal portfolio of Gorkem Karyol."),
   component: HomePage,
 });
 
@@ -28,7 +24,7 @@ function HomePage() {
   return (
     <PageShell mainClassName="px-[max(24px,4vw)] pt-3 pb-16 md:pt-[max(24px,4vh)]">
       <div className="mx-auto max-w-[680px]">
-      <p className="mono mb-5 text-[11px] text-[#252525] animate-fade-in">~$ whoami</p>
+      <TerminalPrompt cmd="whoami" className="mb-5 animate-fade-in" />
       <section className="mb-10">
         <h1 className="mono mb-2 text-[clamp(20px,2.2vw,30px)] font-bold leading-[1.1] tracking-[-0.01em] text-white animate-fade-in-down">
           Görkem Karyol
