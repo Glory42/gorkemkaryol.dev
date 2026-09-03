@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { accentMix, FALLBACK_ACCENT_RGB, readAccentRgb } from "@/lib/accent";
+import { ACCENT_RGB, accentMix, readAccentRgb } from "@/lib/accent";
 
 const BW = 10, BH = 20, CELL = 22;
 const W = BW * CELL, H = BH * CELL;
@@ -23,7 +23,7 @@ const PIECE_DEFS: { shape: Shape; tint: number }[] = [
 
 // Resolved from the section accent on mount; seeded with the fallback so a piece
 // rolled on the first render still has a colour.
-let PIECE_PALETTE = PIECE_DEFS.map((d) => accentMix(FALLBACK_ACCENT_RGB, d.tint));
+let PIECE_PALETTE = PIECE_DEFS.map((d) => accentMix(ACCENT_RGB.playground, d.tint));
 
 function mkBoard(): Board {
   return Array.from({ length: BH }, () => Array<string | null>(BW).fill(null));
@@ -59,7 +59,7 @@ export function TetrisGame() {
   const rafRef = useRef<number>(0);
   const loopRef = useRef<FrameRequestCallback>(() => {});
   // Canvas can't read the CSS var — cache the section accent triple on mount.
-  const accentRef = useRef(FALLBACK_ACCENT_RGB);
+  const accentRef = useRef(ACCENT_RGB.playground);
   const [ui, setUi] = useState<{ score: number; level: number; lines: number; phase: Phase }>({
     score: 0, level: 1, lines: 0, phase: "idle",
   });

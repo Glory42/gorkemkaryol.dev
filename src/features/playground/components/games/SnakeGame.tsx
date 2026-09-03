@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { FALLBACK_ACCENT_RGB, readAccentRgb } from "@/lib/accent";
+import { ACCENT_RGB, readAccentRgb } from "@/lib/accent";
 
 const COLS = 24, ROWS = 24, CELL = 15;
 const W = COLS * CELL, H = ROWS * CELL;
@@ -29,7 +29,7 @@ export function SnakeGame() {
   const tickRef = useRef<() => void>(() => {});
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   // Canvas can't read the CSS var — cache the section accent triple on mount.
-  const accentRef = useRef(FALLBACK_ACCENT_RGB);
+  const accentRef = useRef(ACCENT_RGB.playground);
   const [ui, setUi] = useState<{ score: number; phase: Phase; mode: Mode }>({ score: 0, phase: "idle", mode: "walls" });
 
   function draw() {

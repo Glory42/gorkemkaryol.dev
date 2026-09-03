@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FALLBACK_ACCENT_RGB, readAccentRgb } from "@/lib/accent";
+import { ACCENT_RGB, readAccentRgb } from "@/lib/accent";
 
 const W = 280, H = 420;
 const BIRD_X = 65, BIRD_R = 10;
@@ -22,7 +22,7 @@ export function FlappyGame() {
   const rafRef = useRef<number>(0);
   const loopRef = useRef<FrameRequestCallback>(() => {});
   // Canvas can't read the CSS var — cache the section accent triple on mount.
-  const accentRef = useRef(FALLBACK_ACCENT_RGB);
+  const accentRef = useRef(ACCENT_RGB.playground);
   const [ui, setUi] = useState<{ score: number; phase: Phase }>({ score: 0, phase: "idle" });
 
   function draw() {

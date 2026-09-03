@@ -5,8 +5,19 @@ export type AccentSlug =
   | "interests"
   | "playground";
 
-/** Matches the `:root` default in tokens.css (the "me" / purple accent). */
-export const FALLBACK_ACCENT_RGB = "168 85 247";
+// The `--accent-rgb` triple per section — mirrors the [data-accent] blocks in
+// tokens.css. SVG / canvas paints can't read the CSS var at first paint, so
+// they seed with the value for the section they render in.
+export const ACCENT_RGB: Record<AccentSlug, string> = {
+  me: "168 85 247",
+  projects: "34 197 94",
+  experience: "244 63 94",
+  interests: "59 130 246",
+  playground: "245 179 1",
+};
+
+/** The `:root` default accent (the "me" section). */
+export const FALLBACK_ACCENT_RGB = ACCENT_RGB.me;
 
 // Read the resolved `--accent-rgb` triple (e.g. "34 197 94") for an element.
 // Canvas paints can't read the CSS var, so they call this once on mount and cache.
