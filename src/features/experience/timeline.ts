@@ -9,17 +9,30 @@ export interface ExperienceItem {
 
 export const workExperiences: ExperienceItem[] = [
   {
-    role: "Software Engineering Intern",
+    role: "Frontend Developer Intern",
     company: "Lodos",
     date: "April 2026 – Present",
     type: "internship",
     description: [
-      "Contributed to the development of social/community platforms that reached 5,000+ active users within 8 months.",
-      "Worked on large-scale social/community platforms using React, Next.js, TypeScript, and shared backend architectures.",
-      "Designed cross-application DM integration flows between interconnected platforms while minimizing changes to existing real-time messaging infrastructure.",
-      "Improved frontend UX and permission handling for private community systems, including request-state management and protected navigation flows.",
+      "Frontend engineer on Gathin (an event/community platform) and Huddin (a Discord-style community app), which share one backend and reached 5,000+ active users within 8 months.",
+      "On Gathin: rebuilt profile and community pages around a shared events timeline, redesigned the event gallery and blog, and shipped attendee–organizer direct messaging.",
+      "Delivered organizer-panel features: event schedules, sponsor management, speaker drag-and-drop ordering, Excel export for ticket holders, and client-side ticket poster sharing.",
+      "On Huddin: built the cross-app DM bridge that renders sibling-app messages as context cards with no chat-renderer changes, and gated channel visibility behind three-way public/shared/private semantics in the Next.js BFF.",
     ],
     tags: ["React", "Next.js", "TypeScript", "Real-Time Systems", "Socket.IO"],
+  },
+  {
+    role: "Full Stack Intern",
+    company: "Troy Depo",
+    date: "Jul 2026 – Sep 2026",
+    type: "internship",
+    description: [
+      "Built three full-stack products end to end: a self-storage booking platform (Next.js, Prisma), an internal ops dashboard (NestJS, Astro), and a moving-logistics tracker (Go Fiber, Next.js).",
+      "Prevented double-booking race conditions with atomic PostgreSQL transactions and conditional row locking across Prisma and Go pgxpool.",
+      "Implemented auth from first principles: JWT guards, bcrypt, RBAC, algorithm-confusion protection, and server-side httpOnly cookie proxying.",
+      "Modeled core logic as pure, unit-tested functions: tier pricing, Haversine distance, and a deterministic job-lifecycle state machine.",
+    ],
+    tags: ["Nest.js", "TypeScript", "Next.js", "Astro", "Go", "PostgreSQL", "Prisma", "Docker"],
   },
   {
     role: "Full Stack Engineer",
