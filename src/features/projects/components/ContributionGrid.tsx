@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { StatusPanel } from "@/components/ui/StatusPanel";
+import {
+  buildContributionWeeks,
+  formatContributionDate,
+  levelFill,
+} from "@/features/projects/contribution-weeks";
 import { FALLBACK_ACCENT_RGB, readAccentRgb } from "@/lib/accent";
 import type { GithubContributionCalendar } from "@/server/github/github";
 
@@ -18,27 +23,6 @@ interface Hover {
 const GAP = 3;
 const RADIUS = 2;
 const FALLBACK_CELL = 11;
-
-// SVG `fill=` attributes can't resolve `var()`, so the ramp is built in JS from
-// the section accent read on mount (level 0 stays a fixed white wash).
-function levelFill(accentRgb: string): Record<number, string> {
-  return {
-    0: "rgba(255,255,255,0.03)",
-    1: `rgb(${accentRgb} / 0.18)`,
-    2: `rgb(${accentRgb} / 0.38)`,
-    3: `rgb(${accentRgb} / 0.62)`,
-    4: `rgb(${accentRgb})`,
-  };
-}
-
-function formatPrettyDate(date: string) {
-  const [year, month, day] = date.split("-").map(Number);
-  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 export function ContributionGrid({ calendar }: Props) {
   const [hover, setHover] = useState<Hover | null>(null);
@@ -62,18 +46,10 @@ export function ContributionGrid({ calendar }: Props) {
 
   // Memoized on `calendar` alone so pointermove re-renders don't re-sort and
   // re-group 364 days many times a second while hovering.
-  const weeks = useMemo(() => {
-    if (!calendar) return [];
-    const sortedDays = calendar.days
-      .slice()
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    const days = sortedDays.slice(-364);
-    const result: (typeof days)[] = [];
-    for (let i = 0; i < days.length; i += 7) {
-      result.push(days.slice(i, i + 7));
-    }
-    return result;
-  }, [calendar]);
+  const weeks = useMemo(
+    () => (calendar ? buildContributionWeeks(calendar.days) : []),
+    [calendar],
+  );
 
   if (!calendar) {
     return (
@@ -159,7 +135,7 @@ export function ContributionGrid({ calendar }: Props) {
               <span className="text-[var(--text-2)]">
                 {hover.count === 1 ? "contribution" : "contributions"} on{" "}
               </span>
-              <span className="text-[var(--text-1)]">{formatPrettyDate(hover.date)}</span>
+              <span className="text-[var(--text-1)]">{formatContributionDate(hover.date)}</span>
             </span>
           </div>
         )}

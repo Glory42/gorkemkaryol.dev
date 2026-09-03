@@ -3,6 +3,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { PageShell } from "@/components/layout/PageShell";
 import { PAGE_MAIN, pageHead, TerminalPrompt } from "@/components/layout/page";
 import { ContributionGrid } from "@/features/projects/components/ContributionGrid";
+import {
+  CONTRIBUTION_WEEKS,
+  DAYS_PER_WEEK,
+} from "@/features/projects/contribution-weeks";
 import { SkeletonBlock, SkeletonLine } from "@/components/ui/Skeleton";
 import { StatusPanel } from "@/components/ui/StatusPanel";
 import { ProjectsGrid } from "@/features/projects/components/ProjectsGrid";
@@ -40,11 +44,11 @@ function ProjectsPageSkeleton() {
           <div className="overflow-x-auto">
           <div
             className="grid"
-            style={{ gridTemplateColumns: "repeat(52, minmax(0, 1fr))", minWidth: `${52 * 13}px`, gap: "3px" }}
+            style={{ gridTemplateColumns: `repeat(${CONTRIBUTION_WEEKS}, minmax(0, 1fr))`, minWidth: `${CONTRIBUTION_WEEKS * 13}px`, gap: "3px" }}
           >
-            {Array.from({ length: 52 }).map((_, w) => (
+            {Array.from({ length: CONTRIBUTION_WEEKS }).map((_, w) => (
               <div key={w} className="grid grid-rows-7" style={{ gap: "3px" }}>
-                {Array.from({ length: 7 }).map((_, d) => (
+                {Array.from({ length: DAYS_PER_WEEK }).map((_, d) => (
                   <div
                     key={d}
                     className="aspect-square w-full rounded-[2px]"
