@@ -7,16 +7,19 @@ import { pageHead, TerminalPrompt } from "@/components/layout/page";
 import { DataSection } from "@/components/ui/DataSection";
 import { SkeletonBlock, SkeletonLine } from "@/components/ui/Skeleton";
 import { StatusPanel } from "@/components/ui/StatusPanel";
-import { ShelfList, type ShelfItem } from "@/features/interests/components/ShelfList";
+import { ShelfList } from "@/features/interests/components/ShelfList";
 import { SmartImage } from "@/components/ui/SmartImage";
-import { favoriteBands, interestsIntro, INTERIS_BASE, TMDB_IMAGE_BASE } from "@/features/interests/content";
+import { favoriteBands, interestsIntro } from "@/features/interests/content";
+import {
+  bookToDisplayItem,
+  currentlyWatchingToDisplayItem,
+  top4ToDisplayItem,
+} from "@/features/interests/display-item";
 import {
   getInterisData,
   getCurrentlyWatchingSerials,
-  type CurrentlyWatchingSerial,
-  type InterisTop4Item,
 } from "@/server/interis/interis";
-import { getLiteralData, type LiteralBook } from "@/server/literal/literal";
+import { getLiteralData } from "@/server/literal/literal";
 import { runSource } from "@/server/common/page-data";
 
 const getLiteralDataServerFn = createServerFn({ method: "GET" }).handler(() =>
@@ -41,40 +44,6 @@ export const Route = createFileRoute("/interests/")({
   }),
   component: InterestsPage,
 });
-
-function toBookShelfItem(book: LiteralBook): ShelfItem {
-  return {
-    id: book.id,
-    title: book.title,
-    subtitle: book.authors[0]?.name ?? "Unknown",
-    imageUrl: book.cover || null,
-    href: `https://literal.club/book/${book.slug}`,
-  };
-}
-
-function toWatchingShelfItem(serial: CurrentlyWatchingSerial): ShelfItem {
-  return {
-    id: serial.tmdbId,
-    title: serial.title,
-    subtitle: serial.currentEpisode
-      ? `Up Next: S${serial.currentEpisode.seasonNumber}E${serial.currentEpisode.episodeNumber}`
-      : `${serial.progressPercent}% watched`,
-    imageUrl: serial.posterPath ? `${TMDB_IMAGE_BASE}${serial.posterPath}` : null,
-    href: `${INTERIS_BASE}/serials/${serial.tmdbId}`,
-    progressPercent: serial.progressPercent,
-  };
-}
-
-function toTop4ShelfItem(item: InterisTop4Item): ShelfItem {
-  const segment = item.mediaType === "movie" ? "films" : "serials";
-  return {
-    id: item.slot,
-    title: item.title,
-    subtitle: item.releaseYear ? String(item.releaseYear) : null,
-    imageUrl: item.posterPath ? `${TMDB_IMAGE_BASE}${item.posterPath}` : null,
-    href: item.tmdbId ? `${INTERIS_BASE}/${segment}/${item.tmdbId}` : null,
-  };
-}
 
 function SectionLabel({
   label,
@@ -177,7 +146,7 @@ function InterestsPage() {
             >
               {(books) => (
                 <ShelfList
-                  items={books.currentlyReading.slice(0, 2).map((rs) => toBookShelfItem(rs.book))}
+                  items={books.currentlyReading.slice(0, 2).map((rs) => bookToDisplayItem(rs.book))}
                   emptyTitle="No books found"
                   emptyDescription="No books currently in progress on Literal."
                 />
@@ -193,7 +162,7 @@ function InterestsPage() {
               >
                 {(serials) => (
                   <ShelfList
-                    items={serials.map(toWatchingShelfItem)}
+                    items={serials.map(currentlyWatchingToDisplayItem)}
                     emptyTitle="Nothing in progress"
                     emptyDescription="No serials currently being watched on Interis."
                   />
@@ -226,7 +195,7 @@ function InterestsPage() {
                     <div>
                       <SubLabel label="Films" icon={Film} />
                       <ShelfList
-                        items={data.cinema.slice(0, 2).map(toTop4ShelfItem)}
+                        items={data.cinema.slice(0, 2).map(top4ToDisplayItem)}
                         emptyTitle="No picks added yet"
                         emptyDescription="No top films added on Interis."
                       />
@@ -234,7 +203,7 @@ function InterestsPage() {
                     <div>
                       <SubLabel label="Series" icon={Tv} />
                       <ShelfList
-                        items={data.serial.slice(0, 2).map(toTop4ShelfItem)}
+                        items={data.serial.slice(0, 2).map(top4ToDisplayItem)}
                         emptyTitle="No picks added yet"
                         emptyDescription="No top series added on Interis."
                       />
@@ -284,7 +253,7 @@ function InterestsPage() {
                 >
                   {(books) => (
                     <ShelfList
-                      items={books.favoriteBooks.map(toBookShelfItem)}
+                      items={books.favoriteBooks.map(bookToDisplayItem)}
                       emptyTitle="No books found"
                       emptyDescription="No favorite books found on Literal."
                     />

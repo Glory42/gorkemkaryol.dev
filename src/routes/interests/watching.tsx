@@ -5,14 +5,18 @@ import { PageShell } from "@/components/layout/PageShell";
 import { PAGE_MAIN, pageHead, TerminalPrompt } from "@/components/layout/page";
 import { BackLink } from "@/components/ui/BackLink";
 import { ResultSection } from "@/components/ui/DataSection";
-import { PosterGrid, PosterGridSkeleton, type PosterGridItem } from "@/features/interests/components/PosterGrid";
+import { PosterGrid, PosterGridSkeleton } from "@/features/interests/components/PosterGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { INTERIS_BASE, TMDB_IMAGE_BASE } from "@/features/interests/content";
+import {
+  currentlyWatchingToDisplayItem,
+  watchedMovieToDisplayItem,
+  watchedSerialToDisplayItem,
+  type DisplayItem,
+} from "@/features/interests/display-item";
 import {
   getCurrentlyWatchingSerials,
   getInterisProfile,
   getWatchedMedia,
-  type CurrentlyWatchingSerial,
   type WatchedMovie,
   type WatchedSerial,
 } from "@/server/interis/interis";
@@ -100,45 +104,6 @@ function FilterTabs({
   );
 }
 
-function toCurrentlyWatchingItem(serial: CurrentlyWatchingSerial): PosterGridItem {
-  return {
-    id: serial.tmdbId,
-    title: serial.title,
-    subtitle: serial.currentEpisode
-      ? `Up Next: S${serial.currentEpisode.seasonNumber}E${serial.currentEpisode.episodeNumber}`
-      : `${serial.progressPercent}% watched`,
-    imageUrl: serial.posterPath ? `${TMDB_IMAGE_BASE}${serial.posterPath}` : null,
-    href: `${INTERIS_BASE}/serials/${serial.tmdbId}`,
-    progressPercent: serial.progressPercent,
-  };
-}
-
-function toSerialItem(serial: WatchedSerial): PosterGridItem {
-  return {
-    id: serial.tmdbId,
-    title: serial.title,
-    subtitle: serial.firstAirYear ? String(serial.firstAirYear) : null,
-    imageUrl: serial.posterPath ? `${TMDB_IMAGE_BASE}${serial.posterPath}` : null,
-    href: `${INTERIS_BASE}/serials/${serial.tmdbId}`,
-  };
-}
-
-function toMovieItem(movie: WatchedMovie): PosterGridItem {
-  return {
-    id: movie.tmdbId,
-    title: movie.title,
-    subtitle: movie.releaseYear ? String(movie.releaseYear) : null,
-    imageUrl: movie.posterPath ? `${TMDB_IMAGE_BASE}${movie.posterPath}` : null,
-    href: `${INTERIS_BASE}/films/${movie.tmdbId}`,
-  };
-}
-
-interface WatchedEntry {
-  item: PosterGridItem;
-  mediaType: "tv" | "movie";
-  lastInteractionAt: string;
-}
-
 function WatchedSection({
   serials,
   movies,
@@ -148,38 +113,35 @@ function WatchedSection({
 }) {
   const [filter, setFilter] = useState<Filter>("all");
 
-  const entries = useMemo<WatchedEntry[]>(() => {
-    const combined: WatchedEntry[] = [
-      ...serials.map((s) => ({
-        item: toSerialItem(s),
-        mediaType: "tv" as const,
-        lastInteractionAt: s.lastInteractionAt,
-      })),
-      ...movies.map((m) => ({
-        item: toMovieItem(m),
-        mediaType: "movie" as const,
-        lastInteractionAt: m.lastInteractionAt,
-      })),
-    ];
-    return combined.sort(
-      (a, b) =>
-        new Date(b.lastInteractionAt).getTime() -
-        new Date(a.lastInteractionAt).getTime(),
-    );
-  }, [serials, movies]);
+  // Sort the raw entries by recency once; filter + map to a DisplayItem per render.
+  const recent = useMemo<(WatchedSerial | WatchedMovie)[]>(
+    () =>
+      [...serials, ...movies].sort(
+        (a, b) =>
+          new Date(b.lastInteractionAt).getTime() -
+          new Date(a.lastInteractionAt).getTime(),
+      ),
+    [serials, movies],
+  );
 
-  const filtered = entries.filter((e) => {
-    if (filter === "series") return e.mediaType === "tv";
-    if (filter === "films") return e.mediaType === "movie";
-    return true;
-  });
+  const items: DisplayItem[] = recent
+    .filter((m) => {
+      if (filter === "series") return m.mediaType === "tv";
+      if (filter === "films") return m.mediaType === "movie";
+      return true;
+    })
+    .map((m) =>
+      m.mediaType === "tv"
+        ? watchedSerialToDisplayItem(m)
+        : watchedMovieToDisplayItem(m),
+    );
 
   return (
     <section>
       <SectionHeader sig="./watched" />
       <FilterTabs active={filter} onChange={setFilter} />
       <PosterGrid
-        items={filtered.map((e) => e.item)}
+        items={items}
         emptyTitle="Nothing here yet"
         emptyDescription="No watched titles found for this filter."
       />
@@ -208,7 +170,7 @@ function WatchingPage() {
           <section className="mb-10">
             <SectionHeader sig="./currently-watching" />
             <PosterGrid
-              items={currentlyWatching.data.map(toCurrentlyWatchingItem)}
+              items={currentlyWatching.data.map(currentlyWatchingToDisplayItem)}
               emptyTitle="Nothing in progress"
               emptyDescription="No serials currently being watched on Interis."
             />

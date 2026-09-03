@@ -4,9 +4,10 @@ import { PageShell } from "@/components/layout/PageShell";
 import { PAGE_MAIN, pageHead, TerminalPrompt } from "@/components/layout/page";
 import { BackLink } from "@/components/ui/BackLink";
 import { ResultSection } from "@/components/ui/DataSection";
-import { PosterGrid, PosterGridSkeleton, type PosterGridItem } from "@/features/interests/components/PosterGrid";
+import { PosterGrid, PosterGridSkeleton } from "@/features/interests/components/PosterGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { getAllBooksData, type LiteralBook } from "@/server/literal/literal";
+import { bookToDisplayItem } from "@/features/interests/display-item";
+import { getAllBooksData } from "@/server/literal/literal";
 import { runSource } from "@/server/common/page-data";
 
 const getAllBooksServerFn = createServerFn({ method: "GET" }).handler(() =>
@@ -46,16 +47,6 @@ function ReadingPageSkeleton() {
   );
 }
 
-function toBookItem(book: LiteralBook): PosterGridItem {
-  return {
-    id: book.id,
-    title: book.title,
-    subtitle: book.authors[0]?.name ?? null,
-    imageUrl: book.cover || null,
-    href: `https://literal.club/book/${book.slug}`,
-  };
-}
-
 function ReadingPage() {
   const result = Route.useLoaderData();
 
@@ -79,7 +70,7 @@ function ReadingPage() {
               <section className="mb-10">
                 <SectionHeader sig="./currently-reading" />
                 <PosterGrid
-                  items={data.currentlyReading.map(toBookItem)}
+                  items={data.currentlyReading.map(bookToDisplayItem)}
                   emptyTitle="Nothing being read"
                   emptyDescription="No books currently in progress on Literal."
                 />
@@ -88,7 +79,7 @@ function ReadingPage() {
               <section>
                 <SectionHeader sig="./finished" />
                 <PosterGrid
-                  items={data.finishedBooks.map(toBookItem)}
+                  items={data.finishedBooks.map(bookToDisplayItem)}
                   emptyTitle="No finished books"
                   emptyDescription="No finished books found on Literal."
                 />

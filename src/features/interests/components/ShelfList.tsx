@@ -1,22 +1,14 @@
 import { StatusPanel } from "@/components/ui/StatusPanel";
 import { SmartImage } from "@/components/ui/SmartImage";
-
-export interface ShelfItem {
-  id: string | number;
-  title: string;
-  subtitle?: string | null;
-  imageUrl: string | null;
-  href: string | null;
-  progressPercent?: number;
-}
+import type { DisplayItem } from "@/features/interests/display-item";
 
 interface Props {
-  items: ShelfItem[];
+  items: DisplayItem[];
   emptyTitle: string;
   emptyDescription: string;
 }
 
-function ShelfRow({ item, isFirst }: { item: ShelfItem; isFirst: boolean }) {
+function ShelfRow({ item, isFirst }: { item: DisplayItem; isFirst: boolean }) {
   const rowClassName = `flex items-center gap-3 pb-3 ${isFirst ? "" : "pt-3"}`;
 
   const inner = (
@@ -41,7 +33,7 @@ function ShelfRow({ item, isFirst }: { item: ShelfItem; isFirst: boolean }) {
         {item.subtitle && (
           <p className="mt-0.5 text-[10px] text-[#444]">{item.subtitle}</p>
         )}
-        {item.progressPercent !== undefined && (
+        {item.progressPercent != null && (
           <div className="mt-1.5 h-[2px] w-full overflow-hidden rounded-full bg-[rgba(255,255,255,0.05)]">
             <div
               className="h-full rounded-full bg-accent/[0.45]"
