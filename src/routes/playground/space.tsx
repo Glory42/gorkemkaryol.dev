@@ -5,13 +5,13 @@ import { DataSection } from "@/components/ui/DataSection";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { getApod, getNeoFeed, type Apod, type NeoFeed } from "@/server/nasa/nasa";
-import { loadSource } from "@/server/common/page-data";
+import { runSource } from "@/server/common/page-data";
 
 const apodFn = createServerFn({ method: "GET" }).handler(() =>
-  loadSource(getApod),
+  runSource(getApod),
 );
 const neoFn = createServerFn({ method: "GET" }).handler(() =>
-  loadSource(getNeoFeed),
+  runSource(getNeoFeed),
 );
 
 export const Route = createFileRoute("/playground/space")({

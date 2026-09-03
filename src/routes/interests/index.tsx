@@ -15,18 +15,18 @@ import {
   type InterisTop4Item,
 } from "@/server/interis/interis";
 import { getLiteralData, type LiteralBook } from "@/server/literal/literal";
-import { loadSource } from "@/server/common/page-data";
+import { runSource } from "@/server/common/page-data";
 
 const getLiteralDataServerFn = createServerFn({ method: "GET" }).handler(() =>
-  loadSource((env, ctx) => getLiteralData(env, ctx, 3)),
+  runSource((env, ctx) => getLiteralData(env, ctx, 3)),
 );
 
 const getInterisDataServerFn = createServerFn({ method: "GET" }).handler(() =>
-  loadSource(getInterisData),
+  runSource(getInterisData),
 );
 
 const getWatchingServerFn = createServerFn({ method: "GET" }).handler(() =>
-  loadSource((env, ctx) => getCurrentlyWatchingSerials(env, ctx, 2)),
+  runSource((env, ctx) => getCurrentlyWatchingSerials(env, ctx, 2)),
 );
 
 export const Route = createFileRoute("/interests/")({

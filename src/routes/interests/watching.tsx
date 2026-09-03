@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { env as workerEnv } from "cloudflare:workers";
 import { useMemo, useState } from "react";
 import { PageShell } from "@/components/layout/PageShell";
 import { BackLink } from "@/components/ui/BackLink";
@@ -8,7 +7,6 @@ import { ErrorPanel } from "@/components/ui/ErrorPanel";
 import { PosterGrid, PosterGridSkeleton, type PosterGridItem } from "@/features/interests/components/PosterGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { INTERIS_BASE, TMDB_IMAGE_BASE } from "@/features/interests/content";
-import { readRuntimeEnv } from "@/lib/env";
 import {
   getCurrentlyWatchingSerials,
   getInterisProfile,
@@ -17,22 +15,17 @@ import {
   type WatchedMovie,
   type WatchedSerial,
 } from "@/server/interis/interis";
-import { publicResult } from "@/server/common/http";
-import { sourceCtx } from "@/server/common/source";
+import { runSources } from "@/server/common/page-data";
 
-// Composite loader: three Interis reads that fail independently, bundled into
+// Composite loader: three Interis reads that fail independently, folded into
 // one round-trip (the page shows a single skeleton, not per-section streaming).
 const getWatchingPageDataServerFn = createServerFn({ method: "GET" }).handler(
-  async () => {
-    const env = readRuntimeEnv(workerEnv);
-    const ctx = sourceCtx();
-    const [currentlyWatching, watched, profile] = await Promise.all([
-      getCurrentlyWatchingSerials(env, ctx, 30).then(publicResult),
-      getWatchedMedia(env, ctx, 200).then(publicResult),
-      getInterisProfile(env, ctx).then(publicResult),
-    ]);
-    return { currentlyWatching, watched, profile };
-  },
+  () =>
+    runSources({
+      currentlyWatching: (env, ctx) => getCurrentlyWatchingSerials(env, ctx, 30),
+      watched: (env, ctx) => getWatchedMedia(env, ctx, 200),
+      profile: getInterisProfile,
+    }),
 );
 
 export const Route = createFileRoute("/interests/watching")({

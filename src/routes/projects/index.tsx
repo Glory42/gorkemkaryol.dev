@@ -8,10 +8,10 @@ import { ProjectsGrid } from "@/features/projects/components/ProjectsGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { manualProjects } from "@/features/projects/manual-projects";
 import { getGithubProjects } from "@/server/github/github";
-import { loadSource } from "@/server/common/page-data";
+import { runSource } from "@/server/common/page-data";
 
 const getGithubProjectsServerFn = createServerFn({ method: "GET" }).handler(() =>
-  loadSource(getGithubProjects),
+  runSource(getGithubProjects),
 );
 
 export const Route = createFileRoute("/projects/")({

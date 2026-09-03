@@ -1,7 +1,10 @@
 import { requireEnv, type RuntimeEnv } from "@/lib/env";
 import { envFail, fail, ok, type ServiceResult } from "@/server/common/http";
-import type { SourceCtx } from "@/server/common/source";
-import { createUpstreamClient, type UpstreamClient } from "@/server/common/upstream";
+import {
+  createSourceClient,
+  type SourceClient,
+  type SourceCtx,
+} from "@/server/common/source";
 import { EXTERNAL_REPOS } from "@/server/github/external-repos";
 
 /** A client for GitHub's GraphQL API, scoped and authenticated for one user. */
@@ -9,8 +12,8 @@ function githubClient(
   username: string,
   token: string,
   ctx: SourceCtx,
-): UpstreamClient {
-  return createUpstreamClient({
+): SourceClient {
+  return createSourceClient({
     base: GITHUB_GRAPHQL_API,
     defaultTtl: 600,
     timeoutMs: 12_000,
@@ -21,7 +24,7 @@ function githubClient(
       "User-Agent": "gorkemkaryol.dev",
       "X-GitHub-Api-Version": "2022-11-28",
     },
-    cacheScope: `github:${username}`,
+    scope: `github:${username}`,
     runtime: ctx.runtime,
   });
 }
@@ -358,7 +361,7 @@ export async function getGithubProjects(
       },
       // `from` / `to` move every call — key on the stable inputs instead, but
       // include EXTERNAL_REPOS so adding one busts the cache immediately.
-      cacheKey: `overview:${PUBLIC_GITHUB_USERNAME}:${EXTERNAL_REPOS.join(",")}`,
+      cacheDiscriminant: `overview:${PUBLIC_GITHUB_USERNAME}:${EXTERNAL_REPOS.join(",")}`,
       label: "GitHub",
       onMeta: ({ headers }) => {
         responseHeaders = headers;

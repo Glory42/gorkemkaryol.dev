@@ -1,17 +1,15 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { env as workerEnv } from "cloudflare:workers";
 import { ChevronLeft, ExternalLink } from "lucide-react";
 import { GithubIcon } from "@/components/ui/icons";
 import { PageShell } from "@/components/layout/PageShell";
 import { ErrorPanel } from "@/components/ui/ErrorPanel";
 import { ReadmeArticle } from "@/features/projects/components/ReadmeArticle";
-import { readRuntimeEnv } from "@/lib/env";
 import { findManualProject } from "@/features/projects/manual-projects";
 import { getRepoReadmeData } from "@/server/github/github";
 import { renderMarkdownToHTML } from "@/server/markdown/markdown";
-import { ok, publicResult, type ServiceResult } from "@/server/common/http";
-import { sourceCtx } from "@/server/common/source";
+import { ok, type ServiceResult } from "@/server/common/http";
+import { runSource } from "@/server/common/page-data";
 
 interface ReadmePageData {
   repo: string;
@@ -46,9 +44,8 @@ const getRepoReadmeServerFn = createServerFn({ method: "GET" })
       });
     }
 
-    const runtimeEnv = readRuntimeEnv(workerEnv);
-    const result = publicResult(
-      await getRepoReadmeData(runtimeEnv, sourceCtx(), slug),
+    const result = await runSource((env, ctx) =>
+      getRepoReadmeData(env, ctx, slug),
     );
 
     if (!result.ok) return result;

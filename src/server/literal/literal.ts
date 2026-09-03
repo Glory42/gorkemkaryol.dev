@@ -1,7 +1,10 @@
 import { requireEnv, type RuntimeEnv } from "@/lib/env";
 import { envFail, fail, ok, type ServiceResult } from "@/server/common/http";
-import type { SourceCtx } from "@/server/common/source";
-import { createUpstreamClient, type UpstreamClient } from "@/server/common/upstream";
+import {
+  createSourceClient,
+  type SourceClient,
+  type SourceCtx,
+} from "@/server/common/source";
 
 export interface LiteralBook {
   id: string;
@@ -109,20 +112,20 @@ function literalCredentials(runtimeEnv: RuntimeEnv): LiteralCredentials {
 function literalClient(
   credentials: LiteralCredentials,
   ctx: SourceCtx,
-): UpstreamClient {
-  return createUpstreamClient({
+): SourceClient {
+  return createSourceClient({
     base: LITERAL_GRAPHQL_API,
     defaultTtl: 3600,
     timeoutMs: 12_000,
     retries: 1,
-    cacheScope: `literal:${credentials.ok ? credentials.data.email : "?"}`,
+    scope: `literal:${credentials.ok ? credentials.data.email : "?"}`,
     guard: credentials,
     runtime: ctx.runtime,
   });
 }
 
 async function getLiteralToken(
-  client: UpstreamClient,
+  client: SourceClient,
   credentials: LiteralCredentials,
 ): Promise<ServiceResult<{ token: string; profileId: string }>> {
   if (!credentials.ok) return fail(credentials.error);

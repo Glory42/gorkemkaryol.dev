@@ -1,8 +1,11 @@
 import type { RuntimeEnv } from "@/lib/env";
 import { resolveApodExplanation } from "@/server/nasa/apod-explanation";
 import { ok, type ServiceResult } from "@/server/common/http";
-import type { SourceCtx } from "@/server/common/source";
-import { createUpstreamClient, type UpstreamClient } from "@/server/common/upstream";
+import {
+  createSourceClient,
+  type SourceClient,
+  type SourceCtx,
+} from "@/server/common/source";
 
 const DAY = 86_400;
 
@@ -14,15 +17,15 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-// api.nasa.gov returns bodies that are already the payload (no envelope). The
-// shared client's get() returns those as-is; `cacheWhen` keeps a failed fetch
-// from being pinned for a day.
-function nasaClient(ctx: SourceCtx): UpstreamClient {
-  return createUpstreamClient({
+// api.nasa.gov returns bodies that are already the payload (no envelope); the
+// shared client's get() returns those as-is. The api_key query param carries the
+// secret, so key the cache on a caller-supplied discriminant instead of the path.
+function nasaClient(ctx: SourceCtx): SourceClient {
+  return createSourceClient({
     base: "https://api.nasa.gov",
     defaultTtl: DAY,
     timeoutMs: 10_000,
-    cacheScope: "nasa",
+    scope: "nasa",
     runtime: ctx.runtime,
   });
 }
@@ -30,12 +33,9 @@ function nasaClient(ctx: SourceCtx): UpstreamClient {
 function nasaGet<T>(
   ctx: SourceCtx,
   path: string,
-  cacheKey: string,
+  cacheDiscriminant: string,
 ): Promise<ServiceResult<T>> {
-  return nasaClient(ctx).get<T>(path, {
-    cacheKey,
-    cacheWhen: (r) => r.ok,
-  });
+  return nasaClient(ctx).get<T>(path, { cacheDiscriminant });
 }
 
 // --- Astronomy Picture of the Day ---

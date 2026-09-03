@@ -6,10 +6,10 @@ import { ErrorPanel } from "@/components/ui/ErrorPanel";
 import { PosterGrid, PosterGridSkeleton, type PosterGridItem } from "@/features/interests/components/PosterGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { getAllBooksData, type LiteralBook } from "@/server/literal/literal";
-import { loadSource } from "@/server/common/page-data";
+import { runSource } from "@/server/common/page-data";
 
 const getAllBooksServerFn = createServerFn({ method: "GET" }).handler(() =>
-  loadSource((env, ctx) => getAllBooksData(env, ctx, 1000)),
+  runSource((env, ctx) => getAllBooksData(env, ctx, 1000)),
 );
 
 export const Route = createFileRoute("/interests/reading")({

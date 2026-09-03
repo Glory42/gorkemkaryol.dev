@@ -1,26 +1,33 @@
 import { describe, expect, it } from "vitest";
-import { createUpstreamClient } from "@/server/common/upstream";
+import { createSourceClient } from "@/server/common/source";
 import { createInMemoryRuntime, type CannedResponse } from "@/server/common/runtime";
 
 function client(
   responses: CannedResponse[],
   calls: string[] = [],
-  extra: Partial<Parameters<typeof createUpstreamClient>[0]> = {},
+  extra: Partial<Parameters<typeof createSourceClient>[0]> = {},
 ) {
-  return createUpstreamClient({
+  return createSourceClient({
     base: "https://api.example.dev/u/gk",
+    scope: "svc:gk",
     defaultTtl: 300,
     runtime: createInMemoryRuntime({ responses, calls }),
     ...extra,
   });
 }
 
-describe("createUpstreamClient — get()", () => {
+function gqlClient(responses: CannedResponse[], calls: string[] = []) {
+  return client(responses, calls, { base: "https://api.example.dev/graphql" });
+}
+
+describe("createSourceClient — get()", () => {
   it("requests base + path and returns the raw body", async () => {
     const calls: string[] = [];
     const c = client([{ url: "/profile", body: { name: "gk" } }], calls);
-    const res = await c.get<{ name: string }>("/profile");
-    expect(res).toEqual({ ok: true, data: { name: "gk" } });
+    expect(await c.get<{ name: string }>("/profile")).toEqual({
+      ok: true,
+      data: { name: "gk" },
+    });
     expect(calls).toEqual(["https://api.example.dev/u/gk/profile"]);
   });
 
@@ -46,6 +53,16 @@ describe("createUpstreamClient — get()", () => {
     expect(calls).toHaveLength(2);
   });
 
+  it("does not cache a failed fetch — the next call retries", async () => {
+    const calls: string[] = [];
+    const c = client([{ url: "/x", status: 503, body: { down: true } }], calls);
+    const first = await c.get("/x");
+    const second = await c.get("/x");
+    expect(first.ok).toBe(false);
+    expect(second.ok).toBe(false);
+    expect(calls.length).toBeGreaterThan(1);
+  });
+
   it("short-circuits to the guard failure without a request", async () => {
     const calls: string[] = [];
     const c = client([{ url: "/x", body: {} }], calls, {
@@ -69,16 +86,16 @@ describe("createUpstreamClient — get()", () => {
         { url: "/u/b/profile", body: { who: "b" } },
       ],
     });
-    const a = createUpstreamClient({
+    const a = createSourceClient({
       base: "https://api.example.dev/u/a",
+      scope: "svc:a",
       defaultTtl: 300,
-      cacheScope: "svc:a",
       runtime,
     });
-    const b = createUpstreamClient({
+    const b = createSourceClient({
       base: "https://api.example.dev/u/b",
+      scope: "svc:b",
       defaultTtl: 300,
-      cacheScope: "svc:b",
       runtime,
     });
     expect(await a.get("/profile")).toEqual({ ok: true, data: { who: "a" } });
@@ -87,22 +104,19 @@ describe("createUpstreamClient — get()", () => {
   });
 });
 
-describe("createUpstreamClient — gql()", () => {
+describe("createSourceClient — gql()", () => {
   const OK = { url: "/graphql", body: { data: { viewer: { login: "gk" } } } };
 
   it("posts the query and flattens the envelope", async () => {
-    const c = client([OK], [], { base: "https://api.example.dev/graphql" });
-    const res = await c.gql<{ viewer: { login: string } }>("{ viewer { login } }");
+    const res = await gqlClient([OK]).gql<{ viewer: { login: string } }>(
+      "{ viewer { login } }",
+    );
     expect(res).toEqual({ ok: true, data: { viewer: { login: "gk" } } });
   });
 
   it("keys distinct variable sets separately — no collision", async () => {
     const calls: string[] = [];
-    const c = client(
-      [{ url: "/graphql", body: { data: { ok: true } } }],
-      calls,
-      { base: "https://api.example.dev/graphql" },
-    );
+    const c = gqlClient([{ url: "/graphql", body: { data: { ok: true } } }], calls);
     await c.gql("query Q($s: String!) { books(status: $s) { id } }", {
       variables: { s: "IS_READING" },
     });
@@ -112,21 +126,30 @@ describe("createUpstreamClient — gql()", () => {
     expect(calls).toHaveLength(2);
   });
 
-  it("honours an explicit cacheKey when variables carry volatile values", async () => {
+  it("honours cacheDiscriminant when variables carry volatile values", async () => {
     const calls: string[] = [];
-    const c = client(
-      [{ url: "/graphql", body: { data: { ok: true } } }],
-      calls,
-      { base: "https://api.example.dev/graphql" },
-    );
+    const c = gqlClient([{ url: "/graphql", body: { data: { ok: true } } }], calls);
     await c.gql("query { now }", {
       variables: { at: "2026-08-29T10:00:00Z" },
-      cacheKey: "now",
+      cacheDiscriminant: "now",
     });
     await c.gql("query { now }", {
       variables: { at: "2026-08-29T10:05:00Z" },
-      cacheKey: "now",
+      cacheDiscriminant: "now",
     });
     expect(calls).toHaveLength(1);
+  });
+
+  it("does not cache a GraphQL failure — the next call retries", async () => {
+    const calls: string[] = [];
+    const c = gqlClient(
+      [{ url: "/graphql", body: { errors: [{ message: "boom" }] } }],
+      calls,
+    );
+    const first = await c.gql("{ viewer { login } }");
+    const second = await c.gql("{ viewer { login } }");
+    expect(first.ok).toBe(false);
+    expect(second.ok).toBe(false);
+    expect(calls).toHaveLength(2);
   });
 });

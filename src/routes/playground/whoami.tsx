@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { EMPTY_EDGE_INFO, getEdgeInfo } from "@/server/edge/edge";
-import { loadSource } from "@/server/common/page-data";
+import { runSource } from "@/server/common/page-data";
 
 const edgeFn = createServerFn({ method: "GET" }).handler(() =>
-  loadSource(getEdgeInfo),
+  runSource(getEdgeInfo),
 );
 
 export const Route = createFileRoute("/playground/whoami")({
