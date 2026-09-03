@@ -1,5 +1,5 @@
-import { requireLiteralEnv, type RuntimeEnv } from "@/lib/env";
-import { fail, ok, type ServiceResult } from "@/server/common/http";
+import { requireEnv, type RuntimeEnv } from "@/lib/env";
+import { envFail, fail, ok, type ServiceResult } from "@/server/common/http";
 import type { SourceCtx } from "@/server/common/source";
 import { createUpstreamClient, type UpstreamClient } from "@/server/common/upstream";
 
@@ -98,15 +98,8 @@ const SHELF_BY_SLUG_QUERY = `
 type LiteralCredentials = ServiceResult<{ email: string; password: string }>;
 
 function literalCredentials(runtimeEnv: RuntimeEnv): LiteralCredentials {
-  const result = requireLiteralEnv(runtimeEnv);
-  if (!result.ok) {
-    return fail({
-      code: "MISSING_ENV",
-      message: result.error.message,
-      retryable: false,
-      details: result.error.fields.join(", "),
-    });
-  }
+  const result = requireEnv(runtimeEnv, ["LITERAL_EMAIL", "LITERAL_PASSWORD"]);
+  if (!result.ok) return envFail(result.error);
   return ok({
     email: result.data.LITERAL_EMAIL,
     password: result.data.LITERAL_PASSWORD,

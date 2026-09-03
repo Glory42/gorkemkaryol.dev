@@ -1,5 +1,5 @@
-import { requireGithubEnv, type RuntimeEnv } from "@/lib/env";
-import { fail, ok, type ServiceResult } from "@/server/common/http";
+import { requireEnv, type RuntimeEnv } from "@/lib/env";
+import { envFail, fail, ok, type ServiceResult } from "@/server/common/http";
 import type { SourceCtx } from "@/server/common/source";
 import { createUpstreamClient, type UpstreamClient } from "@/server/common/upstream";
 import { EXTERNAL_REPOS } from "@/server/github/external-repos";
@@ -291,15 +291,8 @@ export async function getRepoReadmeData(
   ctx: SourceCtx,
   repo: string,
 ): Promise<ServiceResult<GithubReadmeData | null>> {
-  const envResult = requireGithubEnv(env);
-  if (!envResult.ok) {
-    return fail({
-      code: "MISSING_ENV",
-      message: envResult.error.message,
-      retryable: false,
-      details: envResult.error.fields.join(", "),
-    });
-  }
+  const envResult = requireEnv(env, ["GITHUB_TOKEN", "PUBLIC_GITHUB_USERNAME"]);
+  if (!envResult.ok) return envFail(envResult.error);
 
   const { PUBLIC_GITHUB_USERNAME, GITHUB_TOKEN } = envResult.data;
 
@@ -342,16 +335,8 @@ export async function getGithubProjects(
   env: RuntimeEnv,
   ctx: SourceCtx,
 ): Promise<ServiceResult<GithubProjectsPayload>> {
-  const envResult = requireGithubEnv(env);
-
-  if (!envResult.ok) {
-    return fail({
-      code: "MISSING_ENV",
-      message: envResult.error.message,
-      retryable: false,
-      details: envResult.error.fields.join(", "),
-    });
-  }
+  const envResult = requireEnv(env, ["GITHUB_TOKEN", "PUBLIC_GITHUB_USERNAME"]);
+  if (!envResult.ok) return envFail(envResult.error);
 
   const { PUBLIC_GITHUB_USERNAME, GITHUB_TOKEN } = envResult.data;
 

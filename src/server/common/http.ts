@@ -1,3 +1,4 @@
+import type { ValidationError } from "@/lib/env";
 import { workersRuntime, type HttpPort } from "@/server/common/runtime";
 
 export interface ServiceError {
@@ -65,6 +66,17 @@ export function fail<T>(error: ServiceError): ServiceResult<T> {
 
 export function ok<T>(data: T): ServiceResult<T> {
   return { ok: true, data };
+}
+
+// Adapt an env-validation failure onto the ServiceError channel, so a source's
+// missing-binding check and its transport errors surface the same way.
+export function envFail<T>(error: ValidationError): ServiceResult<T> {
+  return fail({
+    code: error.code,
+    message: error.message,
+    retryable: false,
+    details: error.fields.join(", "),
+  });
 }
 
 export function publicResult<T>(result: ServiceResult<T>): ServiceResult<T> {

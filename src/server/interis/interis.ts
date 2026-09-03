@@ -1,5 +1,5 @@
-import type { RuntimeEnv } from "@/lib/env";
-import { fail, ok, type ServiceResult } from "@/server/common/http";
+import { requireEnv, type RuntimeEnv } from "@/lib/env";
+import { envFail, ok, type ServiceResult } from "@/server/common/http";
 import type { SourceCtx } from "@/server/common/source";
 import { createUpstreamClient, type UpstreamClient } from "@/server/common/upstream";
 
@@ -9,20 +9,13 @@ const BASE = "https://api.interis.gorkemkaryol.dev/api/public";
 // call with MISSING_ENV before any network hit.
 function interisClient(env: RuntimeEnv, ctx: SourceCtx): UpstreamClient {
   const username = env.INTERIS_USERNAME;
+  const envResult = requireEnv(env, ["INTERIS_USERNAME"]);
   return createUpstreamClient({
     base: `${BASE}/${username}`,
     defaultTtl: 900,
     timeoutMs: 8_000,
     cacheScope: `interis:${username}`,
-    guard: username
-      ? ok(username)
-      : fail({
-          code: "MISSING_ENV",
-          message:
-            "Missing required environment binding(s): INTERIS_USERNAME",
-          retryable: false,
-          details: "INTERIS_USERNAME",
-        }),
+    guard: envResult.ok ? ok(envResult.data) : envFail(envResult.error),
     runtime: ctx.runtime,
   });
 }

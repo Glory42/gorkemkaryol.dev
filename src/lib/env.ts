@@ -4,11 +4,11 @@ export interface RuntimeEnv {
   LITERAL_EMAIL: string;
   LITERAL_PASSWORD: string;
   INTERIS_USERNAME: string;
-  /** Optional. `src/server/nasa.ts` falls back to "DEMO_KEY" when unset. */
+  /** Optional. `src/server/nasa/nasa.ts` falls back to "DEMO_KEY" when unset. */
   NASA_API_KEY: string;
 }
 
-type RuntimeEnvKey = keyof RuntimeEnv;
+export type RuntimeEnvKey = keyof RuntimeEnv;
 type RuntimeEnvSource = Partial<Record<RuntimeEnvKey, unknown>>;
 
 export interface ValidationError {
@@ -23,26 +23,6 @@ export type ValidationResult<T> =
 
 function asString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
-}
-
-function validateFields(
-  env: RuntimeEnv,
-  fields: RuntimeEnvKey[],
-): ValidationResult<RuntimeEnv> {
-  const missing = fields.filter((field) => !env[field]);
-
-  if (missing.length > 0) {
-    return {
-      ok: false,
-      error: {
-        code: "MISSING_ENV",
-        message: `Missing required environment binding(s): ${missing.join(", ")}`,
-        fields: missing,
-      },
-    };
-  }
-
-  return { ok: true, data: env };
 }
 
 export function readRuntimeEnv(source: unknown): RuntimeEnv {
@@ -61,39 +41,26 @@ export function readRuntimeEnv(source: unknown): RuntimeEnv {
   };
 }
 
-export function requireGithubEnv(
+// The one sanctioned gate for required bindings: pass the keys a source needs
+// and get back either the narrowed env or a MISSING_ENV listing the absent ones.
+export function requireEnv<K extends RuntimeEnvKey>(
   env: RuntimeEnv,
-): ValidationResult<
-  Pick<RuntimeEnv, "GITHUB_TOKEN" | "PUBLIC_GITHUB_USERNAME">
-> {
-  const result = validateFields(env, [
-    "GITHUB_TOKEN",
-    "PUBLIC_GITHUB_USERNAME",
-  ]);
+  keys: K[],
+): ValidationResult<Pick<RuntimeEnv, K>> {
+  const missing = keys.filter((key) => !env[key]);
 
-  if (!result.ok) return result;
+  if (missing.length > 0) {
+    return {
+      ok: false,
+      error: {
+        code: "MISSING_ENV",
+        message: `Missing required environment binding(s): ${missing.join(", ")}`,
+        fields: missing,
+      },
+    };
+  }
 
-  return {
-    ok: true,
-    data: {
-      GITHUB_TOKEN: result.data.GITHUB_TOKEN,
-      PUBLIC_GITHUB_USERNAME: result.data.PUBLIC_GITHUB_USERNAME,
-    },
-  };
-}
-
-export function requireLiteralEnv(
-  env: RuntimeEnv,
-): ValidationResult<Pick<RuntimeEnv, "LITERAL_EMAIL" | "LITERAL_PASSWORD">> {
-  const result = validateFields(env, ["LITERAL_EMAIL", "LITERAL_PASSWORD"]);
-
-  if (!result.ok) return result;
-
-  return {
-    ok: true,
-    data: {
-      LITERAL_EMAIL: result.data.LITERAL_EMAIL,
-      LITERAL_PASSWORD: result.data.LITERAL_PASSWORD,
-    },
-  };
+  const picked = {} as Pick<RuntimeEnv, K>;
+  for (const key of keys) picked[key] = env[key];
+  return { ok: true, data: picked };
 }
