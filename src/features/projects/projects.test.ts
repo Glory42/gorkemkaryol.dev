@@ -85,7 +85,7 @@ describe("getProjectReadme", () => {
     const ctx = ctxWith(overviewBody, calls);
     const result = await getProjectReadme(ENV, ctx, "Gathin");
     expect(result.ok).toBe(true);
-    if (!result.ok || !result.data) throw new Error("expected a manual readme");
+    if (!result.ok) throw new Error("expected a manual readme");
     expect(result.data.kind).toBe("manual");
     expect(result.data.title).toBe("Gathin");
     expect(result.data.url).toBe("https://gathin.com");
@@ -96,16 +96,34 @@ describe("getProjectReadme", () => {
 
   it("resolves a manual slug case-insensitively", async () => {
     const result = await getProjectReadme(ENV, ctxWith(overviewBody), "gathin");
-    expect(result.ok && result.data?.title).toBe("Gathin");
+    expect(result.ok && result.data.title).toBe("Gathin");
   });
 
-  it("returns null when GitHub has no such repository", async () => {
+  it("fails NOT_FOUND when GitHub has no such repository", async () => {
     const result = await getProjectReadme(
       ENV,
       ctxWith({ data: { repository: null } }),
       "ghost-repo",
     );
-    expect(result).toEqual({ ok: true, data: null });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("NOT_FOUND");
+  });
+
+  it("fails NOT_FOUND when the repository has no README blob", async () => {
+    const result = await getProjectReadme(
+      ENV,
+      ctxWith({
+        data: {
+          repository: {
+            url: "https://github.com/gk/bare",
+            defaultBranchRef: { name: "main" },
+          },
+        },
+      }),
+      "bare",
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("NOT_FOUND");
   });
 
   it("renders a GitHub README to html with a github kind", async () => {
@@ -119,7 +137,7 @@ describe("getProjectReadme", () => {
       },
     };
     const result = await getProjectReadme(ENV, ctxWith(body), "real");
-    if (!result.ok || !result.data) throw new Error("expected a github readme");
+    if (!result.ok) throw new Error("expected a github readme");
     expect(result.data.kind).toBe("github");
     expect(result.data.title).toBe("real");
     expect(result.data.html).toContain("<h1");
