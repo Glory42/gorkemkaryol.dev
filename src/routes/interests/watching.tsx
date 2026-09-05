@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { PageShell } from "@/components/layout/PageShell";
-import { PAGE_MAIN, pageHead, TerminalPrompt } from "@/components/layout/page";
-import { BackLink } from "@/components/ui/BackLink";
+import { pageHead } from "@/components/layout/page";
+import { DataPage, PageFrame } from "@/components/ui/DataPage";
 import { ResultSection } from "@/components/ui/DataSection";
 import { PosterGrid, PosterGridSkeleton } from "@/features/interests/components/PosterGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -45,27 +44,28 @@ export const Route = createFileRoute("/interests/watching")({
   component: WatchingPage,
 });
 
+const CMD = "cat ./interests/watching";
+
 function WatchingPageSkeleton() {
   return (
-    <PageShell mainClassName={PAGE_MAIN}>
-      <div className="mx-auto max-w-[900px]">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <TerminalPrompt cmd="cat ./interests/watching" />
-          <div className="h-2.5 w-44 animate-pulse rounded bg-[rgba(255,255,255,0.04)]" />
-        </div>
-        <BackLink to="/interests">back to interests</BackLink>
+    <DataPage.Skeleton
+      cmd={CMD}
+      promptAside={
+        <div className="h-2.5 w-44 animate-pulse rounded bg-[rgba(255,255,255,0.04)]" />
+      }
+      backTo="/interests"
+      backLabel="back to interests"
+    >
+      <section className="mb-10">
+        <SectionHeader sig="./currently-watching" />
+        <PosterGridSkeleton count={4} />
+      </section>
 
-        <section className="mb-10">
-          <SectionHeader sig="./currently-watching" />
-          <PosterGridSkeleton count={4} />
-        </section>
-
-        <section>
-          <SectionHeader sig="./watched" />
-          <PosterGridSkeleton count={10} />
-        </section>
-      </div>
-    </PageShell>
+      <section>
+        <SectionHeader sig="./watched" />
+        <PosterGridSkeleton count={10} />
+      </section>
+    </DataPage.Skeleton>
   );
 }
 
@@ -153,36 +153,35 @@ function WatchingPage() {
   const { currentlyWatching, watched, profile } = Route.useLoaderData();
 
   return (
-    <PageShell mainClassName={PAGE_MAIN}>
-      <div className="mx-auto max-w-[900px]">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <TerminalPrompt cmd="cat ./interests/watching" />
-          {profile.ok && (
-            <p className="mono text-[10px] text-accent/[0.45]">
-              {profile.data.stats.filmCount} films · {profile.data.stats.serialEntryCount} series watched
-            </p>
-          )}
-        </div>
+    <PageFrame
+      cmd={CMD}
+      promptAside={
+        profile.ok ? (
+          <p className="mono text-[10px] text-accent/[0.45]">
+            {profile.data.stats.filmCount} films ·{" "}
+            {profile.data.stats.serialEntryCount} series watched
+          </p>
+        ) : undefined
+      }
+      backTo="/interests"
+      backLabel="back to interests"
+    >
+      {currentlyWatching.ok && currentlyWatching.data.length > 0 && (
+        <section className="mb-10">
+          <SectionHeader sig="./currently-watching" />
+          <PosterGrid
+            items={currentlyWatching.data.map(currentlyWatchingToDisplayItem)}
+            emptyTitle="Nothing in progress"
+            emptyDescription="No serials currently being watched on Interis."
+          />
+        </section>
+      )}
 
-        <BackLink to="/interests">back to interests</BackLink>
-
-        {currentlyWatching.ok && currentlyWatching.data.length > 0 && (
-          <section className="mb-10">
-            <SectionHeader sig="./currently-watching" />
-            <PosterGrid
-              items={currentlyWatching.data.map(currentlyWatchingToDisplayItem)}
-              emptyTitle="Nothing in progress"
-              emptyDescription="No serials currently being watched on Interis."
-            />
-          </section>
+      <ResultSection result={watched} errorTitle="Interis API Unavailable">
+        {(data) => (
+          <WatchedSection serials={data.serials} movies={data.movies} />
         )}
-
-        <ResultSection result={watched} errorTitle="Interis API Unavailable">
-          {(data) => (
-            <WatchedSection serials={data.serials} movies={data.movies} />
-          )}
-        </ResultSection>
-      </div>
-    </PageShell>
+      </ResultSection>
+    </PageFrame>
   );
 }

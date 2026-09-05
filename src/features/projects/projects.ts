@@ -69,11 +69,11 @@ export async function getProjectReadme(
   env: RuntimeEnv,
   ctx: SourceCtx,
   slug: string,
-): Promise<ServiceResult<ProjectReadme | null>> {
+): Promise<ServiceResult<ProjectReadme>> {
   const manual = findManualProject(slug);
   if (manual) {
     const { html, hadError } = renderMarkdownToHTML(manual.readme);
-    return ok<ProjectReadme | null>({
+    return ok({
       kind: "manual",
       title: manual.card.name,
       url: manual.liveUrl,
@@ -84,7 +84,13 @@ export async function getProjectReadme(
 
   const result = await getRepoReadmeData(env, ctx, slug);
   if (!result.ok) return fail(result.error);
-  if (result.data === null || result.data.readme === null) return ok(null);
+  if (result.data === null || result.data.readme === null) {
+    return fail({
+      code: "NOT_FOUND",
+      message: `No project or README found for "${slug}"`,
+      retryable: false,
+    });
+  }
 
   const { html, hadError } = renderMarkdownToHTML(result.data.readme, {
     owner: result.data.owner,
@@ -93,7 +99,7 @@ export async function getProjectReadme(
     repoUrl: result.data.repoUrl,
   });
 
-  return ok<ProjectReadme | null>({
+  return ok({
     kind: "github",
     title: result.data.repo,
     url: result.data.repoUrl,

@@ -10,7 +10,8 @@ export interface ServiceError {
     | "INVALID_JSON"
     | "UPSTREAM_ERROR"
     | "UNAUTHORIZED"
-    | "MISSING_ENV";
+    | "MISSING_ENV"
+    | "NOT_FOUND";
   message: string;
   status?: number;
   retryable: boolean;

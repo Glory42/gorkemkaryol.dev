@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { PageShell } from "@/components/layout/PageShell";
-import { PAGE_MAIN, pageHead, TerminalPrompt } from "@/components/layout/page";
+import { pageHead } from "@/components/layout/page";
+import { DataPage } from "@/components/ui/DataPage";
 import { ContributionGrid } from "@/features/projects/components/ContributionGrid";
 import {
   CONTRIBUTION_WEEKS,
@@ -11,7 +11,7 @@ import { SkeletonBlock, SkeletonLine } from "@/components/ui/Skeleton";
 import { StatusPanel } from "@/components/ui/StatusPanel";
 import { ProjectsGrid } from "@/features/projects/components/ProjectsGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { getProjects } from "@/features/projects/projects";
+import { getProjects, type ProjectsView } from "@/features/projects/projects";
 import { runSource } from "@/server/common/page-data";
 
 const getProjectsServerFn = createServerFn({ method: "GET" }).handler(() =>
@@ -30,21 +30,24 @@ export const Route = createFileRoute("/projects/")({
   component: ProjectsPage,
 });
 
+const CMD = "ls -la ./projects";
+
 function ProjectsPageSkeleton() {
   return (
-    <PageShell mainClassName={PAGE_MAIN}>
-      <section>
-        <div className="mx-auto max-w-[900px]">
-        <TerminalPrompt cmd="ls -la ./projects" className="mb-6" />
-        <section className="mb-8 animate-pulse">
-          <div className="mb-4 flex items-center gap-3">
-            <SkeletonLine className="h-2 w-32" />
-            <div className="h-px flex-1 bg-[rgba(255,255,255,0.04)]" />
-          </div>
-          <div className="overflow-x-auto">
+    <DataPage.Skeleton cmd={CMD}>
+      <section className="mb-8 animate-pulse">
+        <div className="mb-4 flex items-center gap-3">
+          <SkeletonLine className="h-2 w-32" />
+          <div className="h-px flex-1 bg-[rgba(255,255,255,0.04)]" />
+        </div>
+        <div className="overflow-x-auto">
           <div
             className="grid"
-            style={{ gridTemplateColumns: `repeat(${CONTRIBUTION_WEEKS}, minmax(0, 1fr))`, minWidth: `${CONTRIBUTION_WEEKS * 13}px`, gap: "3px" }}
+            style={{
+              gridTemplateColumns: `repeat(${CONTRIBUTION_WEEKS}, minmax(0, 1fr))`,
+              minWidth: `${CONTRIBUTION_WEEKS * 13}px`,
+              gap: "3px",
+            }}
           >
             {Array.from({ length: CONTRIBUTION_WEEKS }).map((_, w) => (
               <div key={w} className="grid grid-rows-7" style={{ gap: "3px" }}>
@@ -58,19 +61,17 @@ function ProjectsPageSkeleton() {
               </div>
             ))}
           </div>
-          </div>
-        </section>
-
-        <div className="mb-8 h-px bg-[rgba(255,255,255,0.05)]" />
-
-        <div className="flex flex-col gap-8 lg:flex-row">
-          <SkeletonColumn sig="/featured" rows={3} />
-          <div className="hidden w-px shrink-0 self-stretch bg-[rgba(255,255,255,0.05)] lg:block" />
-          <SkeletonColumn sig="/contributed" rows={3} />
-        </div>
         </div>
       </section>
-    </PageShell>
+
+      <div className="mb-8 h-px bg-[rgba(255,255,255,0.05)]" />
+
+      <div className="flex flex-col gap-8 lg:flex-row">
+        <SkeletonColumn sig="/featured" rows={3} />
+        <div className="hidden w-px shrink-0 self-stretch bg-[rgba(255,255,255,0.05)] lg:block" />
+        <SkeletonColumn sig="/contributed" rows={3} />
+      </div>
+    </DataPage.Skeleton>
   );
 }
 
@@ -103,75 +104,67 @@ function SkeletonColumn({ sig, rows }: { sig: string; rows: number }) {
 function ProjectsPage() {
   const result = Route.useLoaderData();
 
-  // getProjects degrades rather than fails; this guards the type, not a real path.
-  if (!result.ok) {
-    return (
-      <PageShell mainClassName={PAGE_MAIN}>
-        <section>
-          <div className="mx-auto max-w-[900px]">
-            <TerminalPrompt cmd="ls -la ./projects" className="mb-6" />
-            <StatusPanel tone="error" title="Projects Unavailable" error={result.error} />
-          </div>
-        </section>
-      </PageShell>
-    );
-  }
-
-  const { username, featured, contributed, contributions, githubError } =
-    result.data;
-
   return (
-    <PageShell mainClassName={PAGE_MAIN}>
-      <section>
-        <div className="mx-auto max-w-[900px]">
-          <TerminalPrompt cmd="ls -la ./projects" className="mb-6" />
+    <DataPage cmd={CMD} result={result} errorTitle="Projects Unavailable">
+      {(data) => <ProjectsBody {...data} />}
+    </DataPage>
+  );
+}
 
-          {githubError ? (
-            <div className="mb-8">
-              <StatusPanel tone="error" title="GitHub API Unavailable" error={githubError} />
-            </div>
-          ) : (
-            <section className="mb-8">
-              <ContributionGrid
-                username={username ?? ""}
-                calendar={contributions}
-              />
-            </section>
-          )}
-
-          <div className="mb-8 h-px bg-[rgba(255,255,255,0.05)]" />
-
-          <div className="flex flex-col gap-8 lg:flex-row">
-            <section className="min-w-0 flex-1">
-              <SectionHeader sig="./projects/featured" />
-              {featured.length === 0 ? (
-                <StatusPanel
-                  tone="empty"
-                  title="No featured repositories"
-                  description="Tag a repository with the 'featured' topic on GitHub to display it here."
-                />
-              ) : (
-                <ProjectsGrid repos={featured} />
-              )}
-            </section>
-
-            <div className="hidden w-px shrink-0 self-stretch bg-[rgba(255,255,255,0.05)] lg:block" />
-
-            <section className="min-w-0 flex-1">
-              <SectionHeader sig="./projects/contributed" />
-              {contributed.length === 0 ? (
-                <StatusPanel
-                  tone="empty"
-                  title="Nothing here yet"
-                  description="External and company projects show up here."
-                />
-              ) : (
-                <ProjectsGrid repos={contributed} />
-              )}
-            </section>
-          </div>
+function ProjectsBody({
+  username,
+  featured,
+  contributed,
+  contributions,
+  githubError,
+}: ProjectsView) {
+  return (
+    <>
+      {githubError ? (
+        <div className="mb-8">
+          <StatusPanel
+            tone="error"
+            title="GitHub API Unavailable"
+            error={githubError}
+          />
         </div>
-      </section>
-    </PageShell>
+      ) : (
+        <section className="mb-8">
+          <ContributionGrid username={username ?? ""} calendar={contributions} />
+        </section>
+      )}
+
+      <div className="mb-8 h-px bg-[rgba(255,255,255,0.05)]" />
+
+      <div className="flex flex-col gap-8 lg:flex-row">
+        <section className="min-w-0 flex-1">
+          <SectionHeader sig="./projects/featured" />
+          {featured.length === 0 ? (
+            <StatusPanel
+              tone="empty"
+              title="No featured repositories"
+              description="Tag a repository with the 'featured' topic on GitHub to display it here."
+            />
+          ) : (
+            <ProjectsGrid repos={featured} />
+          )}
+        </section>
+
+        <div className="hidden w-px shrink-0 self-stretch bg-[rgba(255,255,255,0.05)] lg:block" />
+
+        <section className="min-w-0 flex-1">
+          <SectionHeader sig="./projects/contributed" />
+          {contributed.length === 0 ? (
+            <StatusPanel
+              tone="empty"
+              title="Nothing here yet"
+              description="External and company projects show up here."
+            />
+          ) : (
+            <ProjectsGrid repos={contributed} />
+          )}
+        </section>
+      </div>
+    </>
   );
 }
