@@ -1,11 +1,7 @@
 import type { RuntimeEnv } from "@/lib/env";
 import { resolveApodExplanation } from "@/server/nasa/apod-explanation";
 import { ok, type ServiceResult } from "@/server/common/http";
-import {
-  createSourceClient,
-  type SourceClient,
-  type SourceCtx,
-} from "@/server/common/source";
+import { defineSource, type SourceCtx } from "@/server/common/source";
 
 const DAY = 86_400;
 
@@ -20,22 +16,21 @@ function today(): string {
 // api.nasa.gov returns bodies that are already the payload (no envelope); the
 // shared client's get() returns those as-is. The api_key query param carries the
 // secret, so key the cache on a caller-supplied discriminant instead of the path.
-function nasaClient(ctx: SourceCtx): SourceClient {
-  return createSourceClient({
-    base: "https://api.nasa.gov",
-    defaultTtl: DAY,
-    timeoutMs: 10_000,
-    scope: "nasa",
-    runtime: ctx.runtime,
-  });
-}
+const nasaClient = defineSource({
+  envKeys: [],
+  scope: () => "nasa",
+  base: () => "https://api.nasa.gov",
+  defaultTtl: DAY,
+  timeoutMs: 10_000,
+});
 
 function nasaGet<T>(
+  env: RuntimeEnv,
   ctx: SourceCtx,
   path: string,
   cacheDiscriminant: string,
 ): Promise<ServiceResult<T>> {
-  return nasaClient(ctx).get<T>(path, { cacheDiscriminant });
+  return nasaClient(env, ctx).get<T>(path, { cacheDiscriminant });
 }
 
 // --- Astronomy Picture of the Day ---
@@ -68,6 +63,7 @@ export async function getApod(
 ): Promise<ServiceResult<Apod>> {
   const key = nasaKey(env);
   const raw = await nasaGet<RawApod>(
+    env,
     ctx,
     `/planetary/apod?thumbs=true&api_key=${key}`,
     `apod:${today()}`,
@@ -133,6 +129,7 @@ export async function getNeoFeed(
   const key = nasaKey(env);
   const date = today();
   const raw = await nasaGet<{ near_earth_objects?: Record<string, RawNeo[]> }>(
+    env,
     ctx,
     `/neo/rest/v1/feed?start_date=${date}&end_date=${date}&api_key=${key}`,
     `neo:${date}`,

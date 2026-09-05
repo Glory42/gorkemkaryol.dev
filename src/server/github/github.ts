@@ -1,33 +1,24 @@
-import { requireEnv, type RuntimeEnv } from "@/lib/env";
-import { envFail, fail, ok, type ServiceResult } from "@/server/common/http";
-import {
-  createSourceClient,
-  type SourceClient,
-  type SourceCtx,
-} from "@/server/common/source";
+import type { RuntimeEnv } from "@/lib/env";
+import { fail, ok, type ServiceResult } from "@/server/common/http";
+import { defineSource, type SourceCtx } from "@/server/common/source";
 import { EXTERNAL_REPOS } from "@/server/github/external-repos";
 
-/** A client for GitHub's GraphQL API, scoped and authenticated for one user. */
-export function githubClient(
-  username: string,
-  token: string,
-  ctx: SourceCtx,
-): SourceClient {
-  return createSourceClient({
-    base: GITHUB_GRAPHQL_API,
-    defaultTtl: 600,
-    timeoutMs: 12_000,
-    retries: 1,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: "application/vnd.github+json",
-      "User-Agent": "gorkemkaryol.dev",
-      "X-GitHub-Api-Version": "2022-11-28",
-    },
-    scope: `github:${username}`,
-    runtime: ctx.runtime,
-  });
-}
+// A client for GitHub's GraphQL API, scoped and authenticated for one user.
+// No token / username → the `guard` fails every call before a network hit.
+export const githubClient = defineSource({
+  envKeys: ["GITHUB_TOKEN", "PUBLIC_GITHUB_USERNAME"],
+  scope: (e) => `github:${e.PUBLIC_GITHUB_USERNAME}`,
+  base: () => GITHUB_GRAPHQL_API,
+  defaultTtl: 600,
+  timeoutMs: 12_000,
+  retries: 1,
+  headers: (e) => ({
+    Authorization: `Bearer ${e.GITHUB_TOKEN}`,
+    Accept: "application/vnd.github+json",
+    "User-Agent": "gorkemkaryol.dev",
+    "X-GitHub-Api-Version": "2022-11-28",
+  }),
+});
 
 export interface GithubProject {
   name: string;
@@ -261,10 +252,7 @@ export async function getGithubProjects(
   env: RuntimeEnv,
   ctx: SourceCtx,
 ): Promise<ServiceResult<GithubProjectsPayload>> {
-  const envResult = requireEnv(env, ["GITHUB_TOKEN", "PUBLIC_GITHUB_USERNAME"]);
-  if (!envResult.ok) return envFail(envResult.error);
-
-  const { PUBLIC_GITHUB_USERNAME, GITHUB_TOKEN } = envResult.data;
+  const username = env.PUBLIC_GITHUB_USERNAME;
 
   const to = new Date();
   const from = new Date(to);
@@ -272,19 +260,19 @@ export async function getGithubProjects(
 
   let responseHeaders: Headers | null = null;
 
-  const client = githubClient(PUBLIC_GITHUB_USERNAME, GITHUB_TOKEN, ctx);
+  const client = githubClient(env, ctx);
   const result = await client.gql<GithubOverviewQueryData>(
     buildGithubOverviewQuery(),
     {
       variables: {
-        username: PUBLIC_GITHUB_USERNAME,
-        repoQuery: buildRepoQuery(PUBLIC_GITHUB_USERNAME),
+        username,
+        repoQuery: buildRepoQuery(username),
         from: from.toISOString(),
         to: to.toISOString(),
       },
       // `from` / `to` move every call — key on the stable inputs instead, but
       // include EXTERNAL_REPOS so adding one busts the cache immediately.
-      cacheDiscriminant: `overview:${PUBLIC_GITHUB_USERNAME}:${EXTERNAL_REPOS.join(",")}`,
+      cacheDiscriminant: `overview:${username}:${EXTERNAL_REPOS.join(",")}`,
       label: "GitHub",
       onMeta: ({ headers }) => {
         responseHeaders = headers;
@@ -345,7 +333,7 @@ export async function getGithubProjects(
   }
 
   return ok({
-    username: PUBLIC_GITHUB_USERNAME,
+    username,
     featured,
     contributed,
     contributions,

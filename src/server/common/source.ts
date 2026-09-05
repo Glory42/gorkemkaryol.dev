@@ -1,10 +1,11 @@
-import type { RuntimeEnv } from "@/lib/env";
+import { requireEnv, type RuntimeEnv, type RuntimeEnvKey } from "@/lib/env";
 import { withCache } from "@/server/common/cache";
 import {
   graphqlRequest,
   type GraphqlRequestOptions,
 } from "@/server/common/graphql";
 import {
+  envFail,
   fail,
   ok,
   requestJsonWithRetry,
@@ -163,4 +164,43 @@ export function createSourceClient(
   }
 
   return { get, gql };
+}
+
+// --- Source definition ---
+// Declare an upstream once: which env keys it needs, and how to derive its
+// scope / base / headers from them. The returned factory reads the env, wires
+// the missing-binding `guard`, and hands back a ready client.
+
+export interface SourceDefinition<K extends RuntimeEnvKey> {
+  /** Required bindings. `[]` means the source needs no env (e.g. a public API). */
+  envKeys: K[];
+  scope: (env: Pick<RuntimeEnv, K>) => string;
+  base: (env: Pick<RuntimeEnv, K>) => string;
+  graphqlUrl?: (env: Pick<RuntimeEnv, K>) => string;
+  defaultTtl: number;
+  timeoutMs?: number;
+  retries?: number;
+  headers?: (env: Pick<RuntimeEnv, K>) => Record<string, string>;
+}
+
+export function defineSource<K extends RuntimeEnvKey>(
+  def: SourceDefinition<K>,
+): (env: RuntimeEnv, ctx: SourceCtx) => SourceClient {
+  return (env, ctx) => {
+    const envResult = requireEnv(env, def.envKeys);
+    // On a missing key the guard fails every call before base/scope are used,
+    // so deriving them from an empty pick here is harmless.
+    const picked = (envResult.ok ? envResult.data : {}) as Pick<RuntimeEnv, K>;
+    return createSourceClient({
+      base: def.base(picked),
+      graphqlUrl: def.graphqlUrl?.(picked),
+      scope: def.scope(picked),
+      defaultTtl: def.defaultTtl,
+      timeoutMs: def.timeoutMs,
+      retries: def.retries,
+      headers: def.headers?.(picked),
+      guard: envResult.ok ? ok(envResult.data) : envFail(envResult.error),
+      runtime: ctx.runtime,
+    });
+  };
 }

@@ -1,7 +1,7 @@
 import { requireEnv, type RuntimeEnv } from "@/lib/env";
 import { envFail, fail, ok, type ServiceResult } from "@/server/common/http";
 import {
-  createSourceClient,
+  defineSource,
   type SourceClient,
   type SourceCtx,
 } from "@/server/common/source";
@@ -109,18 +109,37 @@ function literalCredentials(runtimeEnv: RuntimeEnv): LiteralCredentials {
   });
 }
 
-function literalClient(
-  credentials: LiteralCredentials,
+const literalClient = defineSource({
+  envKeys: ["LITERAL_EMAIL", "LITERAL_PASSWORD"],
+  scope: (e) => `literal:${e.LITERAL_EMAIL}`,
+  base: () => LITERAL_GRAPHQL_API,
+  defaultTtl: 3600,
+  timeoutMs: 12_000,
+  retries: 1,
+});
+
+interface LiteralSession {
+  client: SourceClient;
+  authHeaders: { Authorization: string };
+  profileId: string;
+}
+
+// Log in once, then run `use` with an authenticated client. Both public reads
+// share this so the token dance lives in one place.
+export async function withLiteralSession<T>(
+  env: RuntimeEnv,
   ctx: SourceCtx,
-): SourceClient {
-  return createSourceClient({
-    base: LITERAL_GRAPHQL_API,
-    defaultTtl: 3600,
-    timeoutMs: 12_000,
-    retries: 1,
-    scope: `literal:${credentials.ok ? credentials.data.email : "?"}`,
-    guard: credentials,
-    runtime: ctx.runtime,
+  use: (session: LiteralSession) => Promise<ServiceResult<T>>,
+): Promise<ServiceResult<T>> {
+  const credentials = literalCredentials(env);
+  const client = literalClient(env, ctx);
+  const tokenResult = await getLiteralToken(client, credentials);
+  if (!tokenResult.ok) return tokenResult;
+
+  return use({
+    client,
+    authHeaders: { Authorization: `Bearer ${tokenResult.data.token}` },
+    profileId: tokenResult.data.profileId,
   });
 }
 
@@ -168,39 +187,29 @@ export async function getLiteralData(
   ctx: SourceCtx,
   readingLimit = 3,
 ): Promise<ServiceResult<LiteralData>> {
-  const credentials = literalCredentials(env);
-  const client = literalClient(credentials, ctx);
+  return withLiteralSession(env, ctx, async ({ client, authHeaders, profileId }) => {
+    const [reading, shelf] = await Promise.all([
+      client.gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
+        headers: authHeaders,
+        variables: readingVariables(profileId, readingLimit, "IS_READING"),
+        label: "Literal currently-reading",
+      }),
+      client.gql<ShelfBySlugQueryData>(SHELF_BY_SLUG_QUERY, {
+        headers: authHeaders,
+        variables: { shelfSlug: "favorits-b4k6z82" },
+        label: "Literal shelves",
+      }),
+    ]);
 
-  const tokenResult = await getLiteralToken(client, credentials);
-  if (!tokenResult.ok) return tokenResult;
+    if (!reading.ok) return reading;
+    if (!shelf.ok) return shelf;
 
-  const authHeaders = { Authorization: `Bearer ${tokenResult.data.token}` };
-
-  const [reading, shelf] = await Promise.all([
-    client.gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
-      headers: authHeaders,
-      variables: readingVariables(
-        tokenResult.data.profileId,
-        readingLimit,
-        "IS_READING",
+    return ok({
+      currentlyReading: (reading.data.booksByReadingStateAndProfile ?? []).map(
+        (book) => ({ status: "IS_READING" as const, book }),
       ),
-      label: "Literal currently-reading",
-    }),
-    client.gql<ShelfBySlugQueryData>(SHELF_BY_SLUG_QUERY, {
-      headers: authHeaders,
-      variables: { shelfSlug: "favorits-b4k6z82" },
-      label: "Literal shelves",
-    }),
-  ]);
-
-  if (!reading.ok) return reading;
-  if (!shelf.ok) return shelf;
-
-  return ok({
-    currentlyReading: (reading.data.booksByReadingStateAndProfile ?? []).map(
-      (book) => ({ status: "IS_READING" as const, book }),
-    ),
-    favoriteBooks: (shelf.data.shelf?.books ?? []).slice(0, 2),
+      favoriteBooks: (shelf.data.shelf?.books ?? []).slice(0, 2),
+    });
   });
 }
 
@@ -211,33 +220,26 @@ export async function getAllBooksData(
 ): Promise<
   ServiceResult<{ currentlyReading: LiteralBook[]; finishedBooks: LiteralBook[] }>
 > {
-  const credentials = literalCredentials(env);
-  const client = literalClient(credentials, ctx);
+  return withLiteralSession(env, ctx, async ({ client, authHeaders, profileId }) => {
+    const [reading, finished] = await Promise.all([
+      client.gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
+        headers: authHeaders,
+        variables: readingVariables(profileId, 50, "IS_READING"),
+        label: "Literal currently-reading",
+      }),
+      client.gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
+        headers: authHeaders,
+        variables: readingVariables(profileId, finishedLimit, "FINISHED"),
+        label: "Literal finished-books",
+      }),
+    ]);
 
-  const tokenResult = await getLiteralToken(client, credentials);
-  if (!tokenResult.ok) return tokenResult;
+    if (!reading.ok) return reading;
+    if (!finished.ok) return finished;
 
-  const authHeaders = { Authorization: `Bearer ${tokenResult.data.token}` };
-  const { profileId } = tokenResult.data;
-
-  const [reading, finished] = await Promise.all([
-    client.gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
-      headers: authHeaders,
-      variables: readingVariables(profileId, 50, "IS_READING"),
-      label: "Literal currently-reading",
-    }),
-    client.gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
-      headers: authHeaders,
-      variables: readingVariables(profileId, finishedLimit, "FINISHED"),
-      label: "Literal finished-books",
-    }),
-  ]);
-
-  if (!reading.ok) return reading;
-  if (!finished.ok) return finished;
-
-  return ok({
-    currentlyReading: reading.data.booksByReadingStateAndProfile ?? [],
-    finishedBooks: finished.data.booksByReadingStateAndProfile ?? [],
+    return ok({
+      currentlyReading: reading.data.booksByReadingStateAndProfile ?? [],
+      finishedBooks: finished.data.booksByReadingStateAndProfile ?? [],
+    });
   });
 }

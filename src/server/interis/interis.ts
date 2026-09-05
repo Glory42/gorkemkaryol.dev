@@ -1,27 +1,18 @@
-import { requireEnv, type RuntimeEnv } from "@/lib/env";
-import { envFail, ok, type ServiceResult } from "@/server/common/http";
-import {
-  createSourceClient,
-  type SourceClient,
-  type SourceCtx,
-} from "@/server/common/source";
+import type { RuntimeEnv } from "@/lib/env";
+import { ok, type ServiceResult } from "@/server/common/http";
+import { defineSource, type SourceCtx } from "@/server/common/source";
 
 const BASE = "https://api.interis.gorkemkaryol.dev/api/public";
 
 // A client scoped to one Interis account. No username → the `guard` fails every
 // call with MISSING_ENV before any network hit.
-function interisClient(env: RuntimeEnv, ctx: SourceCtx): SourceClient {
-  const username = env.INTERIS_USERNAME;
-  const envResult = requireEnv(env, ["INTERIS_USERNAME"]);
-  return createSourceClient({
-    base: `${BASE}/${username}`,
-    defaultTtl: 900,
-    timeoutMs: 8_000,
-    scope: `interis:${username}`,
-    guard: envResult.ok ? ok(envResult.data) : envFail(envResult.error),
-    runtime: ctx.runtime,
-  });
-}
+const interisClient = defineSource({
+  envKeys: ["INTERIS_USERNAME"],
+  scope: (e) => `interis:${e.INTERIS_USERNAME}`,
+  base: (e) => `${BASE}/${e.INTERIS_USERNAME}`,
+  defaultTtl: 900,
+  timeoutMs: 8_000,
+});
 
 export interface InterisTop4Item {
   slot: number;
