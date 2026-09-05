@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { pageHead } from "@/components/layout/page";
 import { DataPage, PageFrame } from "@/components/ui/DataPage";
 import { ResultSection } from "@/components/ui/DataSection";
+import { TerminalTabs } from "@/components/ui/TerminalTabs";
 import { PosterGrid, PosterGridSkeleton } from "@/features/interests/components/PosterGrid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import {
@@ -69,40 +70,13 @@ function WatchingPageSkeleton() {
   );
 }
 
-type Filter = "all" | "series" | "films";
+const FILTERS = [
+  { id: "all", label: "All" },
+  { id: "series", label: "Series" },
+  { id: "films", label: "Films" },
+] as const;
 
-const FILTERS: { key: Filter; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "series", label: "Series" },
-  { key: "films", label: "Films" },
-];
-
-function FilterTabs({
-  active,
-  onChange,
-}: {
-  active: Filter;
-  onChange: (filter: Filter) => void;
-}) {
-  return (
-    <div className="mono mb-6 flex items-center gap-1 text-[10px] tracking-[0.1em] uppercase">
-      {FILTERS.map((f) => (
-        <button
-          key={f.key}
-          type="button"
-          onClick={() => onChange(f.key)}
-          className={`focus-ring cursor-pointer border px-3 py-1.5 transition-colors ${
-            active === f.key
-              ? "border-accent/[0.5] text-accent"
-              : "border-[rgba(255,255,255,0.06)] text-[#444] hover:text-[rgba(255,255,255,0.65)]"
-          }`}
-        >
-          {f.label}
-        </button>
-      ))}
-    </div>
-  );
-}
+type Filter = (typeof FILTERS)[number]["id"];
 
 function WatchedSection({
   serials,
@@ -139,7 +113,12 @@ function WatchedSection({
   return (
     <section>
       <SectionHeader sig="./watched" />
-      <FilterTabs active={filter} onChange={setFilter} />
+      <TerminalTabs
+        options={FILTERS}
+        value={filter}
+        onChange={setFilter}
+        className="mb-6"
+      />
       <PosterGrid
         items={items}
         emptyTitle="Nothing here yet"

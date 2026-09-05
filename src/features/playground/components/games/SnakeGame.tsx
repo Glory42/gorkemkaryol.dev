@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { TerminalButton } from "@/components/ui/TerminalTabs";
 import { GameShell } from "@/features/playground/components/GameShell";
 import { useCanvasGame } from "@/features/playground/useCanvasGame";
 
@@ -131,16 +132,12 @@ export function SnakeGame() {
   }
 
   const ModeBtn = ({ m, label }: { m: Mode; label: string }) => (
-    <button
+    <TerminalButton
       onClick={() => start(m)}
-      className={`mono border px-4 py-2 text-[9px] tracking-[0.15em] transition-colors hover:border-accent hover:text-accent ${
-        mode === m && phase !== "idle"
-          ? "border-accent/[0.5] text-accent"
-          : "border-accent/[0.35] text-accent/[0.75]"
-      }`}
+      selected={mode === m && phase !== "idle"}
     >
       {label}
-    </button>
+    </TerminalButton>
   );
 
   return (

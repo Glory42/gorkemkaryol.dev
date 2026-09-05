@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { TerminalButton } from "@/components/ui/TerminalTabs";
 import type { GamePhase } from "@/features/playground/useCanvasGame";
 
 // The play-area frame + the dark overlay every game shares. `overlay` is what
@@ -50,12 +51,9 @@ export function GameOverlay({
         <p className="mono text-[9px] text-accent/[0.65]">score — {score}</p>
       )}
       {children}
-      <button
-        onClick={onStart}
-        className="mono border border-accent/[0.4] px-5 py-2 text-[9px] tracking-[0.18em] text-accent/[0.8] transition-colors hover:border-accent hover:text-accent"
-      >
+      <TerminalButton onClick={onStart}>
         {phase === "over" ? "RESTART" : "START"}
-      </button>
+      </TerminalButton>
       <p className="mono text-center text-[8px] leading-[1.8] text-[#2a2a2a]">
         {hint}
       </p>
