@@ -1,13 +1,24 @@
-import { useEffect, useRef, useState } from "react";
-import { ACCENT_RGB, accentMix, readAccentRgb } from "@/lib/accent";
+import { useRef, useState } from "react";
+import { ACCENT_RGB, accentMix } from "@/lib/accent";
+import {
+  GameOverlay,
+  GameShell,
+} from "@/features/playground/components/GameShell";
+import {
+  BOARD_H as BH,
+  BOARD_W as BW,
+  clearLines,
+  fits,
+  mkBoard,
+  rotate,
+  type Board,
+  type Shape,
+} from "@/features/playground/tetris-logic";
+import { useCanvasGame } from "@/features/playground/useCanvasGame";
 
-const BW = 10, BH = 20, CELL = 22;
+const CELL = 22;
 const W = BW * CELL, H = BH * CELL;
 const NCELL = 18, NW = 4 * NCELL, NH = 4 * NCELL;
-
-type Board = (string | null)[][];
-type Shape = number[][];
-type Phase = "idle" | "playing" | "over";
 
 // Each piece has a fixed shape and a `tint` (push the section accent toward
 // white/black) so the seven stay distinct in whatever colour the section is.
@@ -25,29 +36,12 @@ const PIECE_DEFS: { shape: Shape; tint: number }[] = [
 // rolled on the first render still has a colour.
 let PIECE_PALETTE = PIECE_DEFS.map((d) => accentMix(ACCENT_RGB.playground, d.tint));
 
-function mkBoard(): Board {
-  return Array.from({ length: BH }, () => Array<string | null>(BW).fill(null));
-}
-function rotate(s: Shape): Shape {
-  return s[0].map((_, i) => s.map(r => r[i]).reverse());
-}
-function fits(board: Board, shape: Shape, px: number, py: number): boolean {
-  for (let y = 0; y < shape.length; y++)
-    for (let x = 0; x < shape[y].length; x++) {
-      if (!shape[y][x]) continue;
-      const nx = px + x, ny = py + y;
-      if (nx < 0 || nx >= BW || ny >= BH) return false;
-      if (ny >= 0 && board[ny][nx]) return false;
-    }
-  return true;
-}
 function randPiece() {
   const i = Math.floor(Math.random() * PIECE_DEFS.length);
   return { shape: PIECE_DEFS[i].shape, color: PIECE_PALETTE[i] };
 }
 
 export function TetrisGame() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const nextRef = useRef<HTMLCanvasElement>(null);
   const game = useRef({
     board: mkBoard(),
@@ -56,12 +50,16 @@ export function TetrisGame() {
     score: 0, level: 1, lines: 0,
     alive: false, lastTick: 0,
   });
-  const rafRef = useRef<number>(0);
-  const loopRef = useRef<FrameRequestCallback>(() => {});
-  // Canvas can't read the CSS var — cache the section accent triple on mount.
-  const accentRef = useRef(ACCENT_RGB.playground);
-  const [ui, setUi] = useState<{ score: number; level: number; lines: number; phase: Phase }>({
-    score: 0, level: 1, lines: 0, phase: "idle",
+  const [stats, setStats] = useState({ score: 0, level: 1, lines: 0 });
+
+  const { canvasRef, accentRef, phase, beginPlay, endPlay } = useCanvasGame({
+    driver: "raf",
+    step,
+    redraw: draw,
+    onAccent: (rgb) => {
+      PIECE_PALETTE = PIECE_DEFS.map((d) => accentMix(rgb, d.tint));
+      game.current.next = randPiece();
+    },
   });
 
   function drawNext() {
@@ -124,8 +122,7 @@ export function TetrisGame() {
     s.cur = { ...p, x, y: 0 };
     if (!fits(s.board, p.shape, x, 0)) {
       s.alive = false;
-      cancelAnimationFrame(rafRef.current);
-      setUi(u => ({ ...u, phase: "over" }));
+      endPlay();
     }
   }
 
@@ -135,24 +132,18 @@ export function TetrisGame() {
     p.shape.forEach((row, dy) => row.forEach((v, dx) => {
       if (v && p.y + dy >= 0) s.board[p.y + dy][p.x + dx] = p.color;
     }));
-    let cleared = 0;
-    for (let y = BH - 1; y >= 0; y--) {
-      if (s.board[y].every(c => c !== null)) {
-        s.board.splice(y, 1);
-        s.board.unshift(Array<string | null>(BW).fill(null));
-        cleared++; y++;
-      }
-    }
-    if (cleared > 0) {
-      s.score += [0, 100, 300, 500, 800][Math.min(cleared, 4)] * s.level;
-      s.lines += cleared;
+    const cleared = clearLines(s.board);
+    s.board = cleared.board;
+    if (cleared.cleared > 0) {
+      s.score += [0, 100, 300, 500, 800][Math.min(cleared.cleared, 4)] * s.level;
+      s.lines += cleared.cleared;
       s.level = Math.floor(s.lines / 10) + 1;
-      setUi({ score: s.score, level: s.level, lines: s.lines, phase: "playing" });
+      setStats({ score: s.score, level: s.level, lines: s.lines });
     }
     spawnPiece();
   }
 
-  loopRef.current = (t: number) => {
+  function step(t: number) {
     const s = game.current;
     if (!s.alive) return;
     const speed = Math.max(80, 550 - (s.level - 1) * 50);
@@ -166,29 +157,18 @@ export function TetrisGame() {
       }
       draw();
     }
-    rafRef.current = requestAnimationFrame(t2 => loopRef.current(t2));
-  };
+  }
 
   function start() {
     const s = game.current;
     s.board = mkBoard(); s.cur = null; s.next = randPiece();
     s.score = 0; s.level = 1; s.lines = 0; s.alive = true; s.lastTick = 0;
-    setUi({ score: 0, level: 1, lines: 0, phase: "playing" });
-    cancelAnimationFrame(rafRef.current);
+    setStats({ score: 0, level: 1, lines: 0 });
     spawnPiece();
-    rafRef.current = requestAnimationFrame(t => loopRef.current(t));
+    beginPlay();
     draw();
     canvasRef.current?.focus();
   }
-
-  useEffect(() => {
-    const rgb = readAccentRgb(canvasRef.current);
-    accentRef.current = rgb;
-    PIECE_PALETTE = PIECE_DEFS.map((d) => accentMix(rgb, d.tint));
-    game.current.next = randPiece();
-    draw();
-    return () => cancelAnimationFrame(rafRef.current);
-  }, []);
 
   function moveLeft() {
     const s = game.current; const p = s.cur;
@@ -243,50 +223,48 @@ export function TetrisGame() {
   return (
     <div className="flex items-start gap-4">
       <div className="flex flex-col" style={{ width: W }}>
-      <div className="relative select-none">
-        <canvas
-          ref={canvasRef} width={W} height={H} tabIndex={0} onKeyDown={onKey}
-          className="block cursor-pointer outline-none"
-        />
-        {ui.phase !== "playing" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[rgba(0,0,0,0.85)]">
-            <p className="mono text-[11px] font-bold tracking-[0.15em] text-white">
-              {ui.phase === "over" ? "GAME OVER" : "TETRIS"}
-            </p>
-            {ui.phase === "over" && (
-              <>
-                <p className="mono text-[9px] text-accent/[0.65]">score — {ui.score}</p>
-                <p className="mono text-[8px] text-[#333]">level {ui.level} · {ui.lines} lines</p>
-              </>
-            )}
-            <button onClick={start} className="mono border border-accent/[0.4] px-5 py-2 text-[9px] tracking-[0.18em] text-accent/[0.8] transition-colors hover:border-accent hover:text-accent">
-              {ui.phase === "over" ? "RESTART" : "START"}
-            </button>
-            <p className="mono text-center text-[8px] leading-[1.8] text-[#2a2a2a]">
-              ← → move · ↑ rotate · ↓ drop<br />space hard drop
-            </p>
+        <GameShell
+          phase={phase}
+          overlay={
+            <GameOverlay
+              phase={phase}
+              title="TETRIS"
+              score={stats.score}
+              hint={<>← → move · ↑ rotate · ↓ drop<br />space hard drop</>}
+              onStart={start}
+            >
+              {phase === "over" && (
+                <p className="mono text-[8px] text-[#333]">
+                  level {stats.level} · {stats.lines} lines
+                </p>
+              )}
+            </GameOverlay>
+          }
+        >
+          <canvas
+            ref={canvasRef} width={W} height={H} tabIndex={0} onKeyDown={onKey}
+            className="block cursor-pointer outline-none"
+          />
+        </GameShell>
+
+        {/* Touch controls — shown while playing */}
+        {phase === "playing" && (
+          <div className="mt-2 grid grid-cols-4 gap-1.5">
+            {([ ["←", moveLeft], ["↺", rotatePiece], ["→", moveRight], ["↓↓", hardDrop] ] as [string, () => void][]).map(([label, action]) => (
+              <button
+                key={label}
+                {...tb(action)}
+                className="mono select-none border border-accent/[0.25] py-3 text-[13px] text-accent/[0.6] active:border-accent active:text-accent"
+              >
+                {label}
+              </button>
+            ))}
           </div>
         )}
       </div>
 
-      {/* Touch controls — shown while playing */}
-      {ui.phase === "playing" && (
-        <div className="mt-2 grid grid-cols-4 gap-1.5">
-          {([ ["←", moveLeft], ["↺", rotatePiece], ["→", moveRight], ["↓↓", hardDrop] ] as [string, () => void][]).map(([label, action]) => (
-            <button
-              key={label}
-              {...tb(action)}
-              className="mono select-none border border-accent/[0.25] py-3 text-[13px] text-accent/[0.6] active:border-accent active:text-accent"
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      )}
-      </div>
-
       {/* Side panel — only shown while playing */}
-      {ui.phase === "playing" && <div className="flex flex-col gap-5 pt-1">
+      {phase === "playing" && <div className="flex flex-col gap-5 pt-1">
         <div>
           <p className="mono mb-2 text-[8px] tracking-[0.18em] text-accent/[0.4]">NEXT</p>
           <canvas
@@ -295,7 +273,7 @@ export function TetrisGame() {
           />
         </div>
         <div className="flex flex-col gap-3">
-          {([["SCORE", ui.score], ["LEVEL", ui.level], ["LINES", ui.lines]] as [string, number][]).map(([label, val]) => (
+          {([["SCORE", stats.score], ["LEVEL", stats.level], ["LINES", stats.lines]] as [string, number][]).map(([label, val]) => (
             <div key={label}>
               <p className="mono text-[7px] tracking-[0.18em] text-[#2a2a2a]">{label}</p>
               <p className="mono text-[12px] text-accent/[0.65]">{val}</p>
