@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { ACCENT_RGB, readAccentRgb } from "@/lib/accent";
+import { readAccentRgb } from "@/lib/accent";
+import { sectionAccentRgb } from "@/lib/sections";
 import { createGameLoop, type LoopDriver } from "@/features/playground/gameLoop";
 
 export type GamePhase = "idle" | "playing" | "over";
@@ -16,7 +17,7 @@ export function useCanvasGame(opts: {
   onAccent?: (accentRgb: string) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const accentRef = useRef(ACCENT_RGB.playground);
+  const accentRef = useRef(sectionAccentRgb("playground"));
   const [phase, setPhase] = useState<GamePhase>("idle");
 
   const stepRef = useRef(opts.step);

@@ -1,22 +1,24 @@
-import { Briefcase, FolderGit2, GamepadDirectional, Heart, User } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import type { AccentSlug } from "@/lib/accent";
+import {
+  SECTION_LIST,
+  type SectionHref,
+  type SectionSlug,
+} from "@/lib/sections";
 
 export interface NavigationItem {
-  href: "/" | "/projects" | "/interests" | "/experience" | "/playground";
+  href: SectionHref;
   label: string;
   icon: LucideIcon;
   /** The section accent every route under `href` inherits. */
-  accent: AccentSlug;
+  slug: SectionSlug;
 }
 
-export const navigationItems: NavigationItem[] = [
-  { href: "/", label: "me", icon: User, accent: "me" },
-  { href: "/projects", label: "projects", icon: FolderGit2, accent: "projects" },
-  { href: "/experience", label: "experience", icon: Briefcase, accent: "experience" },
-  { href: "/interests", label: "interests", icon: Heart, accent: "interests" },
-  { href: "/playground", label: "playground", icon: GamepadDirectional, accent: "playground" },
-];
+export const navigationItems: NavigationItem[] = SECTION_LIST.map((section) => ({
+  href: section.href,
+  label: section.label,
+  icon: section.icon,
+  slug: section.slug,
+}));
 
 // The nav item owning `pathname` — exact or a sub-route (`/projects/foo` →
 // projects). `/` and unmatched paths return undefined.
@@ -30,9 +32,9 @@ function matchSection(pathname: string): NavigationItem | undefined {
     .sort((a, b) => b.href.length - a.href.length)[0];
 }
 
-// Section accent for a pathname; unmatched (`/`, 404s) falls back to `me`.
-export function accentForPath(pathname: string): AccentSlug {
-  return matchSection(pathname)?.accent ?? "me";
+// Section accent slug for a pathname; unmatched (`/`, 404s) falls back to `me`.
+export function accentForPath(pathname: string): SectionSlug {
+  return matchSection(pathname)?.slug ?? "me";
 }
 
 // Href of the nav item to highlight for `pathname` — sub-routes keep their
