@@ -6,6 +6,7 @@ import { DataSection } from "@/components/ui/DataSection";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { getApod, getNeoFeed, type Apod, type NeoFeed } from "@/server/nasa/nasa";
+import { apodPageUrl, resolveApodMedia } from "@/server/nasa/apod-media";
 import { runSource } from "@/server/common/page-data";
 
 const apodFn = createServerFn({ method: "GET" }).handler(() =>
@@ -34,38 +35,6 @@ function Loading() {
   return (
     <div className="h-40 w-full animate-pulse bg-[rgba(255,255,255,0.03)]" />
   );
-}
-
-// The APOD permalink for a given YYYY-MM-DD, e.g. 2026-08-29 -> ap260829.html
-function apodPageUrl(date: string): string {
-  return `https://apod.nasa.gov/apod/ap${date.slice(2).replace(/-/g, "")}.html`;
-}
-
-// APOD video days hand us a YouTube URL; rewrite it to the nocookie embed host
-// our CSP frame-src allows. Returns null for players we can't frame (Vimeo etc).
-function youtubeEmbedUrl(raw: string): string | null {
-  try {
-    const u = new URL(raw);
-    const host = u.hostname.replace(/^www\./, "");
-    const id =
-      host === "youtu.be"
-        ? u.pathname.slice(1)
-        : host === "youtube.com" || host === "youtube-nocookie.com"
-          ? u.pathname.startsWith("/embed/")
-            ? u.pathname.slice(7)
-            : u.searchParams.get("v")
-          : null;
-    return id
-      ? `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&playsinline=1`
-      : null;
-  } catch {
-    return null;
-  }
-}
-
-// Some APOD "video" days are a bare file (…/RomanLaunch_NASA.mp4), not a player.
-function isDirectVideo(url: string): boolean {
-  return /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|$)/i.test(url);
 }
 
 function ApodLightbox({ apod, onClose }: { apod: Apod; onClose: () => void }) {
@@ -118,8 +87,7 @@ function ApodLightbox({ apod, onClose }: { apod: Apod; onClose: () => void }) {
 
 function ApodBlock({ apod }: { apod: Apod }) {
   const [open, setOpen] = useState(false);
-  const videoEmbed =
-    apod.mediaType === "video" ? youtubeEmbedUrl(apod.url) : null;
+  const media = resolveApodMedia(apod);
 
   return (
     <div>
@@ -130,7 +98,7 @@ function ApodBlock({ apod }: { apod: Apod }) {
         <span className="mono shrink-0 text-[10px] text-[#444]">{apod.date}</span>
       </div>
 
-      {apod.mediaType === "image" ? (
+      {media.kind === "image" ? (
         <button
           type="button"
           aria-label="Open full-size image"
@@ -138,26 +106,26 @@ function ApodBlock({ apod }: { apod: Apod }) {
           className="block w-full cursor-zoom-in border-0 bg-transparent p-0"
         >
           <SmartImage
-            src={apod.url}
+            src={media.src}
             alt={apod.title}
             loading="lazy"
             wrapperClassName="w-full bg-[rgba(255,255,255,0.02)]"
             className="mx-auto max-h-[600px] w-auto max-w-full"
           />
         </button>
-      ) : videoEmbed ? (
+      ) : media.kind === "youtube" ? (
         <div className="aspect-video w-full bg-black">
           <iframe
-            src={videoEmbed}
+            src={media.src}
             title={apod.title}
             allow="autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
             className="h-full w-full border-0"
           />
         </div>
-      ) : apod.mediaType === "video" && isDirectVideo(apod.url) ? (
+      ) : media.kind === "file" ? (
         <video
-          src={apod.url}
+          src={media.src}
           autoPlay
           muted
           loop
@@ -166,10 +134,10 @@ function ApodBlock({ apod }: { apod: Apod }) {
           preload="metadata"
           className="mx-auto max-h-[600px] w-full bg-black"
         />
-      ) : apod.thumbnailUrl ? (
+      ) : media.kind === "thumb" ? (
         <a href={apod.url} target="_blank" rel="noopener noreferrer" className="block no-underline">
           <SmartImage
-            src={apod.thumbnailUrl}
+            src={media.src}
             alt={apod.title}
             loading="lazy"
             wrapperClassName="w-full"
@@ -181,7 +149,7 @@ function ApodBlock({ apod }: { apod: Apod }) {
         </a>
       ) : (
         <a
-          href={apod.url}
+          href={media.src}
           target="_blank"
           rel="noopener noreferrer"
           className="mono text-[11px] text-accent/[0.7]"
@@ -197,7 +165,7 @@ function ApodBlock({ apod }: { apod: Apod }) {
         <p className="mono mt-2 text-[10px] text-[#3a3a3a]">© {apod.copyright}</p>
       )}
 
-      {open && apod.mediaType === "image" && (
+      {open && media.kind === "image" && (
         <ApodLightbox apod={apod} onClose={() => setOpen(false)} />
       )}
     </div>
