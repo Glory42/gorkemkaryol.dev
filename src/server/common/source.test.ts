@@ -1,6 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { createSourceClient } from "@/server/common/source";
+import { createSourceClient, defineSource, sourceCtx } from "@/server/common/source";
 import { createInMemoryRuntime, type CannedResponse } from "@/server/common/runtime";
+import type { RuntimeEnv } from "@/lib/env";
+
+function fakeEnv(overrides: Partial<RuntimeEnv> = {}): RuntimeEnv {
+  return {
+    GITHUB_TOKEN: "",
+    PUBLIC_GITHUB_USERNAME: "",
+    LITERAL_EMAIL: "",
+    LITERAL_PASSWORD: "",
+    INTERIS_USERNAME: "",
+    NASA_API_KEY: "",
+    ...overrides,
+  };
+}
 
 function client(
   responses: CannedResponse[],
@@ -150,6 +163,62 @@ describe("createSourceClient — gql()", () => {
     const second = await c.gql("{ viewer { login } }");
     expect(first.ok).toBe(false);
     expect(second.ok).toBe(false);
+    expect(calls).toHaveLength(2);
+  });
+});
+
+describe("defineSource", () => {
+  const define = () =>
+    defineSource({
+      envKeys: ["INTERIS_USERNAME"],
+      scope: (e) => `interis:${e.INTERIS_USERNAME}`,
+      base: (e) => `https://api.example.dev/u/${e.INTERIS_USERNAME}`,
+      defaultTtl: 300,
+    });
+
+  it("derives base + scope from env and reaches the upstream", async () => {
+    const calls: string[] = [];
+    const runtime = createInMemoryRuntime({
+      calls,
+      responses: [{ url: "/u/gk/profile", body: { name: "gk" } }],
+    });
+    const c = define()(fakeEnv({ INTERIS_USERNAME: "gk" }), sourceCtx({ runtime }));
+    expect(await c.get("/profile")).toEqual({ ok: true, data: { name: "gk" } });
+    expect(calls).toEqual(["https://api.example.dev/u/gk/profile"]);
+  });
+
+  it("short-circuits every call with MISSING_ENV when a key is absent", async () => {
+    const calls: string[] = [];
+    const runtime = createInMemoryRuntime({
+      calls,
+      responses: [{ url: "/profile", body: {} }],
+    });
+    const c = define()(fakeEnv(), sourceCtx({ runtime }));
+    const res = await c.get("/profile");
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.error.code).toBe("MISSING_ENV");
+      expect(res.error.details).toContain("INTERIS_USERNAME");
+    }
+    expect(calls).toHaveLength(0);
+  });
+
+  it("keys the cache by the derived scope — different accounts don't share", async () => {
+    const calls: string[] = [];
+    const runtime = createInMemoryRuntime({
+      calls,
+      responses: [
+        { url: "/u/a/profile", body: { who: "a" } },
+        { url: "/u/b/profile", body: { who: "b" } },
+      ],
+    });
+    const make = define();
+    const a = make(fakeEnv({ INTERIS_USERNAME: "a" }), sourceCtx({ runtime }));
+    const b = make(fakeEnv({ INTERIS_USERNAME: "b" }), sourceCtx({ runtime }));
+    expect(await a.get("/profile")).toEqual({ ok: true, data: { who: "a" } });
+    expect(await b.get("/profile")).toEqual({ ok: true, data: { who: "b" } });
+    expect(calls).toHaveLength(2);
+    await a.get("/profile");
     expect(calls).toHaveLength(2);
   });
 });

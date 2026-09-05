@@ -1,5 +1,5 @@
-import { requireEnv, type RuntimeEnv } from "@/lib/env";
-import { envFail, ok, type ServiceResult } from "@/server/common/http";
+import type { RuntimeEnv } from "@/lib/env";
+import { ok, type ServiceResult } from "@/server/common/http";
 import type { SourceCtx } from "@/server/common/source";
 import { githubClient } from "@/server/github/github";
 import { EXTERNAL_REPOS } from "@/server/github/external-repos";
@@ -41,18 +41,13 @@ export async function getRepoReadmeData(
   ctx: SourceCtx,
   repo: string,
 ): Promise<ServiceResult<GithubReadmeData | null>> {
-  const envResult = requireEnv(env, ["GITHUB_TOKEN", "PUBLIC_GITHUB_USERNAME"]);
-  if (!envResult.ok) return envFail(envResult.error);
-
-  const { PUBLIC_GITHUB_USERNAME, GITHUB_TOKEN } = envResult.data;
-
-  let owner = PUBLIC_GITHUB_USERNAME;
+  let owner = env.PUBLIC_GITHUB_USERNAME;
   const externalMatch = EXTERNAL_REPOS.find((r) => r.endsWith(`/${repo}`));
   if (externalMatch) {
     owner = externalMatch.split("/")[0];
   }
 
-  const client = githubClient(PUBLIC_GITHUB_USERNAME, GITHUB_TOKEN, ctx);
+  const client = githubClient(env, ctx);
   const result = await client.gql<RepoReadmeQueryData>(REPO_README_QUERY, {
     variables: { owner, name: repo },
     ttl: 1800,
