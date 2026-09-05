@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { ACCENT_RGB, accentMix } from "@/lib/accent";
+import { accentMix } from "@/lib/accent";
+import { sectionAccentRgb } from "@/lib/sections";
 import {
   GameOverlay,
   GameShell,
@@ -34,7 +35,9 @@ const PIECE_DEFS: { shape: Shape; tint: number }[] = [
 
 // Resolved from the section accent on mount; seeded with the fallback so a piece
 // rolled on the first render still has a colour.
-let PIECE_PALETTE = PIECE_DEFS.map((d) => accentMix(ACCENT_RGB.playground, d.tint));
+let PIECE_PALETTE = PIECE_DEFS.map((d) =>
+  accentMix(sectionAccentRgb("playground"), d.tint),
+);
 
 function randPiece() {
   const i = Math.floor(Math.random() * PIECE_DEFS.length);

@@ -12,6 +12,7 @@ import {
 import { FooterBadge } from "@/components/layout/FooterBadge";
 import { Navbar } from "@/components/layout/Navbar";
 import { accentForPath } from "@/lib/navigation";
+import { sectionAccentCss } from "@/lib/sections";
 import appCss from "@/styles/app.css?url";
 
 export const Route = createRootRoute({
@@ -68,6 +69,8 @@ function RootDocument({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        {/* Section accent custom-properties, generated from one registry. */}
+        <style dangerouslySetInnerHTML={{ __html: sectionAccentCss() }} />
       </head>
       <body>
         {children}

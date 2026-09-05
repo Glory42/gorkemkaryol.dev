@@ -5,7 +5,8 @@ import {
   formatContributionDate,
   levelFill,
 } from "@/features/projects/contribution-weeks";
-import { ACCENT_RGB, readAccentRgb } from "@/lib/accent";
+import { readAccentRgb } from "@/lib/accent";
+import { sectionAccentRgb } from "@/lib/sections";
 import type { GithubContributionCalendar } from "@/server/github/github";
 
 interface Props {
@@ -28,7 +29,7 @@ export function ContributionGrid({ calendar }: Props) {
   const [hover, setHover] = useState<Hover | null>(null);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
   // This grid only ever renders under [data-accent="projects"].
-  const [accentRgb, setAccentRgb] = useState(ACCENT_RGB.projects);
+  const [accentRgb, setAccentRgb] = useState(sectionAccentRgb("projects"));
   const wrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
