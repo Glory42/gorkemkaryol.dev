@@ -1,5 +1,6 @@
-import { useRef, useState, useEffect } from "react";
-import { ACCENT_RGB, readAccentRgb } from "@/lib/accent";
+import { useRef, useState } from "react";
+import { GameShell } from "@/features/playground/components/GameShell";
+import { useCanvasGame } from "@/features/playground/useCanvasGame";
 
 const COLS = 24, ROWS = 24, CELL = 15;
 const W = COLS * CELL, H = ROWS * CELL;
@@ -7,7 +8,6 @@ const TICK_MS = 110;
 
 type Dir = "U" | "D" | "L" | "R";
 type Mode = "walls" | "wrap";
-type Phase = "idle" | "playing" | "over";
 type Pt = { x: number; y: number };
 
 const OPP: Record<Dir, Dir> = { U: "D", D: "U", L: "R", R: "L" };
@@ -20,17 +20,20 @@ function randFood(snake: Pt[]): Pt {
 }
 
 export function SnakeGame() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const game = useRef({
     snake: [] as Pt[], dir: "R" as Dir, next: "R" as Dir,
     food: { x: 18, y: 12 } as Pt, alive: false, score: 0, mode: "walls" as Mode,
   });
-  const timerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
-  const tickRef = useRef<() => void>(() => {});
   const touchStart = useRef<{ x: number; y: number } | null>(null);
-  // Canvas can't read the CSS var — cache the section accent triple on mount.
-  const accentRef = useRef(ACCENT_RGB.playground);
-  const [ui, setUi] = useState<{ score: number; phase: Phase; mode: Mode }>({ score: 0, phase: "idle", mode: "walls" });
+  const [score, setScore] = useState(0);
+  const [mode, setMode] = useState<Mode>("walls");
+
+  const { canvasRef, accentRef, phase, beginPlay, endPlay } = useCanvasGame({
+    driver: "tick",
+    tickMs: TICK_MS,
+    step,
+    redraw: draw,
+  });
 
   function draw() {
     const ctx = canvasRef.current?.getContext("2d");
@@ -49,7 +52,7 @@ export function SnakeGame() {
     });
   }
 
-  tickRef.current = () => {
+  function step() {
     const s = game.current;
     if (!s.alive) return;
     s.dir = s.next;
@@ -64,16 +67,14 @@ export function SnakeGame() {
       hy = (hy + ROWS) % ROWS;
     } else if (hx < 0 || hx >= COLS || hy < 0 || hy >= ROWS) {
       s.alive = false;
-      clearInterval(timerRef.current);
-      setUi(u => ({ ...u, phase: "over" }));
+      endPlay();
       draw();
       return;
     }
 
     if (s.snake.some(p => p.x === hx && p.y === hy)) {
       s.alive = false;
-      clearInterval(timerRef.current);
-      setUi(u => ({ ...u, phase: "over" }));
+      endPlay();
       draw();
       return;
     }
@@ -82,33 +83,27 @@ export function SnakeGame() {
     if (hx === s.food.x && hy === s.food.y) {
       s.score++;
       s.food = randFood(s.snake);
-      setUi(u => ({ ...u, score: s.score }));
+      setScore(s.score);
     } else {
       s.snake.pop();
     }
     draw();
-  };
+  }
 
-  function start(mode: Mode) {
+  function start(m: Mode) {
     const s = game.current;
     s.snake = [{ x: 12, y: 12 }, { x: 11, y: 12 }, { x: 10, y: 12 }];
     s.dir = s.next = "R";
     s.food = randFood(s.snake);
     s.alive = true;
     s.score = 0;
-    s.mode = mode;
-    setUi({ score: 0, phase: "playing", mode });
-    clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => tickRef.current(), TICK_MS);
+    s.mode = m;
+    setScore(0);
+    setMode(m);
+    beginPlay();
     draw();
     canvasRef.current?.focus();
   }
-
-  useEffect(() => {
-    accentRef.current = readAccentRgb(canvasRef.current);
-    draw();
-    return () => clearInterval(timerRef.current);
-  }, []);
 
   function onKey(e: React.KeyboardEvent) {
     const map: Record<string, Dir> = { ArrowUp: "U", ArrowDown: "D", ArrowLeft: "L", ArrowRight: "R", w: "U", s: "D", a: "L", d: "R" };
@@ -139,7 +134,7 @@ export function SnakeGame() {
     <button
       onClick={() => start(m)}
       className={`mono border px-4 py-2 text-[9px] tracking-[0.15em] transition-colors hover:border-accent hover:text-accent ${
-        ui.mode === m && ui.phase !== "idle"
+        mode === m && phase !== "idle"
           ? "border-accent/[0.5] text-accent"
           : "border-accent/[0.35] text-accent/[0.75]"
       }`}
@@ -150,24 +145,19 @@ export function SnakeGame() {
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <div className="relative select-none">
-        <canvas
-          ref={canvasRef} width={W} height={H} tabIndex={0}
-          onKeyDown={onKey} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
-          className="block cursor-pointer border border-[rgba(255,255,255,0.06)] outline-none focus:border-accent/[0.25]"
-          style={{ touchAction: "none" }}
-        />
-        {ui.phase !== "playing" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[rgba(0,0,0,0.85)]">
+      <GameShell
+        phase={phase}
+        overlay={
+          <>
             <p className="mono text-[11px] font-bold tracking-[0.15em] text-white">
-              {ui.phase === "over" ? "GAME OVER" : "SNAKE"}
+              {phase === "over" ? "GAME OVER" : "SNAKE"}
             </p>
-            {ui.phase === "over" && (
-              <p className="mono text-[9px] text-accent/[0.65]">score — {ui.score}</p>
+            {phase === "over" && (
+              <p className="mono text-[9px] text-accent/[0.65]">score — {score}</p>
             )}
             <div className="flex flex-col items-center gap-3">
               <p className="mono text-[8px] text-[#444]">
-                {ui.phase === "over" ? "play again:" : "choose border mode:"}
+                {phase === "over" ? "play again:" : "choose border mode:"}
               </p>
               <div className="flex gap-2">
                 <ModeBtn m="walls" label="WALLS" />
@@ -175,10 +165,17 @@ export function SnakeGame() {
               </div>
             </div>
             <p className="mono text-[8px] text-[#2a2a2a]">arrow keys or wasd</p>
-          </div>
-        )}
-      </div>
-      {ui.phase !== "idle" && <p className="mono text-[9px] text-accent/[0.45]">score — {ui.score}</p>}
+          </>
+        }
+      >
+        <canvas
+          ref={canvasRef} width={W} height={H} tabIndex={0}
+          onKeyDown={onKey} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
+          className="block cursor-pointer border border-[rgba(255,255,255,0.06)] outline-none focus:border-accent/[0.25]"
+          style={{ touchAction: "none" }}
+        />
+      </GameShell>
+      {phase !== "idle" && <p className="mono text-[9px] text-accent/[0.45]">score — {score}</p>}
     </div>
   );
 }

@@ -1,5 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import { ACCENT_RGB, readAccentRgb } from "@/lib/accent";
+import { useRef, useState } from "react";
+import {
+  GameOverlay,
+  GameShell,
+} from "@/features/playground/components/GameShell";
+import { useCanvasGame } from "@/features/playground/useCanvasGame";
 
 const W = 280, H = 420;
 const BIRD_X = 65, BIRD_R = 10;
@@ -7,11 +11,9 @@ const PIPE_W = 44, GAP = 118;
 const GRAVITY = 0.38, JUMP_VEL = -7.2;
 const PIPE_SPEED = 2.2, PIPE_EVERY = 88;
 
-type Phase = "idle" | "playing" | "over";
 type Pipe = { x: number; topH: number; passed: boolean };
 
 export function FlappyGame() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const game = useRef({
     y: H / 2, vy: 0,
     pipes: [] as Pipe[],
@@ -19,11 +21,13 @@ export function FlappyGame() {
     alive: false,
     score: 0,
   });
-  const rafRef = useRef<number>(0);
-  const loopRef = useRef<FrameRequestCallback>(() => {});
-  // Canvas can't read the CSS var — cache the section accent triple on mount.
-  const accentRef = useRef(ACCENT_RGB.playground);
-  const [ui, setUi] = useState<{ score: number; phase: Phase }>({ score: 0, phase: "idle" });
+  const [score, setScore] = useState(0);
+
+  const { canvasRef, accentRef, phase, beginPlay, endPlay } = useCanvasGame({
+    driver: "raf",
+    step,
+    redraw: draw,
+  });
 
   function draw() {
     const ctx = canvasRef.current?.getContext("2d");
@@ -82,7 +86,7 @@ export function FlappyGame() {
     game.current.vy = JUMP_VEL;
   }
 
-  loopRef.current = () => {
+  function step() {
     const s = game.current;
     if (!s.alive) return;
     s.vy += GRAVITY;
@@ -100,7 +104,7 @@ export function FlappyGame() {
       if (!p.passed && p.x + PIPE_W < BIRD_X - BIRD_R) {
         p.passed = true;
         s.score++;
-        setUi({ score: s.score, phase: "playing" });
+        setScore(s.score);
       }
     });
     // collision: ceiling / floor / pipes
@@ -111,29 +115,20 @@ export function FlappyGame() {
       );
     if (dead) {
       s.alive = false;
-      cancelAnimationFrame(rafRef.current!);
-      setUi({ score: s.score, phase: "over" });
+      endPlay();
       draw();
       return;
     }
     draw();
-    rafRef.current = requestAnimationFrame(t => loopRef.current(t));
-  };
+  }
 
   function start() {
     const s = game.current;
     s.y = H / 2; s.vy = -3; s.pipes = []; s.frame = 0; s.alive = true; s.score = 0;
-    setUi({ score: 0, phase: "playing" });
-    cancelAnimationFrame(rafRef.current!);
-    rafRef.current = requestAnimationFrame(t => loopRef.current(t));
+    setScore(0);
+    beginPlay();
     canvasRef.current?.focus();
   }
-
-  useEffect(() => {
-    accentRef.current = readAccentRgb(canvasRef.current);
-    draw();
-    return () => cancelAnimationFrame(rafRef.current!);
-  }, []);
 
   function onKey(e: React.KeyboardEvent) {
     if (e.key === " " || e.key === "ArrowUp") {
@@ -155,32 +150,26 @@ export function FlappyGame() {
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <div className="relative select-none">
+      <GameShell
+        phase={phase}
+        overlay={
+          <GameOverlay
+            phase={phase}
+            title="FLAPPY BIRD"
+            score={score}
+            hint="space or click to flap"
+            onStart={start}
+          />
+        }
+      >
         <canvas
           ref={canvasRef} width={W} height={H} tabIndex={0}
           onKeyDown={onKey} onClick={onClick} onTouchStart={onTouch}
           className="block cursor-pointer border border-[rgba(255,255,255,0.06)] outline-none focus:border-accent/[0.25]"
           style={{ touchAction: "none" }}
         />
-        {ui.phase !== "playing" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[rgba(0,0,0,0.85)]">
-            <p className="mono text-[11px] font-bold tracking-[0.15em] text-white">
-              {ui.phase === "over" ? "GAME OVER" : "FLAPPY BIRD"}
-            </p>
-            {ui.phase === "over" && (
-              <p className="mono text-[9px] text-accent/[0.65]">score — {ui.score}</p>
-            )}
-            <button
-              onClick={start}
-              className="mono border border-accent/[0.4] px-5 py-2 text-[9px] tracking-[0.18em] text-accent/[0.8] transition-colors hover:border-accent hover:text-accent"
-            >
-              {ui.phase === "over" ? "RESTART" : "START"}
-            </button>
-            <p className="mono text-[8px] text-[#2a2a2a]">space or click to flap</p>
-          </div>
-        )}
-      </div>
-      {ui.phase !== "idle" && <p className="mono text-[9px] text-accent/[0.45]">score — {ui.score}</p>}
+      </GameShell>
+      {phase !== "idle" && <p className="mono text-[9px] text-accent/[0.45]">score — {score}</p>}
     </div>
   );
 }
