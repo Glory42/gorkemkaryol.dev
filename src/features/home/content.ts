@@ -12,7 +12,7 @@ export interface TechItem {
 }
 
 export const introText =
-  "I’m a software engineer building web apps and experimenting with different parts of the stack. I like working on real projects, trying out new tools, and figuring out better ways to build and ship things.";
+  "I’m a software engineer who builds web apps and likes working across the whole stack. Most of my time goes to real projects, picking up new tools along the way and looking for better ways to build and ship.";
 
 export const contactItems: ContactItem[] = [
   { href: "https://github.com/glory42", label: "GitHub", icon: "github" },
