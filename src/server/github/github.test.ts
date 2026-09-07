@@ -119,3 +119,44 @@ describe("getGithubProjects — mapping through the interface", () => {
     expect(calls).toHaveLength(0);
   });
 });
+
+describe("getGithubProjects — rate limit from response headers", () => {
+  function ctxWithHeaders(body: unknown, headers: Record<string, string>) {
+    return sourceCtx({
+      runtime: createInMemoryRuntime({
+        responses: [{ url: "api.github.com/graphql", body, headers }],
+      }),
+    });
+  }
+
+  it("derives rateLimit from x-ratelimit-* headers when the body omits it", async () => {
+    const result = await getGithubProjects(
+      ENV,
+      ctxWithHeaders(overviewBody({ rateLimit: undefined }), {
+        "x-ratelimit-limit": "5000",
+        "x-ratelimit-remaining": "4998",
+        "x-ratelimit-reset": "1735700400",
+      }),
+    );
+    if (!result.ok) throw new Error("expected ok");
+    expect(result.data.rateLimit).toEqual({
+      limit: 5000,
+      remaining: 4998,
+      resetAt: new Date(1735700400 * 1000).toISOString(),
+      cost: 0,
+    });
+  });
+
+  it("leaves rateLimit null when a header is non-numeric", async () => {
+    const result = await getGithubProjects(
+      ENV,
+      ctxWithHeaders(overviewBody({ rateLimit: undefined }), {
+        "x-ratelimit-limit": "5000",
+        "x-ratelimit-remaining": "not-a-number",
+        "x-ratelimit-reset": "1735700400",
+      }),
+    );
+    if (!result.ok) throw new Error("expected ok");
+    expect(result.data.rateLimit).toBeNull();
+  });
+});

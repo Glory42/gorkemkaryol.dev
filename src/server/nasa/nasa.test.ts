@@ -123,4 +123,27 @@ describe("nasa — mapping through the transport seam", () => {
     await getApod(ENV, ctx);
     expect(calls).toHaveLength(1);
   });
+
+  it("repairs a clipped explanation by scraping the APOD page", async () => {
+    const ctx = ctxFor([
+      {
+        url: "planetary/apod",
+        body: {
+          title: "Eclipse Season",
+          date: today,
+          explanation: "clipses tend to come in pairs.",
+          media_type: "image",
+          url: "https://apod.nasa.gov/img.jpg",
+        },
+      },
+      {
+        url: "apod.nasa.gov/apod/ap",
+        body: '<b>Explanation:</b> <a href="x">E</a>clipses tend to come in pairs. <p> Bob',
+      },
+    ]);
+
+    const result = await getApod(ENV, ctx);
+    if (!result.ok) throw new Error("expected ok");
+    expect(result.data.explanation).toBe("Eclipses tend to come in pairs.");
+  });
 });

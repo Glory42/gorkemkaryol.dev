@@ -62,6 +62,22 @@ describe("graphqlRequest", () => {
     if (!result.ok) expect(result.error.code).toBe("UPSTREAM_ERROR");
   });
 
+  it("treats an explicit data: null as a retryable no-data failure", async () => {
+    const result = await graphqlRequest({
+      url: URL,
+      query: "{ x }",
+      label: "GitHub",
+      http: httpWith({ data: null }),
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe("UPSTREAM_ERROR");
+      expect(result.error.message).toBe("GitHub response did not include data");
+      expect(result.error.retryable).toBe(true);
+    }
+  });
+
   it("hands the transport status + headers to onMeta", async () => {
     let seen: { status: number; headers: Headers } | null = null;
     await graphqlRequest({
