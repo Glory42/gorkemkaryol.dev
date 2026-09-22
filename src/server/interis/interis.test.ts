@@ -35,9 +35,9 @@ const PROFILE = {
   username: "gk",
   displayUsername: "GK",
   stats: {
-    filmEntryCount: 1,
+    movieEntryCount: 1,
     serialEntryCount: 2,
-    filmCount: 3,
+    movieCount: 3,
     reviewCount: 4,
     listCount: 5,
     followerCount: 6,
@@ -46,13 +46,13 @@ const PROFILE = {
 };
 
 describe("getInterisData", () => {
-  it("splits the top4 categories into cinema / serial and attaches the profile", async () => {
+  it("splits the top4 categories into movie / serial and attaches the profile", async () => {
     const ctx = ctxFor([
       {
         url: "/api/public/gk/top4",
         body: {
           categories: [
-            { key: "cinema", supported: true, items: [top4Item({ slot: 1 })] },
+            { key: "movie", supported: true, items: [top4Item({ slot: 1 })] },
             {
               key: "serial",
               supported: true,
@@ -67,7 +67,7 @@ describe("getInterisData", () => {
     const result = await getInterisData(ENV, ctx);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.data.cinema.map((i) => i.slot)).toEqual([1]);
+    expect(result.data.movie.map((i) => i.slot)).toEqual([1]);
     expect(result.data.serial.map((i) => i.slot)).toEqual([2]);
     expect(result.data.profile.username).toBe("gk");
   });
@@ -78,7 +78,7 @@ describe("getInterisData", () => {
         url: "/api/public/gk/top4",
         body: {
           categories: [
-            { key: "cinema", supported: true, items: [top4Item()] },
+            { key: "movie", supported: true, items: [top4Item()] },
           ],
         },
       },
@@ -88,7 +88,7 @@ describe("getInterisData", () => {
     const result = await getInterisData(ENV, ctx);
     if (!result.ok) throw new Error("expected ok");
     expect(result.data.serial).toEqual([]);
-    expect(result.data.cinema).toHaveLength(1);
+    expect(result.data.movie).toHaveLength(1);
   });
 
   it("propagates a top4 transport failure", async () => {
@@ -104,7 +104,7 @@ describe("getInterisData", () => {
     const ctx = ctxFor([
       {
         url: "/api/public/gk/top4",
-        body: { categories: [{ key: "cinema", supported: true, items: [] }] },
+        body: { categories: [{ key: "movie", supported: true, items: [] }] },
       },
       { url: "/api/public/gk/profile", status: 500, body: { down: true } },
     ]);

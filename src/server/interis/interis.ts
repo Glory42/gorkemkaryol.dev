@@ -24,7 +24,7 @@ export interface InterisTop4Item {
 }
 
 interface Top4Category {
-  key: "cinema" | "serial";
+  key: "movie" | "serial";
   supported: boolean;
   items: InterisTop4Item[];
 }
@@ -37,9 +37,9 @@ export interface InterisProfile {
   username: string;
   displayUsername: string;
   stats: {
-    filmEntryCount: number;
+    movieEntryCount: number;
     serialEntryCount: number;
-    filmCount: number;
+    movieCount: number;
     reviewCount: number;
     listCount: number;
     followerCount: number;
@@ -48,7 +48,7 @@ export interface InterisProfile {
 }
 
 export interface InterisData {
-  cinema: InterisTop4Item[];
+  movie: InterisTop4Item[];
   serial: InterisTop4Item[];
   profile: InterisProfile;
 }
@@ -142,7 +142,7 @@ export async function getInterisData(
 
   const { categories } = top4.data;
   return ok({
-    cinema: categories.find((c) => c.key === "cinema")?.items ?? [],
+    movie: categories.find((c) => c.key === "movie")?.items ?? [],
     serial: categories.find((c) => c.key === "serial")?.items ?? [],
     profile: profile.data,
   });

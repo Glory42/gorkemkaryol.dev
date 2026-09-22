@@ -137,7 +137,7 @@ function WatchingPage() {
       promptAside={
         profile.ok ? (
           <p className="mono text-[10px] text-accent/[0.45]">
-            {profile.data.stats.filmCount} films ·{" "}
+            {profile.data.stats.movieCount} films ·{" "}
             {profile.data.stats.serialEntryCount} series watched
           </p>
         ) : undefined

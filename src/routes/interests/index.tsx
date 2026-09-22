@@ -124,7 +124,7 @@ function InterestsPage() {
         >
           {(data) => (
             <p className="mono mb-3 text-[10px] text-accent/[0.45]">
-              {data.profile.stats.filmCount} films · {data.profile.stats.serialEntryCount} series watched
+              {data.profile.stats.movieCount} films · {data.profile.stats.serialEntryCount} series watched
             </p>
           )}
         </DataSection>
@@ -195,7 +195,7 @@ function InterestsPage() {
                     <div>
                       <SubLabel label="Films" icon={Film} />
                       <ShelfList
-                        items={data.cinema.slice(0, 2).map(top4ToDisplayItem)}
+                        items={data.movie.slice(0, 2).map(top4ToDisplayItem)}
                         emptyTitle="No picks added yet"
                         emptyDescription="No top films added on Interis."
                       />

@@ -91,7 +91,7 @@ describe("watched serial / movie", () => {
     });
   });
 
-  it("maps a watched movie to its release year and films href", () => {
+  it("maps a watched movie to its release year and movies href", () => {
     const movie: WatchedMovie = {
       tmdbId: 9,
       title: "Arrival",
@@ -103,7 +103,7 @@ describe("watched serial / movie", () => {
     };
     const item = watchedMovieToDisplayItem(movie);
     expect(item.subtitle).toBeNull();
-    expect(item.href).toBe("https://interis.gorkemkaryol.dev/films/9");
+    expect(item.href).toBe("https://interis.gorkemkaryol.dev/movies/9");
   });
 });
 
@@ -118,9 +118,9 @@ describe("top4ToDisplayItem", () => {
     ...over,
   });
 
-  it("routes movies to /films and series to /serials", () => {
+  it("routes movies to /movies and series to /serials", () => {
     expect(top4ToDisplayItem(top()).href).toBe(
-      "https://interis.gorkemkaryol.dev/films/244786",
+      "https://interis.gorkemkaryol.dev/movies/244786",
     );
     expect(top4ToDisplayItem(top({ mediaType: "serial" })).href).toBe(
       "https://interis.gorkemkaryol.dev/serials/244786",

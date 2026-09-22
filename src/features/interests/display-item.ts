@@ -66,13 +66,13 @@ export function watchedMovieToDisplayItem(movie: WatchedMovie): DisplayItem {
     title: movie.title,
     subtitle: movie.releaseYear ? String(movie.releaseYear) : null,
     imageUrl: tmdbPoster(movie.posterPath),
-    href: `${INTERIS_BASE}/films/${movie.tmdbId}`,
+    href: `${INTERIS_BASE}/movies/${movie.tmdbId}`,
     progressPercent: null,
   };
 }
 
 export function top4ToDisplayItem(item: InterisTop4Item): DisplayItem {
-  const segment = item.mediaType === "movie" ? "films" : "serials";
+  const segment = item.mediaType === "movie" ? "movies" : "serials";
   return {
     id: item.slot,
     title: item.title,
