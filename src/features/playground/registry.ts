@@ -15,7 +15,8 @@ export interface PlaygroundEntry {
     | "/playground/games"
     | "/playground/space"
     | "/playground/sysinfo"
-    | "/playground/whoami";
+    | "/playground/whoami"
+    | "/playground/shell";
   title: string;
   blurb: string;
   icon: LucideIcon;
@@ -59,10 +60,11 @@ export const playgroundEntries: PlaygroundEntry[] = [
   },
   {
     slug: "shell",
+    href: "/playground/shell",
     title: "shell",
     blurb: "a real prompt, the way the rest of the site only pretends to be one.",
     icon: SquareTerminal,
-    status: "soon",
+    status: "live",
   },
 ];
 

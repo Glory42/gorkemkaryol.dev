@@ -21,6 +21,7 @@ import { Route as ProjectsSlugRouteImport } from './routes/projects/$slug'
 import { Route as PlaygroundWhoamiRouteImport } from './routes/playground/whoami'
 import { Route as PlaygroundSysinfoRouteImport } from './routes/playground/sysinfo'
 import { Route as PlaygroundSpaceRouteImport } from './routes/playground/space'
+import { Route as PlaygroundShellRouteImport } from './routes/playground/shell'
 import { Route as PlaygroundGamesRouteImport } from './routes/playground/games'
 import { Route as InterestsWatchingRouteImport } from './routes/interests/watching'
 import { Route as InterestsReadingRouteImport } from './routes/interests/reading'
@@ -85,6 +86,11 @@ const PlaygroundSpaceRoute = PlaygroundSpaceRouteImport.update({
   path: '/space',
   getParentRoute: () => PlaygroundRouteRoute,
 } as any)
+const PlaygroundShellRoute = PlaygroundShellRouteImport.update({
+  id: '/shell',
+  path: '/shell',
+  getParentRoute: () => PlaygroundRouteRoute,
+} as any)
 const PlaygroundGamesRoute = PlaygroundGamesRouteImport.update({
   id: '/games',
   path: '/games',
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/interests/reading': typeof InterestsReadingRoute
   '/interests/watching': typeof InterestsWatchingRoute
   '/playground/games': typeof PlaygroundGamesRoute
+  '/playground/shell': typeof PlaygroundShellRoute
   '/playground/space': typeof PlaygroundSpaceRoute
   '/playground/sysinfo': typeof PlaygroundSysinfoRoute
   '/playground/whoami': typeof PlaygroundWhoamiRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/interests/reading': typeof InterestsReadingRoute
   '/interests/watching': typeof InterestsWatchingRoute
   '/playground/games': typeof PlaygroundGamesRoute
+  '/playground/shell': typeof PlaygroundShellRoute
   '/playground/space': typeof PlaygroundSpaceRoute
   '/playground/sysinfo': typeof PlaygroundSysinfoRoute
   '/playground/whoami': typeof PlaygroundWhoamiRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/interests/reading': typeof InterestsReadingRoute
   '/interests/watching': typeof InterestsWatchingRoute
   '/playground/games': typeof PlaygroundGamesRoute
+  '/playground/shell': typeof PlaygroundShellRoute
   '/playground/space': typeof PlaygroundSpaceRoute
   '/playground/sysinfo': typeof PlaygroundSysinfoRoute
   '/playground/whoami': typeof PlaygroundWhoamiRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/interests/reading'
     | '/interests/watching'
     | '/playground/games'
+    | '/playground/shell'
     | '/playground/space'
     | '/playground/sysinfo'
     | '/playground/whoami'
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/interests/reading'
     | '/interests/watching'
     | '/playground/games'
+    | '/playground/shell'
     | '/playground/space'
     | '/playground/sysinfo'
     | '/playground/whoami'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/interests/reading'
     | '/interests/watching'
     | '/playground/games'
+    | '/playground/shell'
     | '/playground/space'
     | '/playground/sysinfo'
     | '/playground/whoami'
@@ -295,6 +307,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlaygroundSpaceRouteImport
       parentRoute: typeof PlaygroundRouteRoute
     }
+    '/playground/shell': {
+      id: '/playground/shell'
+      path: '/shell'
+      fullPath: '/playground/shell'
+      preLoaderRoute: typeof PlaygroundShellRouteImport
+      parentRoute: typeof PlaygroundRouteRoute
+    }
     '/playground/games': {
       id: '/playground/games'
       path: '/games'
@@ -337,6 +356,7 @@ const InterestsRouteRouteWithChildren = InterestsRouteRoute._addFileChildren(
 
 interface PlaygroundRouteRouteChildren {
   PlaygroundGamesRoute: typeof PlaygroundGamesRoute
+  PlaygroundShellRoute: typeof PlaygroundShellRoute
   PlaygroundSpaceRoute: typeof PlaygroundSpaceRoute
   PlaygroundSysinfoRoute: typeof PlaygroundSysinfoRoute
   PlaygroundWhoamiRoute: typeof PlaygroundWhoamiRoute
@@ -345,6 +365,7 @@ interface PlaygroundRouteRouteChildren {
 
 const PlaygroundRouteRouteChildren: PlaygroundRouteRouteChildren = {
   PlaygroundGamesRoute: PlaygroundGamesRoute,
+  PlaygroundShellRoute: PlaygroundShellRoute,
   PlaygroundSpaceRoute: PlaygroundSpaceRoute,
   PlaygroundSysinfoRoute: PlaygroundSysinfoRoute,
   PlaygroundWhoamiRoute: PlaygroundWhoamiRoute,
