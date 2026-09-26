@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { Play } from "lucide-react";
 import { pageHead } from "@/components/layout/page";
 
 const LINES = [
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/playground/sysinfo")({
 function SysinfoPage() {
   const [shown, setShown] = useState(0);
   const [revealed, setRevealed] = useState(false);
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     if (shown >= LINES.length) {
@@ -44,20 +46,32 @@ function SysinfoPage() {
   return (
     <div>
       <p className="mono mb-4 text-[11px] text-accent/[0.6]">
-        // track resolved: never gonna give you up
+        {playing ? "// track resolved: never gonna give you up" : "// resolving track ..."}
       </p>
       <div className="relative aspect-video w-full overflow-hidden border border-[rgba(255,255,255,0.06)]">
-        <iframe
-          className="absolute inset-0 h-full w-full"
-          src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&rel=0&playsinline=1"
-          title="sysinfo playback"
-          allow="autoplay; encrypted-media; picture-in-picture"
-          allowFullScreen
-        />
+        {playing ? (
+          <iframe
+            className="absolute inset-0 h-full w-full"
+            src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0&playsinline=1"
+            title="sysinfo playback"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPlaying(true)}
+            className="mono absolute inset-0 flex w-full items-center justify-center bg-black text-accent/[0.7] transition-colors hover:text-accent"
+          >
+            <Play size={20} />
+          </button>
+        )}
       </div>
-      <p className="mono mt-3 text-[10px] text-[#3a3a3a]">
-        you have been rickrolled. carry on.
-      </p>
+      {playing && (
+        <p className="mono mt-3 text-[10px] text-[#3a3a3a]">
+          you have been rickrolled. carry on.
+        </p>
+      )}
     </div>
   );
 }
