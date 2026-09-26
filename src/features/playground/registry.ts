@@ -1,6 +1,7 @@
 import {
   Fingerprint,
   Gamepad2,
+  Keyboard,
   Music2,
   Rocket,
   SquareTerminal,
@@ -65,6 +66,13 @@ export const playgroundEntries: PlaygroundEntry[] = [
     blurb: "a real prompt, the way the rest of the site only pretends to be one.",
     icon: SquareTerminal,
     status: "live",
+  },
+  {
+    slug: "typing",
+    title: "typing",
+    blurb: "how fast are your fingers, actually.",
+    icon: Keyboard,
+    status: "soon",
   },
 ];
 
