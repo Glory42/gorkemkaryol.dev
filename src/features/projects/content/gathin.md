@@ -10,17 +10,22 @@ and a full organizer panel - instead of stitching five separate tools together.
 
 ## What I built
 
-On the frontend team since April 2026 - ~150 commits across 22 PRs, spanning the
-attendee site and the organizer panel.
+On the frontend team since April 2026 - ~260 commits across 39 merged PRs,
+spanning the attendee site and the organizer panel.
 
 - Rebuilt the **profile and community pages** around a shared events timeline, and
   merged the split Participant/Organizer views into one members modal.
+- Made **Events the homepage** and retired the separate Discover page, with a
+  marketing landing for signed-out visitors.
+- Built **Community Wall** (Twitter-style posts on a real backend) and the
+  **Community Showcase**, a permanent join-order list of communities.
 - Redesigned the **event gallery** into a Google-Photos-style grid, and the
   **blog** around a featured post with card polish.
 - Shipped a **direct-message** flow between attendees and event organizers.
-- Built **client-side ticket poster sharing** (three skins, three sizes) and an
-  **avatar hover-card** used across the app.
-- Added **event schedule** support, **community sponsor management**, **speaker
+- Built **client-side ticket poster sharing** (three skins, three sizes), an
+  **avatar hover-card** used across the app, and a **profile QR code**.
+- Added **event schedule** support, **community sponsor management** with
+  selectable display styles (Marquee, Spotlight, Tiered Grid), **speaker
   drag-and-drop ordering**, and **Excel export** for ticket holders to the panel.
 - Wired **language preference** to persist through the backend; fixed a Places API
   race in the location picker and a cursor-reset bug in the rich-text editor.
