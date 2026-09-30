@@ -90,7 +90,7 @@ function fastfetchOutput(): { lines: string[]; rich: ShellSegment[][] } {
     "-----------------",
     `OS: ${osName} x86_64`,
     `Host: ${spec("Laptop")}`,
-    "Kernel: 6.12.10-arch1-1",
+    "Kernel: 7.2.5-3-arch1-1",
     `Uptime: ${uptimeSinceLaunch()}`,
     "Shell: zsh 5.9",
     `WM: ${wm}`,
