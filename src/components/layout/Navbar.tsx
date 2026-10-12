@@ -3,6 +3,10 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { activeSectionHref, navigationItems } from "@/lib/navigation";
 
+// JetBrains Mono's descent is deep, so flex-centring puts the icon ~2px below
+// the middle of the uppercase label; nudge it back up onto the cap height.
+const ICON_NUDGE = "-translate-y-[2px]";
+
 export function Navbar() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
@@ -29,7 +33,7 @@ export function Navbar() {
                   : "text-fg-3 hover:text-fg-1"
               }`}
             >
-              <Icon size={11} />
+              <Icon size={11} className={ICON_NUDGE} />
               {item.label}
             </Link>
           );
@@ -62,7 +66,7 @@ export function Navbar() {
                       : "text-fg-3 hover:text-white"
                   }`}
                 >
-                  <Icon size={11} />
+                  <Icon size={11} className={ICON_NUDGE} />
                   {item.label}
                 </Link>
               );
