@@ -11,6 +11,7 @@ import {
 } from "@tanstack/react-router";
 import { FooterBadge } from "@/components/layout/FooterBadge";
 import { Navbar } from "@/components/layout/Navbar";
+import { CommandPalette } from "@/features/palette/CommandPalette";
 import { accentForPath } from "@/lib/navigation";
 import { sectionAccentCss } from "@/lib/sections";
 import appCss from "@/styles/app.css?url";
@@ -60,6 +61,7 @@ function RootComponent() {
         <Outlet />
       </div>
       <FooterBadge />
+      <CommandPalette />
     </div>
   );
 }

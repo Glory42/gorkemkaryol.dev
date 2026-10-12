@@ -1,3 +1,5 @@
+import { openCommandPalette } from "@/features/palette/CommandPalette";
+
 export function FooterBadge() {
   return (
     <footer className="mt-10 border-t border-[rgba(255,255,255,0.05)] px-[max(24px,4vw)] py-[18px]">
@@ -8,6 +10,15 @@ export function FooterBadge() {
             GORKEM KARYOL
           </span>
           <span className="h-[3px] w-[3px] bg-accent/[0.3]" />
+          {/* Unlabelled on purpose: the palette is a little secret. */}
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            aria-label="Open command palette"
+            className="focus-ring mono ml-1 cursor-pointer text-[10px] tracking-[0.1em] text-fg-4 opacity-60 transition-[color,opacity] duration-300 hover:text-accent hover:opacity-100"
+          >
+            ^K
+          </button>
         </div>
 
         <a
