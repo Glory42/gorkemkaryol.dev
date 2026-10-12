@@ -91,7 +91,7 @@ export function ContributionGrid({ calendar }: Props) {
   return (
     <section>
       <div className="mb-4 flex items-center gap-3">
-        <span className="mono text-[9px] tracking-[0.25em] text-accent/[0.4] uppercase">
+        <span className="mono text-[10px] tracking-[0.25em] text-accent/[0.6] uppercase">
           ./projects/contributions —{" "}
           <span className="text-accent/[0.65]">{totalContributions}</span>
         </span>
@@ -132,12 +132,12 @@ export function ContributionGrid({ calendar }: Props) {
             className="pointer-events-none absolute z-30 -translate-x-1/2 -translate-y-full border border-accent/[0.4] bg-black px-2.5 py-1.5"
             style={{ left: hover.x, top: hover.y - 12 }}
           >
-            <span className="mono whitespace-nowrap text-[10px] tracking-[0.02em]">
+            <span className="mono whitespace-nowrap text-[11px] tracking-[0.02em]">
               <span className="font-semibold text-accent">{hover.count}</span>{" "}
-              <span className="text-[var(--text-2)]">
+              <span className="text-fg-2">
                 {hover.count === 1 ? "contribution" : "contributions"} on{" "}
               </span>
-              <span className="text-[var(--text-1)]">{formatContributionDate(hover.date)}</span>
+              <span className="text-fg-1">{formatContributionDate(hover.date)}</span>
             </span>
           </div>
         )}

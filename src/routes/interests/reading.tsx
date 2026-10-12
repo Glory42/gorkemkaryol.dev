@@ -53,7 +53,7 @@ function ReadingPage() {
       cmd={CMD}
       promptAside={
         result.ok ? (
-          <p className="mono text-[10px] text-accent/[0.45]">
+          <p className="mono text-[11px] text-accent/[0.6]">
             {result.data.finishedBooks.length} books read ·{" "}
             {result.data.currentlyReading.length} reading
           </p>

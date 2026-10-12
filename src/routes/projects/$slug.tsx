@@ -74,7 +74,7 @@ function ReadmeLink({ readme }: { readme: ProjectReadme }) {
       href={readme.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.08em] text-[#333] no-underline transition-colors hover:text-accent/[0.85]"
+      className="focus-ring mono inline-flex items-center gap-1.5 text-[11px] tracking-[0.08em] text-fg-4 no-underline transition-colors hover:text-accent/[0.85]"
       aria-label={
         readme.kind === "manual"
           ? `Visit ${readme.title}`

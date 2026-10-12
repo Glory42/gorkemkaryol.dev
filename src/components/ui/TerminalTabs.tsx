@@ -25,10 +25,10 @@ export function TerminalTabs<T extends string>({
           key={opt.id}
           type="button"
           onClick={() => onChange(opt.id)}
-          className={`focus-ring mono border px-4 py-2 text-[9px] tracking-[0.15em] uppercase transition-colors ${
+          className={`focus-ring mono border px-4 py-2 text-[10px] tracking-[0.15em] uppercase transition-colors ${
             value === opt.id
               ? "border-accent/[0.5] text-accent"
-              : "border-[rgba(255,255,255,0.06)] text-[#3a3a3a] hover:border-accent/[0.3] hover:text-accent/[0.7]"
+              : "border-[rgba(255,255,255,0.06)] text-fg-3 hover:border-accent/[0.3] hover:text-accent/[0.7]"
           }`}
         >
           {opt.label}
@@ -55,7 +55,7 @@ export function TerminalButton({
     <button
       type="button"
       onClick={onClick}
-      className={`focus-ring mono border px-5 py-2 text-[9px] tracking-[0.18em] transition-colors ${
+      className={`focus-ring mono border px-5 py-2 text-[10px] tracking-[0.18em] transition-colors ${
         selected
           ? "border-accent/[0.5] text-accent"
           : "border-accent/[0.4] text-accent/[0.8] hover:border-accent hover:text-accent"

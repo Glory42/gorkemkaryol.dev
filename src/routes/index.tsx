@@ -31,30 +31,30 @@ function HomePage() {
         </h1>
 
         <div className="mb-3 flex items-center gap-2.5 animate-fade-in-down delay-50">
-          <span className="mono text-[11px] text-[#444]">Istanbul, Türkiye</span>
+          <span className="mono text-[12px] text-fg-3">Istanbul, Türkiye</span>
           <span className="h-[10px] w-px bg-[rgba(255,255,255,0.07)]" />
-          <span className="mono text-[11px] text-[#2e2e2e]">
+          <span className="mono text-[12px] text-fg-4">
             <LiveClock
               location="Europe/Istanbul"
               shortName="UTC+3"
               showAt={false}
-              timezoneClassName="text-[#252525]"
+              timezoneClassName="text-fg-4"
             />
           </span>
         </div>
 
         <div className="mb-5 flex items-center gap-2 animate-fade-in-down delay-100">
-          <span className="mono text-[11px] text-accent/[0.65]">→</span>
+          <span className="mono text-[12px] text-accent/[0.65]">→</span>
           <span className="inline-flex items-center">
             <RotatingPrompt
-              className="mono text-[11px] text-[#555]"
+              className="mono text-[12px] text-fg-2"
               words={["software engineer", "linux enjoyer", "web developer"]}
             />
-            <span className="mono text-[11px] text-accent/[0.55] animate-pulse">_</span>
+            <span className="mono text-[12px] text-accent/[0.65] animate-pulse">_</span>
           </span>
         </div>
 
-        <p className="mb-5 text-[12px] leading-[1.75] text-[#444] animate-fade-in-up delay-150">
+        <p className="mb-5 text-[13px] leading-[1.75] text-fg-3 animate-fade-in-up delay-150">
           {introText}
         </p>
 
@@ -65,7 +65,7 @@ function HomePage() {
 
       <section>
         <div className="mb-5 flex items-center gap-3">
-          <span className="mono text-[9px] tracking-[0.25em] text-accent/[0.55] uppercase">
+          <span className="mono text-[10px] tracking-[0.25em] text-accent/[0.65] uppercase">
             ./me/setup
           </span>
           <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
@@ -77,11 +77,11 @@ function HomePage() {
             return (
               <div key={item.title}>
                 <div className="group flex items-center gap-4">
-                  <Icon size={13} className="shrink-0 text-[#282828]" />
-                  <span className="mono w-[180px] shrink-0 text-[12px] text-[rgba(255,255,255,0.7)] transition-colors duration-150 group-hover:text-accent">
+                  <Icon size={13} className="shrink-0 text-fg-4" />
+                  <span className="mono w-[180px] shrink-0 text-[13px] text-[rgba(255,255,255,0.7)] transition-colors duration-150 group-hover:text-accent">
                     {item.spec}
                   </span>
-                  <span className="mono text-[11px] text-[#333] italic">
+                  <span className="mono text-[12px] text-fg-4 italic">
                     // {item.description}
                   </span>
                 </div>

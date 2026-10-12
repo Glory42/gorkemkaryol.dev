@@ -27,14 +27,14 @@ export function ProjectsGrid({ repos }: Props) {
                 {repo.name}
               </Link>
               {repo.description && (
-                <p className="mt-1 text-[12px] leading-[1.6] text-[#444]">
+                <p className="mt-1 text-[13px] leading-[1.6] text-fg-3">
                   {repo.description}
                 </p>
               )}
               {(tags.length > 0 || lang) && (
                 <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
                   {lang && (
-                    <span className="mono text-[10px] text-[#383838]">{lang}</span>
+                    <span className="mono text-[11px] text-fg-3">{lang}</span>
                   )}
                   {lang && tags.length > 0 && (
                     <span className="h-[10px] w-px bg-[rgba(255,255,255,0.07)]" />
@@ -42,7 +42,7 @@ export function ProjectsGrid({ repos }: Props) {
                   {tags.map((tag) => (
                     <span
                       key={tag}
-                      className="mono border border-accent/[0.3] px-[6px] py-[2px] text-[8px] tracking-[0.08em] text-accent/[0.65]"
+                      className="mono border border-accent/[0.3] px-[6px] py-[2px] text-[9px] tracking-[0.08em] text-accent/[0.65]"
                     >
                       {tag}
                     </span>
@@ -53,7 +53,7 @@ export function ProjectsGrid({ repos }: Props) {
 
             <div className="flex shrink-0 items-center gap-2.5 pt-[2px]">
               {repo.stargazerCount > 0 && (
-                <span className="mono flex items-center gap-1 text-[11px] text-[#333]">
+                <span className="mono flex items-center gap-1 text-[12px] text-fg-4">
                   <Star size={9} className="text-[rgba(246,193,119,0.6)]" />
                   {repo.stargazerCount}
                 </span>
@@ -62,7 +62,7 @@ export function ProjectsGrid({ repos }: Props) {
                 href={repo.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="focus-ring text-[#2a2a2a] transition-colors hover:text-accent"
+                className="focus-ring text-fg-4 transition-colors hover:text-accent"
                 aria-label={`Open ${repo.name} on GitHub`}
               >
                 <ExternalLink size={10} />

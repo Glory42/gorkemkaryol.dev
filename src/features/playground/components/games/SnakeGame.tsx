@@ -146,14 +146,14 @@ export function SnakeGame() {
         phase={phase}
         overlay={
           <>
-            <p className="mono text-[11px] font-bold tracking-[0.15em] text-white">
+            <p className="mono text-[12px] font-bold tracking-[0.15em] text-white">
               {phase === "over" ? "GAME OVER" : "SNAKE"}
             </p>
             {phase === "over" && (
-              <p className="mono text-[9px] text-accent/[0.65]">score — {score}</p>
+              <p className="mono text-[10px] text-accent/[0.65]">score — {score}</p>
             )}
             <div className="flex flex-col items-center gap-3">
-              <p className="mono text-[8px] text-[#444]">
+              <p className="mono text-[9px] text-fg-3">
                 {phase === "over" ? "play again:" : "choose border mode:"}
               </p>
               <div className="flex gap-2">
@@ -161,7 +161,7 @@ export function SnakeGame() {
                 <ModeBtn m="wrap" label="WRAP" />
               </div>
             </div>
-            <p className="mono text-[8px] text-[#2a2a2a]">arrow keys or wasd</p>
+            <p className="mono text-[9px] text-fg-4">arrow keys or wasd</p>
           </>
         }
       >
@@ -172,7 +172,7 @@ export function SnakeGame() {
           style={{ touchAction: "none" }}
         />
       </GameShell>
-      {phase !== "idle" && <p className="mono text-[9px] text-accent/[0.45]">score — {score}</p>}
+      {phase !== "idle" && <p className="mono text-[10px] text-accent/[0.6]">score — {score}</p>}
     </div>
   );
 }

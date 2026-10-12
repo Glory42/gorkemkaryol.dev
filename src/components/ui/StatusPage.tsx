@@ -40,7 +40,7 @@ export function StatusPage({
     >
       <section className="panel p-6">
         <p
-          className={`mono text-[11px] tracking-[0.15em] ${
+          className={`mono text-[12px] tracking-[0.15em] ${
             variant === "error"
               ? "text-[rgba(248,113,113,0.85)]"
               : "text-accent/[0.65]"
@@ -49,12 +49,12 @@ export function StatusPage({
           {preset.eyebrow}
         </p>
         <h1 className="mono mt-2 text-xl text-white">{title ?? preset.title}</h1>
-        <p className="mt-3 text-sm text-[#555]">{message ?? preset.message}</p>
+        <p className="mt-3 text-sm text-fg-2">{message ?? preset.message}</p>
 
         <div className="mt-5">
           <Link
             to={backTo}
-            className="focus-ring mono inline-flex items-center border border-[rgba(255,255,255,0.08)] px-3 py-2 text-[10px] uppercase tracking-[0.12em] text-[#555] no-underline transition-colors hover:text-white"
+            className="focus-ring mono inline-flex items-center border border-[rgba(255,255,255,0.08)] px-3 py-2 text-[11px] uppercase tracking-[0.12em] text-fg-2 no-underline transition-colors hover:text-white"
           >
             {backLabel}
           </Link>

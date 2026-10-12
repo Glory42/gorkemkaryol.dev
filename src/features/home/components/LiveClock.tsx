@@ -36,7 +36,7 @@ export function LiveClock({
   return (
     <span className={className}>
       {time}{" "}
-      <span className={timezoneClassName ?? "text-[var(--text-3)]"}>
+      <span className={timezoneClassName ?? "text-fg-3"}>
         {showAt ? `@ ${shortName}` : shortName}
       </span>
     </span>

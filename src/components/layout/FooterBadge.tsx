@@ -4,14 +4,14 @@ export function FooterBadge() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-[10px]">
           <span className="h-[3px] w-[3px] bg-accent/[0.3]" />
-          <span className="mono text-[9px] tracking-[0.15em] text-accent/[0.5]">
+          <span className="mono text-[10px] tracking-[0.15em] text-accent/[0.6]">
             GORKEM KARYOL
           </span>
           <span className="h-[3px] w-[3px] bg-accent/[0.3]" />
         </div>
 
         <a
-          className="focus-ring inline-flex items-center gap-[5px] text-[9px] tracking-[0.15em] text-accent/[0.45] no-underline transition-colors hover:text-accent/[0.85]"
+          className="focus-ring inline-flex items-center gap-[5px] text-[10px] tracking-[0.15em] text-accent/[0.6] no-underline transition-colors hover:text-accent/[0.85]"
           href="https://digitalbeacon.co/report/gorkemkaryol-dev"
           target="_blank"
           rel="noopener noreferrer"

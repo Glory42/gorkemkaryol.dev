@@ -237,7 +237,7 @@ export function TetrisGame() {
               onStart={start}
             >
               {phase === "over" && (
-                <p className="mono text-[8px] text-[#333]">
+                <p className="mono text-[9px] text-fg-4">
                   level {stats.level} · {stats.lines} lines
                 </p>
               )}
@@ -269,7 +269,7 @@ export function TetrisGame() {
       {/* Side panel — only shown while playing */}
       {phase === "playing" && <div className="flex flex-col gap-5 pt-1">
         <div>
-          <p className="mono mb-2 text-[8px] tracking-[0.18em] text-accent/[0.4]">NEXT</p>
+          <p className="mono mb-2 text-[9px] tracking-[0.18em] text-accent/[0.6]">NEXT</p>
           <canvas
             ref={nextRef} width={NW} height={NH}
             className="border border-[rgba(255,255,255,0.05)]"
@@ -278,8 +278,8 @@ export function TetrisGame() {
         <div className="flex flex-col gap-3">
           {([["SCORE", stats.score], ["LEVEL", stats.level], ["LINES", stats.lines]] as [string, number][]).map(([label, val]) => (
             <div key={label}>
-              <p className="mono text-[7px] tracking-[0.18em] text-[#2a2a2a]">{label}</p>
-              <p className="mono text-[12px] text-accent/[0.65]">{val}</p>
+              <p className="mono text-[7px] tracking-[0.18em] text-fg-4">{label}</p>
+              <p className="mono text-[13px] text-accent/[0.65]">{val}</p>
             </div>
           ))}
         </div>

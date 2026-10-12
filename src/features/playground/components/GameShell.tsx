@@ -44,17 +44,17 @@ export function GameOverlay({
 }) {
   return (
     <>
-      <p className="mono text-[11px] font-bold tracking-[0.15em] text-white">
+      <p className="mono text-[12px] font-bold tracking-[0.15em] text-white">
         {phase === "over" ? "GAME OVER" : title}
       </p>
       {phase === "over" && score != null && (
-        <p className="mono text-[9px] text-accent/[0.65]">score — {score}</p>
+        <p className="mono text-[10px] text-accent/[0.65]">score — {score}</p>
       )}
       {children}
       <TerminalButton onClick={onStart}>
         {phase === "over" ? "RESTART" : "START"}
       </TerminalButton>
-      <p className="mono text-center text-[8px] leading-[1.8] text-[#2a2a2a]">
+      <p className="mono text-center text-[9px] leading-[1.8] text-fg-4">
         {hint}
       </p>
     </>

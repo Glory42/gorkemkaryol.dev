@@ -19,7 +19,7 @@ export function ContactLinks({ items }: Props) {
             href={item.href}
             target={external ? "_blank" : undefined}
             rel={external ? "noopener noreferrer" : undefined}
-            className="focus-ring mono inline-flex items-center gap-1.5 text-[11px] tracking-[0.06em] text-[#555] no-underline transition-colors duration-150 hover:text-white"
+            className="focus-ring mono inline-flex items-center gap-1.5 text-[12px] tracking-[0.06em] text-fg-2 no-underline transition-colors duration-150 hover:text-white"
           >
             {item.icon === "github" ? (
               <GithubIcon size={11} />

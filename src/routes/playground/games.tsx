@@ -40,7 +40,7 @@ function GamesPage() {
       />
 
       <div className="flex min-h-[480px] items-center justify-center">
-        <Suspense fallback={<p className="mono text-[11px] text-[#333]">loading...</p>}>
+        <Suspense fallback={<p className="mono text-[12px] text-fg-4">loading...</p>}>
           {active === "snake" && <SnakeGame />}
           {active === "flappy" && <FlappyGame />}
           {active === "tetris" && <TetrisGame />}

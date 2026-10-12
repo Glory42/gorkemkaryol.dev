@@ -86,7 +86,7 @@ function ShellPage() {
 
   return (
     <div
-      className="mono min-h-[50vh] text-[11px] leading-[2] text-[#555]"
+      className="mono min-h-[50vh] text-[12px] leading-[2] text-fg-2"
       onClick={focusInput}
     >
       {entries.map((entry, i) => (
@@ -95,7 +95,7 @@ function ShellPage() {
           {entry.rows.length > 0 && (
             <div className="overflow-x-auto">
               {entry.rows.map((row, r) => (
-                <div key={r} className="whitespace-pre text-[#666]">
+                <div key={r} className="whitespace-pre text-fg-2">
                   {row.map((seg, s) => (
                     <span key={s} style={seg.color ? { color: seg.color } : undefined}>
                       {seg.text}
@@ -116,7 +116,7 @@ function ShellPage() {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={onKeyDown}
-          className="mono w-full min-w-0 bg-transparent text-[#666] outline-none"
+          className="mono w-full min-w-0 bg-transparent text-fg-2 outline-none"
           spellCheck={false}
           autoComplete="off"
           autoCapitalize="off"

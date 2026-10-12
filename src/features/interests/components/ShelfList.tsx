@@ -27,11 +27,11 @@ function ShelfRow({ item, isFirst }: { item: DisplayItem; isFirst: boolean }) {
         <div className="h-[52px] w-[36px] shrink-0 bg-[rgba(255,255,255,0.03)]" />
       )}
       <div className="min-w-0 flex-1">
-        <p className="text-[12px] font-medium leading-[1.3] text-[rgba(255,255,255,0.8)] transition-colors group-hover:text-accent">
+        <p className="text-[13px] font-medium leading-[1.3] text-[rgba(255,255,255,0.8)] transition-colors group-hover:text-accent">
           {item.title}
         </p>
         {item.subtitle && (
-          <p className="mt-0.5 text-[10px] text-[#444]">{item.subtitle}</p>
+          <p className="mt-0.5 text-[11px] text-fg-3">{item.subtitle}</p>
         )}
         {item.progressPercent != null && (
           <div className="mt-1.5 h-[2px] w-full overflow-hidden rounded-full bg-[rgba(255,255,255,0.05)]">

@@ -57,7 +57,7 @@ function SectionLabel({
   return (
     <div className="mb-3">
       <div className="flex items-center gap-3">
-        <span className="mono text-[9px] tracking-[0.25em] text-accent/[0.55] uppercase">
+        <span className="mono text-[10px] tracking-[0.25em] text-accent/[0.65] uppercase">
           {label}
         </span>
         <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
@@ -65,13 +65,13 @@ function SectionLabel({
       {href && (
         <Link
           to={href}
-          className="mono mt-0.5 inline-block text-[9px] tracking-[0.15em] text-accent/[0.45] no-underline transition-colors hover:text-accent/[0.85]"
+          className="mono mt-0.5 inline-block text-[10px] tracking-[0.15em] text-accent/[0.6] no-underline transition-colors hover:text-accent/[0.85]"
         >
           see all →
         </Link>
       )}
       {meta && (
-        <p className="mono mt-1 text-[10px] text-accent/[0.75]">{meta}</p>
+        <p className="mono mt-1 text-[11px] text-accent/[0.75]">{meta}</p>
       )}
     </div>
   );
@@ -79,7 +79,7 @@ function SectionLabel({
 
 function SubLabel({ label, icon: Icon }: { label: string; icon: LucideIcon }) {
   return (
-    <div className="mono mb-3 flex items-center gap-1.5 text-[8px] tracking-[0.2em] text-accent/[0.5] uppercase">
+    <div className="mono mb-3 flex items-center gap-1.5 text-[9px] tracking-[0.2em] text-accent/[0.6] uppercase">
       <Icon size={10} />
       {label}
     </div>
@@ -123,14 +123,14 @@ function InterestsPage() {
           renderError={() => <div className="mb-3" />}
         >
           {(data) => (
-            <p className="mono mb-3 text-[10px] text-accent/[0.45]">
+            <p className="mono mb-3 text-[11px] text-accent/[0.6]">
               {data.profile.stats.movieCount} films · {data.profile.stats.serialEntryCount} series watched
             </p>
           )}
         </DataSection>
 
         {interestsIntro && (
-          <p className="mb-6 text-[12px] leading-[1.75] text-[#444]">
+          <p className="mb-6 text-[13px] leading-[1.75] text-fg-3">
             {interestsIntro}
           </p>
         )}
@@ -232,7 +232,7 @@ function InterestsPage() {
                           wrapperClassName="h-[52px] w-[36px] shrink-0"
                           className="h-full w-full object-cover"
                         />
-                        <p className="text-[12px] font-medium leading-[1.3] text-[rgba(255,255,255,0.8)] transition-colors group-hover:text-accent">
+                        <p className="text-[13px] font-medium leading-[1.3] text-[rgba(255,255,255,0.8)] transition-colors group-hover:text-accent">
                           {band.name}
                         </p>
                       </a>

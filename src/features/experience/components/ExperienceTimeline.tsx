@@ -15,14 +15,14 @@ export function ExperienceTimeline({ items }: Props) {
                 <h3 className="text-[16px] font-bold leading-[1.25] text-white transition-colors duration-150 group-hover:text-accent">
                   {item.role}
                 </h3>
-                <p className="mono mt-1 text-[12px] text-accent/[0.75]">
+                <p className="mono mt-1 text-[13px] text-accent/[0.75]">
                   {item.company}
                 </p>
               </div>
               <div className="flex flex-col items-end gap-1.5">
-                <span className="mono text-[11px] text-accent/[0.5]">{item.date}</span>
+                <span className="mono text-[12px] text-accent/[0.6]">{item.date}</span>
                 {item.type && (
-                  <span className="mono border border-accent/[0.25] px-2 py-[2px] text-[8px] tracking-[0.1em] text-accent/[0.55]">
+                  <span className="mono border border-accent/[0.25] px-2 py-[2px] text-[9px] tracking-[0.1em] text-accent/[0.65]">
                     {item.type}
                   </span>
                 )}
@@ -32,8 +32,8 @@ export function ExperienceTimeline({ items }: Props) {
             <ul className="mb-3 ml-0 list-none space-y-[5px] p-0">
               {item.description.map((line) => (
                 <li key={line} className="flex items-start gap-3">
-                  <span className="mono mt-[3px] shrink-0 text-[11px] text-[#333]">–</span>
-                  <span className="text-[13px] leading-[1.65] text-[#555]">{line}</span>
+                  <span className="mono mt-[3px] shrink-0 text-[12px] text-fg-4">–</span>
+                  <span className="text-[13px] leading-[1.65] text-fg-2">{line}</span>
                 </li>
               ))}
             </ul>
@@ -42,7 +42,7 @@ export function ExperienceTimeline({ items }: Props) {
               {item.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="mono border border-accent/[0.22] px-1.5 py-[2px] text-[8px] tracking-[0.1em] text-accent/[0.65]"
+                  className="mono border border-accent/[0.22] px-1.5 py-[2px] text-[9px] tracking-[0.1em] text-accent/[0.65]"
                 >
                   {tag}
                 </span>

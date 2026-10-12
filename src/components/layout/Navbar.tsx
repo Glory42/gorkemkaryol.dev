@@ -23,10 +23,10 @@ export function Navbar() {
             <Link
               key={item.href}
               to={item.href}
-              className={`focus-ring mono inline-flex items-center gap-1.5 text-[10px] tracking-[0.12em] uppercase no-underline transition-colors duration-150 ${
+              className={`focus-ring mono inline-flex items-center gap-1.5 text-[11px] tracking-[0.12em] uppercase no-underline transition-colors duration-150 ${
                 isActive
                   ? "text-accent"
-                  : "text-[rgba(255,255,255,0.28)] hover:text-[rgba(255,255,255,0.65)]"
+                  : "text-fg-3 hover:text-fg-1"
               }`}
             >
               <Icon size={11} />
@@ -56,10 +56,10 @@ export function Navbar() {
                   key={`mobile-${item.href}`}
                   to={item.href}
                   onClick={() => setIsOpen(false)}
-                  className={`focus-ring mono inline-flex items-center gap-2 px-2 py-2 text-[10px] tracking-[0.1em] uppercase no-underline transition-colors ${
+                  className={`focus-ring mono inline-flex items-center gap-2 px-2 py-2 text-[11px] tracking-[0.1em] uppercase no-underline transition-colors ${
                     isActive
                       ? "text-accent"
-                      : "text-[rgba(255,255,255,0.3)] hover:text-white"
+                      : "text-fg-3 hover:text-white"
                   }`}
                 >
                   <Icon size={11} />

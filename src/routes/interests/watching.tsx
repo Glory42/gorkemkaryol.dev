@@ -136,7 +136,7 @@ function WatchingPage() {
       cmd={CMD}
       promptAside={
         profile.ok ? (
-          <p className="mono text-[10px] text-accent/[0.45]">
+          <p className="mono text-[11px] text-accent/[0.6]">
             {profile.data.stats.movieCount} films ·{" "}
             {profile.data.stats.serialEntryCount} series watched
           </p>

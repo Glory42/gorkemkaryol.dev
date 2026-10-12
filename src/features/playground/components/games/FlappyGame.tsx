@@ -169,7 +169,7 @@ export function FlappyGame() {
           style={{ touchAction: "none" }}
         />
       </GameShell>
-      {phase !== "idle" && <p className="mono text-[9px] text-accent/[0.45]">score — {score}</p>}
+      {phase !== "idle" && <p className="mono text-[10px] text-accent/[0.6]">score — {score}</p>}
     </div>
   );
 }

@@ -24,11 +24,11 @@ function PosterCard({ item }: { item: DisplayItem }) {
       ) : (
         <div className="aspect-[2/3] w-full bg-[rgba(255,255,255,0.03)]" />
       )}
-      <p className="mt-2 text-[11px] font-medium leading-[1.3] text-[rgba(255,255,255,0.8)] transition-colors group-hover:text-accent">
+      <p className="mt-2 text-[12px] font-medium leading-[1.3] text-[rgba(255,255,255,0.8)] transition-colors group-hover:text-accent">
         {item.title}
       </p>
       {item.subtitle && (
-        <p className="mt-0.5 text-[10px] text-[#444]">{item.subtitle}</p>
+        <p className="mt-0.5 text-[11px] text-fg-3">{item.subtitle}</p>
       )}
       {item.progressPercent != null && (
         <div className="mt-1.5 h-[2px] w-full overflow-hidden rounded-full bg-[rgba(255,255,255,0.05)]">

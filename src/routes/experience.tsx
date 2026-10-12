@@ -17,7 +17,7 @@ function ExperiencePage() {
         <TerminalPrompt cmd="ls ./experience" className="mb-6" />
 
         <div className="mb-2 flex items-center gap-3">
-          <span className="mono text-[9px] tracking-[0.25em] text-accent/[0.4] uppercase">
+          <span className="mono text-[10px] tracking-[0.25em] text-accent/[0.6] uppercase">
             ./experience/work
           </span>
           <div className="h-px flex-1 bg-[rgba(255,255,255,0.04)]" />
@@ -25,7 +25,7 @@ function ExperiencePage() {
         <ExperienceTimeline items={workExperiences} />
 
         <div className="mb-2 mt-10 flex items-center gap-3">
-          <span className="mono text-[9px] tracking-[0.25em] text-accent/[0.4] uppercase">
+          <span className="mono text-[10px] tracking-[0.25em] text-accent/[0.6] uppercase">
             ./experience/volunteering
           </span>
           <div className="h-px flex-1 bg-[rgba(255,255,255,0.04)]" />

@@ -18,10 +18,10 @@ export function StatusPanel({ tone, title, description, error }: Props) {
   if (tone === "empty") {
     return (
       <div className="panel p-6 text-center">
-        <p className="mono text-xs uppercase tracking-[0.14em] text-[var(--text-2)]">
+        <p className="mono text-xs uppercase tracking-[0.14em] text-fg-2">
           {title}
         </p>
-        <p className="mt-2 text-sm text-[var(--text-3)]">{description}</p>
+        <p className="mt-2 text-sm text-fg-3">{description}</p>
       </div>
     );
   }
@@ -29,7 +29,7 @@ export function StatusPanel({ tone, title, description, error }: Props) {
   if (tone === "degraded") {
     return (
       <div className="border border-[rgba(246,193,119,0.3)] bg-[rgba(246,193,119,0.06)] px-4 py-3">
-        <p className="mono text-[11px] text-[rgba(246,193,119,0.85)]">
+        <p className="mono text-[12px] text-[rgba(246,193,119,0.85)]">
           {description ?? DEGRADED_MESSAGE}
         </p>
       </div>
@@ -43,10 +43,10 @@ export function StatusPanel({ tone, title, description, error }: Props) {
       <span className="pointer-events-none absolute bottom-0 left-0 h-[7px] w-[7px] border-b border-l border-[rgba(235,111,146,0.35)]" />
       <span className="pointer-events-none absolute bottom-0 right-0 h-[7px] w-[7px] border-b border-r border-[rgba(235,111,146,0.35)]" />
 
-      <p className="mono mb-2 text-[10px] uppercase tracking-[0.16em] text-[rgba(235,111,146,0.9)]">
+      <p className="mono mb-2 text-[11px] uppercase tracking-[0.16em] text-[rgba(235,111,146,0.9)]">
         {title}
       </p>
-      <p className="m-0 text-[12px] leading-[1.6] text-[rgba(255,255,255,0.75)]">
+      <p className="m-0 text-[13px] leading-[1.6] text-[rgba(255,255,255,0.75)]">
         {error?.message ?? description}
       </p>
     </div>

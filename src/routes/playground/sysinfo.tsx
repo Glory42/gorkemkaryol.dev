@@ -36,7 +36,7 @@ function SysinfoPage() {
 
   if (!revealed) {
     return (
-      <pre className="mono whitespace-pre-wrap text-[11px] leading-[2] text-[#555]">
+      <pre className="mono whitespace-pre-wrap text-[12px] leading-[2] text-fg-2">
         {LINES.slice(0, shown).join("\n")}
         <span className="animate-pulse text-accent/[0.6]">_</span>
       </pre>
@@ -45,7 +45,7 @@ function SysinfoPage() {
 
   return (
     <div>
-      <p className="mono mb-4 text-[11px] text-accent/[0.6]">
+      <p className="mono mb-4 text-[12px] text-accent/[0.6]">
         {playing ? "// track resolved: never gonna give you up" : "// resolving track ..."}
       </p>
       <div className="relative aspect-video w-full overflow-hidden border border-[rgba(255,255,255,0.06)]">
@@ -68,7 +68,7 @@ function SysinfoPage() {
         )}
       </div>
       {playing && (
-        <p className="mono mt-3 text-[10px] text-[#3a3a3a]">
+        <p className="mono mt-3 text-[11px] text-fg-3">
           you have been rickrolled. carry on.
         </p>
       )}

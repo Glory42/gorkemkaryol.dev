@@ -26,7 +26,7 @@ export function TerminalPrompt({
   children?: ReactNode;
 }) {
   return (
-    <p className={`mono text-[11px] text-[#252525] ${className}`}>
+    <p className={`mono text-[12px] text-fg-4 ${className}`}>
       ~$ {cmd}
       {children}
     </p>

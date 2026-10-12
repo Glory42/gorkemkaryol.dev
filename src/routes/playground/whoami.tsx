@@ -27,8 +27,8 @@ function pad(label: string): string {
 function Row({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex gap-2">
-      <span className="shrink-0 text-[#3a3a3a]">{pad(label)}</span>
-      <span className="min-w-0 break-all text-[#666]">{value ?? "—"}</span>
+      <span className="shrink-0 text-fg-3">{pad(label)}</span>
+      <span className="min-w-0 break-all text-fg-2">{value ?? "—"}</span>
     </div>
   );
 }
@@ -76,7 +76,7 @@ function WhoamiPage() {
   }, [shown, done]);
 
   return (
-    <div className="mono text-[11px] leading-[2] text-[#555]">
+    <div className="mono text-[12px] leading-[2] text-fg-2">
       <p className="text-accent/[0.7]">~$ whoami --verbose</p>
 
       <div className="mt-4 space-y-0.5">
@@ -88,7 +88,7 @@ function WhoamiPage() {
       {!done && <span className="animate-pulse text-accent/[0.6]">_</span>}
 
       {done && offEdge && (
-        <p className="mt-4 text-[#3a3a3a]">
+        <p className="mt-4 text-fg-3">
           // running off the edge — most fields only populate on the deployed
           Cloudflare worker
         </p>

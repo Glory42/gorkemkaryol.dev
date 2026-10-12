@@ -69,14 +69,14 @@ function ApodLightbox({ apod, onClose }: { apod: Apod; onClose: () => void }) {
           href={apodPageUrl(apod.date)}
           target="_blank"
           rel="noopener noreferrer"
-          className="mono text-[11px] text-accent/[0.8] no-underline transition-colors hover:text-accent"
+          className="mono text-[12px] text-accent/[0.8] no-underline transition-colors hover:text-accent"
         >
           view on nasa.gov →
         </a>
         <button
           type="button"
           onClick={onClose}
-          className="mono text-[11px] text-[#666] transition-colors hover:text-white"
+          className="mono text-[12px] text-fg-2 transition-colors hover:text-white"
         >
           close ✕
         </button>
@@ -95,7 +95,7 @@ function ApodBlock({ apod }: { apod: Apod }) {
         <p className="text-[13px] font-medium text-[rgba(255,255,255,0.85)]">
           {apod.title}
         </p>
-        <span className="mono shrink-0 text-[10px] text-[#444]">{apod.date}</span>
+        <span className="mono shrink-0 text-[11px] text-fg-3">{apod.date}</span>
       </div>
 
       {media.kind === "image" ? (
@@ -143,7 +143,7 @@ function ApodBlock({ apod }: { apod: Apod }) {
             wrapperClassName="w-full"
             className="max-h-[520px] w-full object-cover"
           />
-          <span className="mono mt-2 inline-block text-[10px] text-accent/[0.7]">
+          <span className="mono mt-2 inline-block text-[11px] text-accent/[0.7]">
             watch video →
           </span>
         </a>
@@ -152,17 +152,17 @@ function ApodBlock({ apod }: { apod: Apod }) {
           href={media.src}
           target="_blank"
           rel="noopener noreferrer"
-          className="mono text-[11px] text-accent/[0.7]"
+          className="mono text-[12px] text-accent/[0.7]"
         >
           open today's media →
         </a>
       )}
 
-      <p className="mt-4 text-[12px] leading-[1.75] text-[#555]">
+      <p className="mt-4 text-[13px] leading-[1.75] text-fg-2">
         {apod.explanation}
       </p>
       {apod.copyright && (
-        <p className="mono mt-2 text-[10px] text-[#3a3a3a]">© {apod.copyright}</p>
+        <p className="mono mt-2 text-[11px] text-fg-3">© {apod.copyright}</p>
       )}
 
       {open && media.kind === "image" && (
@@ -175,7 +175,7 @@ function ApodBlock({ apod }: { apod: Apod }) {
 function NeoBlock({ feed }: { feed: NeoFeed }) {
   if (feed.objects.length === 0) {
     return (
-      <p className="mono text-[11px] text-[#555]">
+      <p className="mono text-[12px] text-fg-2">
         No catalogued near-Earth objects make a close approach today.
       </p>
     );
@@ -183,13 +183,13 @@ function NeoBlock({ feed }: { feed: NeoFeed }) {
 
   return (
     <div>
-      <p className="mono mb-3 text-[10px] text-accent/[0.55]">
+      <p className="mono mb-3 text-[11px] text-accent/[0.65]">
         {feed.count} tracked · {feed.date}
       </p>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[560px] border-collapse text-left">
           <thead>
-            <tr className="mono text-[9px] tracking-[0.15em] text-[#3a3a3a] uppercase">
+            <tr className="mono text-[10px] tracking-[0.15em] text-fg-3 uppercase">
               <th className="py-2 pr-4 font-normal">object</th>
               <th className="py-2 pr-4 font-normal">Ø approx (m)</th>
               <th className="py-2 pr-4 font-normal">miss (km)</th>
@@ -202,7 +202,7 @@ function NeoBlock({ feed }: { feed: NeoFeed }) {
             {feed.objects.map((obj) => (
               <tr
                 key={obj.id}
-                className="border-t border-[rgba(255,255,255,0.05)] text-[11px] text-[#666]"
+                className="border-t border-[rgba(255,255,255,0.05)] text-[12px] text-fg-2"
               >
                 <td className="py-2 pr-4 text-[rgba(255,255,255,0.75)]">{obj.name}</td>
                 <td className="mono py-2 pr-4">
@@ -215,7 +215,7 @@ function NeoBlock({ feed }: { feed: NeoFeed }) {
                   {obj.hazardous ? (
                     <span className="text-[rgba(235,111,146,0.9)]">yes</span>
                   ) : (
-                    <span className="text-[#3a3a3a]">no</span>
+                    <span className="text-fg-3">no</span>
                   )}
                 </td>
               </tr>
