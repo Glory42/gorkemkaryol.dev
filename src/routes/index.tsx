@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Code, Globe, Layers, Monitor, Terminal } from "lucide-react";
+import { ArrowUpRight, Code, Globe, Layers, Monitor, Terminal } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
 import { pageHead, TerminalPrompt } from "@/components/layout/page";
 import { ContactLinks } from "@/features/home/components/ContactLinks";
@@ -78,9 +78,21 @@ function HomePage() {
               <div key={item.title}>
                 <div className="group flex items-center gap-4">
                   <Icon size={13} className="shrink-0 text-fg-4" />
-                  <span className="mono w-[180px] shrink-0 text-[13px] text-[rgba(255,255,255,0.7)] transition-colors duration-150 group-hover:text-accent">
-                    {item.spec}
-                  </span>
+                  {item.href ? (
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="focus-ring mono inline-flex w-[180px] shrink-0 items-center gap-1 text-[13px] text-[rgba(255,255,255,0.7)] no-underline transition-colors duration-150 group-hover:text-accent"
+                    >
+                      {item.spec}
+                      <ArrowUpRight size={11} className="shrink-0 text-fg-4 transition-colors group-hover:text-accent" />
+                    </a>
+                  ) : (
+                    <span className="mono w-[180px] shrink-0 text-[13px] text-[rgba(255,255,255,0.7)] transition-colors duration-150 group-hover:text-accent">
+                      {item.spec}
+                    </span>
+                  )}
                   <span className="mono text-[12px] text-fg-4 italic">
                     // {item.description}
                   </span>

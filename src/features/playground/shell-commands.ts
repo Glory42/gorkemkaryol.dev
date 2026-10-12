@@ -1,4 +1,4 @@
-import { contactItems, introText, techItems } from "@/features/home/content";
+import { contactItems, DOTFILES_URL, introText, techItems } from "@/features/home/content";
 import { SECTION_LIST, SECTIONS } from "@/lib/sections";
 
 export interface ShellSegment {
@@ -97,6 +97,7 @@ function fastfetchOutput(): { lines: string[]; rich: ShellSegment[][] } {
     `Terminal: ${spec("Terminal")}`,
     `Editor: ${spec("Editor")}`,
     `Browser: ${spec("Browser")}`,
+    `Dotfiles: ${DOTFILES_URL.replace(/^https:\/\//, "")}`,
     "CPU: overheats easily, just like the owner",
     "Memory: too expensive to disclose",
   ];

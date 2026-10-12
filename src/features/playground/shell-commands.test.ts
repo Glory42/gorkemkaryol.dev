@@ -48,6 +48,7 @@ describe("runShellCommand", () => {
     const result = runShellCommand("fastfetch");
     expect(result.lines.length).toBeGreaterThan(10);
     expect(result.lines.some((l) => l.includes("gorkem@portfolio"))).toBe(true);
+    expect(result.lines.some((l) => l.includes("Dotfiles: github.com/Glory42/arch-config"))).toBe(true);
     expect(result.lines.some((l) => l.includes("OS:"))).toBe(true);
   });
 });

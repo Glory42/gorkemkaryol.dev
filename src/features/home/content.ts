@@ -9,7 +9,12 @@ export interface TechItem {
   spec: string;
   description: string;
   iconId: "monitor" | "layers" | "code" | "terminal" | "globe";
+  /** Makes the spec a link (e.g. the config repo behind it). */
+  href?: string;
 }
+
+/** The Arch + Hyprland config repo behind the "OS" row. */
+export const DOTFILES_URL = "https://github.com/Glory42/arch-config";
 
 export const introText =
   "I’m a software engineer who builds web apps and likes working across the whole stack. Most of my time goes to real projects, picking up new tools along the way and looking for better ways to build and ship.";
@@ -39,6 +44,7 @@ export const techItems: TechItem[] = [
     description:
       "It was a mental challenge and still one of the best technical decisions I made.",
     iconId: "layers",
+    href: DOTFILES_URL,
   },
   {
     title: "Editor",
