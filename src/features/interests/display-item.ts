@@ -1,15 +1,16 @@
 import { INTERIS_BASE, TMDB_IMAGE_BASE } from "@/features/interests/content";
 import type {
   CurrentlyWatchingSerial,
+  InterisProfile,
   InterisTop4Item,
+  WatchedMedia,
   WatchedMovie,
   WatchedSerial,
 } from "@/server/interis/interis";
 import type { LiteralBook } from "@/server/literal/literal";
 
-// The one render shape behind ShelfList and PosterGrid. Sources keep returning
-// their domain types (routes still need raw counts and sort keys); these adapt
-// a single row, so the TMDB URL and the progress subtitle live in one place.
+// The one render shape behind ShelfList and PosterGrid. Sources return wire
+// types; this module owns how they become shelves, ordering and labels included.
 export interface DisplayItem {
   id: string | number;
   title: string;
@@ -81,4 +82,39 @@ export function top4ToDisplayItem(item: InterisTop4Item): DisplayItem {
     href: item.tmdbId ? `${INTERIS_BASE}/${segment}/${item.tmdbId}` : null,
     progressPercent: null,
   };
+}
+
+export const WATCHED_FILTERS = [
+  { id: "all", label: "All" },
+  { id: "series", label: "Series" },
+  { id: "films", label: "Films" },
+] as const;
+
+export type WatchedFilter = (typeof WATCHED_FILTERS)[number]["id"];
+
+// The watched shelf: series and films merged newest-first by last
+// interaction, narrowed by `filter`, each row through its own adapter.
+export function watchedItems(
+  media: WatchedMedia,
+  filter: WatchedFilter,
+): DisplayItem[] {
+  const entries: (WatchedSerial | WatchedMovie)[] = [
+    ...(filter === "films" ? [] : media.serials),
+    ...(filter === "series" ? [] : media.movies),
+  ];
+  return entries
+    .sort(
+      (a, b) =>
+        new Date(b.lastInteractionAt).getTime() -
+        new Date(a.lastInteractionAt).getTime(),
+    )
+    .map((entry) =>
+      entry.mediaType === "tv"
+        ? watchedSerialToDisplayItem(entry)
+        : watchedMovieToDisplayItem(entry),
+    );
+}
+
+export function watchStatsLabel(stats: InterisProfile["stats"]): string {
+  return `${stats.movieCount} films · ${stats.serialEntryCount} series watched`;
 }

@@ -9,16 +9,16 @@ import { PosterGrid, PosterGridSkeleton } from "@/features/interests/components/
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import {
   currentlyWatchingToDisplayItem,
-  watchedMovieToDisplayItem,
-  watchedSerialToDisplayItem,
-  type DisplayItem,
+  WATCHED_FILTERS,
+  watchedItems,
+  watchStatsLabel,
+  type WatchedFilter,
 } from "@/features/interests/display-item";
 import {
   getCurrentlyWatchingSerials,
   getInterisProfile,
   getWatchedMedia,
-  type WatchedMovie,
-  type WatchedSerial,
+  type WatchedMedia,
 } from "@/server/interis/interis";
 import { runSources } from "@/server/common/page-data";
 
@@ -70,51 +70,15 @@ function WatchingPageSkeleton() {
   );
 }
 
-const FILTERS = [
-  { id: "all", label: "All" },
-  { id: "series", label: "Series" },
-  { id: "films", label: "Films" },
-] as const;
-
-type Filter = (typeof FILTERS)[number]["id"];
-
-function WatchedSection({
-  serials,
-  movies,
-}: {
-  serials: WatchedSerial[];
-  movies: WatchedMovie[];
-}) {
-  const [filter, setFilter] = useState<Filter>("all");
-
-  // Sort the raw entries by recency once; filter + map to a DisplayItem per render.
-  const recent = useMemo<(WatchedSerial | WatchedMovie)[]>(
-    () =>
-      [...serials, ...movies].sort(
-        (a, b) =>
-          new Date(b.lastInteractionAt).getTime() -
-          new Date(a.lastInteractionAt).getTime(),
-      ),
-    [serials, movies],
-  );
-
-  const items: DisplayItem[] = recent
-    .filter((m) => {
-      if (filter === "series") return m.mediaType === "tv";
-      if (filter === "films") return m.mediaType === "movie";
-      return true;
-    })
-    .map((m) =>
-      m.mediaType === "tv"
-        ? watchedSerialToDisplayItem(m)
-        : watchedMovieToDisplayItem(m),
-    );
+function WatchedSection({ media }: { media: WatchedMedia }) {
+  const [filter, setFilter] = useState<WatchedFilter>("all");
+  const items = useMemo(() => watchedItems(media, filter), [media, filter]);
 
   return (
     <section>
       <SectionHeader sig="./watched" />
       <TerminalTabs
-        options={FILTERS}
+        options={WATCHED_FILTERS}
         value={filter}
         onChange={setFilter}
         className="mb-6"
@@ -137,8 +101,7 @@ function WatchingPage() {
       promptAside={
         profile.ok ? (
           <p className="mono text-[11px] text-accent/[0.6]">
-            {profile.data.stats.movieCount} films ·{" "}
-            {profile.data.stats.serialEntryCount} series watched
+            {watchStatsLabel(profile.data.stats)}
           </p>
         ) : undefined
       }
@@ -157,9 +120,7 @@ function WatchingPage() {
       )}
 
       <ResultSection result={watched} errorTitle="Interis API Unavailable">
-        {(data) => (
-          <WatchedSection serials={data.serials} movies={data.movies} />
-        )}
+        {(data) => <WatchedSection media={data} />}
       </ResultSection>
     </PageFrame>
   );

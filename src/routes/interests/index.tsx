@@ -15,6 +15,7 @@ import {
   bookToDisplayItem,
   currentlyWatchingToDisplayItem,
   top4ToDisplayItem,
+  watchStatsLabel,
 } from "@/features/interests/display-item";
 import {
   getInterisData,
@@ -125,7 +126,7 @@ function InterestsPage() {
         >
           {(data) => (
             <p className="mono mb-3 text-[11px] text-accent/[0.6]">
-              {data.profile.stats.movieCount} films · {data.profile.stats.serialEntryCount} series watched
+              {watchStatsLabel(data.profile.stats)}
             </p>
           )}
         </DataSection>

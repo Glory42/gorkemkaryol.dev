@@ -3,8 +3,10 @@ import {
   bookToDisplayItem,
   currentlyWatchingToDisplayItem,
   top4ToDisplayItem,
+  watchedItems,
   watchedMovieToDisplayItem,
   watchedSerialToDisplayItem,
+  watchStatsLabel,
 } from "@/features/interests/display-item";
 import type {
   CurrentlyWatchingSerial,
@@ -129,5 +131,66 @@ describe("top4ToDisplayItem", () => {
 
   it("drops the href when there is no tmdbId", () => {
     expect(top4ToDisplayItem(top({ tmdbId: null })).href).toBeNull();
+  });
+});
+
+describe("watchedItems", () => {
+  const serial = (tmdbId: number, at: string): WatchedSerial => ({
+    tmdbId,
+    title: `s${tmdbId}`,
+    posterPath: null,
+    firstAirYear: 2020,
+    numberOfSeasons: 1,
+    numberOfEpisodes: 8,
+    mediaType: "tv",
+    lastInteractionAt: at,
+  });
+  const movie = (tmdbId: number, at: string): WatchedMovie => ({
+    tmdbId,
+    title: `m${tmdbId}`,
+    posterPath: null,
+    releaseYear: 2021,
+    runtime: 120,
+    mediaType: "movie",
+    lastInteractionAt: at,
+  });
+  const media = {
+    serials: [serial(1, "2026-01-01T00:00:00Z"), serial(2, "2026-03-01T00:00:00Z")],
+    movies: [movie(3, "2026-02-01T00:00:00Z")],
+  };
+
+  it("merges series and films newest-first", () => {
+    expect(watchedItems(media, "all").map((i) => i.title)).toEqual(["s2", "m3", "s1"]);
+  });
+
+  it("narrows to one media type and maps each through its own adapter", () => {
+    const series = watchedItems(media, "series");
+    expect(series.map((i) => i.title)).toEqual(["s2", "s1"]);
+    expect(series[0].href).toContain("/serials/2");
+
+    const films = watchedItems(media, "films");
+    expect(films.map((i) => i.title)).toEqual(["m3"]);
+    expect(films[0].href).toContain("/movies/3");
+  });
+
+  it("leaves the input lists untouched", () => {
+    watchedItems(media, "series");
+    expect(media.serials.map((s) => s.tmdbId)).toEqual([1, 2]);
+  });
+});
+
+describe("watchStatsLabel", () => {
+  it("counts films and series", () => {
+    expect(
+      watchStatsLabel({
+        movieEntryCount: 0,
+        serialEntryCount: 12,
+        movieCount: 40,
+        reviewCount: 0,
+        listCount: 0,
+        followerCount: 0,
+        followingCount: 0,
+      }),
+    ).toBe("40 films · 12 series watched");
   });
 });
