@@ -37,7 +37,7 @@ describe("getRepoReadmeData", () => {
       ctxFor(repository({ readmeMd: { text: "# Proj" } })),
       "proj",
     );
-    if (!result.ok || result.data === null) throw new Error("expected data");
+    if (!result.ok) throw new Error("expected data");
     expect(result.data.owner).toBe("gk");
     expect(result.data.repo).toBe("proj");
     expect(result.data.defaultBranch).toBe("trunk");
@@ -50,8 +50,19 @@ describe("getRepoReadmeData", () => {
       ctxFor(repository({ readmeMd: { text: "# WW" } })),
       "WasteWise",
     );
-    if (!result.ok || result.data === null) throw new Error("expected data");
+    if (!result.ok) throw new Error("expected data");
     expect(result.data.owner).toBe("WasteWise-Project");
+  });
+
+  it("matches an external repo case-insensitively and keeps its real name", async () => {
+    const result = await getRepoReadmeData(
+      ENV,
+      ctxFor(repository({ readmeMd: { text: "# WW" } })),
+      "wastewise",
+    );
+    if (!result.ok) throw new Error("expected data");
+    expect(result.data.owner).toBe("WasteWise-Project");
+    expect(result.data.repo).toBe("WasteWise");
   });
 
   it("walks the README blob fallback chain md -> mdx -> lower -> plain", async () => {
@@ -60,7 +71,7 @@ describe("getRepoReadmeData", () => {
 
     for (const key of ["readmeMdx", "readmeLower", "readmePlain"]) {
       const result = await only(key);
-      if (!result.ok || result.data === null) throw new Error("expected data");
+      if (!result.ok) throw new Error("expected data");
       expect(result.data.readme).toBe(key);
     }
   });
@@ -96,18 +107,37 @@ describe("getRepoReadmeData", () => {
     expect(result.ok && result.data?.defaultBranch).toBe("main");
   });
 
-  it("returns ok(null) when GitHub has no such repository", async () => {
+  it("fails NOT_FOUND on GitHub's real missing-repo envelope", async () => {
+    const result = await getRepoReadmeData(
+      ENV,
+      ctxFor({
+        data: { repository: null },
+        errors: [
+          {
+            type: "NOT_FOUND",
+            message: "Could not resolve to a Repository with the name 'gk/ghost'.",
+          },
+        ],
+      }),
+      "ghost",
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("NOT_FOUND");
+  });
+
+  it("fails NOT_FOUND on a bare null repository", async () => {
     const result = await getRepoReadmeData(
       ENV,
       ctxFor({ data: { repository: null } }),
       "ghost",
     );
-    expect(result).toEqual({ ok: true, data: null });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("NOT_FOUND");
   });
 
   it("returns a null readme when the repo carries no blob", async () => {
     const result = await getRepoReadmeData(ENV, ctxFor(repository()), "proj");
-    if (!result.ok || result.data === null) throw new Error("expected data");
+    if (!result.ok) throw new Error("expected data");
     expect(result.data.readme).toBeNull();
   });
 

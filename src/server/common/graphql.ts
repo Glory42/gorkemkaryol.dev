@@ -11,6 +11,8 @@ import type { HttpPort } from "@/server/common/runtime";
 
 interface GraphQLError {
   message: string;
+  /** GitHub tags errors, e.g. `"NOT_FOUND"` for a missing repository. */
+  type?: string;
 }
 
 interface GraphQLEnvelope<T> {
@@ -58,6 +60,15 @@ export async function graphqlRequest<T>(
 
   const envelope = result.data.data;
   const errors = envelope.errors ?? [];
+
+  if (errors.length > 0 && errors.every((error) => error.type === "NOT_FOUND")) {
+    return fail({
+      code: "NOT_FOUND",
+      message: `${label} resource not found`,
+      retryable: false,
+      details: errors.map((error) => error.message).join(" | "),
+    });
+  }
 
   if (errors.length > 0) {
     const rateLimited = errors.some((error) => isRateLimitMessage(error.message));

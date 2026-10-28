@@ -134,14 +134,13 @@ const REPO_FRAGMENT = `
 `;
 
 function buildGithubOverviewQuery() {
-  const externalRepoAliases = EXTERNAL_REPOS.map((repo, i) => {
-    const [owner, name] = repo.split("/");
-    return `
+  const externalRepoAliases = EXTERNAL_REPOS.map(
+    ({ owner, name }, i) => `
     repo${i}: repository(owner: "${owner}", name: "${name}") {
       ${REPO_FRAGMENT}
     }
-    `;
-  }).join("");
+    `,
+  ).join("");
 
   return `
   query GithubOverview(
@@ -272,7 +271,9 @@ export async function getGithubProjects(
       },
       // `from` / `to` move every call — key on the stable inputs instead, but
       // include EXTERNAL_REPOS so adding one busts the cache immediately.
-      cacheDiscriminant: `overview:${username}:${EXTERNAL_REPOS.join(",")}`,
+      cacheDiscriminant: `overview:${username}:${EXTERNAL_REPOS.map(
+        (repo) => `${repo.owner}/${repo.name}`,
+      ).join(",")}`,
       label: "GitHub",
       onMeta: ({ headers }) => {
         responseHeaders = headers;

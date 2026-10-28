@@ -3,19 +3,15 @@ import type { GithubProject } from "@/server/github/github";
 import gathinReadme from "@/features/projects/content/gathin.md?raw";
 import huddinReadme from "@/features/projects/content/huddin.md?raw";
 
-// Projects not in the GitHub feed (private company work). `card` matches
-// `GithubProject` for the grid; `readme` replaces a fetched README on the detail.
+// Projects not in the GitHub feed (private company work). `card.name` is the
+// slug and `card.url` the live product; `readme` replaces a fetched README.
 export interface ManualProject {
-  slug: string;
-  liveUrl: string;
   readme: string;
   card: GithubProject;
 }
 
 export const manualProjects: ManualProject[] = [
   {
-    slug: "Gathin",
-    liveUrl: "https://gathin.com",
     readme: gathinReadme,
     card: {
       name: "Gathin",
@@ -29,8 +25,6 @@ export const manualProjects: ManualProject[] = [
     },
   },
   {
-    slug: "Huddin",
-    liveUrl: "https://huddin.com",
     readme: huddinReadme,
     card: {
       name: "Huddin",
@@ -50,6 +44,6 @@ export const manualProjects: ManualProject[] = [
 export function findManualProject(slug: string): ManualProject | undefined {
   const wanted = slug.toLowerCase();
   return manualProjects.find(
-    (project) => project.slug.toLowerCase() === wanted,
+    (project) => project.card.name.toLowerCase() === wanted,
   );
 }

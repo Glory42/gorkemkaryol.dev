@@ -76,15 +76,15 @@ export async function getProjectReadme(
     return ok({
       kind: "manual",
       title: manual.card.name,
-      url: manual.liveUrl,
+      url: manual.card.url,
       html,
       hadError,
     });
   }
 
   const result = await getRepoReadmeData(env, ctx, slug);
-  if (!result.ok) return fail(result.error);
-  if (result.data === null || result.data.readme === null) {
+  if (!result.ok) return result;
+  if (result.data.readme === null) {
     return fail({
       code: "NOT_FOUND",
       message: `No project or README found for "${slug}"`,

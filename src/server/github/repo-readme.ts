@@ -1,8 +1,8 @@
 import type { RuntimeEnv } from "@/lib/env";
-import { ok, type ServiceResult } from "@/server/common/http";
+import { fail, ok, type ServiceResult } from "@/server/common/http";
 import type { SourceCtx } from "@/server/common/source";
 import { githubClient } from "@/server/github/github";
-import { EXTERNAL_REPOS } from "@/server/github/external-repos";
+import { resolveRepo } from "@/server/github/external-repos";
 
 export interface GithubReadmeData {
   owner: string;
@@ -40,16 +40,12 @@ export async function getRepoReadmeData(
   env: RuntimeEnv,
   ctx: SourceCtx,
   repo: string,
-): Promise<ServiceResult<GithubReadmeData | null>> {
-  let owner = env.PUBLIC_GITHUB_USERNAME;
-  const externalMatch = EXTERNAL_REPOS.find((r) => r.endsWith(`/${repo}`));
-  if (externalMatch) {
-    owner = externalMatch.split("/")[0];
-  }
+): Promise<ServiceResult<GithubReadmeData>> {
+  const { owner, name } = resolveRepo(repo, env.PUBLIC_GITHUB_USERNAME);
 
   const client = githubClient(env, ctx);
   const result = await client.gql<RepoReadmeQueryData>(REPO_README_QUERY, {
-    variables: { owner, name: repo },
+    variables: { owner, name },
     ttl: 1800,
     timeoutMs: 10_000,
     label: "GitHub README",
@@ -57,8 +53,16 @@ export async function getRepoReadmeData(
 
   if (!result.ok) return result;
 
+  // GitHub reports a missing repo as an errors[] entry (NOT_FOUND from gql);
+  // a bare null is the same answer.
   const repository = result.data.repository;
-  if (!repository) return ok(null);
+  if (!repository) {
+    return fail({
+      code: "NOT_FOUND",
+      message: `GitHub repository ${owner}/${name} not found`,
+      retryable: false,
+    });
+  }
 
   const readme =
     repository.readmeMd?.text ??
@@ -69,7 +73,7 @@ export async function getRepoReadmeData(
 
   return ok({
     owner,
-    repo,
+    repo: name,
     defaultBranch: repository.defaultBranchRef?.name ?? "main",
     repoUrl: repository.url,
     readme,

@@ -102,7 +102,15 @@ describe("getProjectReadme", () => {
   it("fails NOT_FOUND when GitHub has no such repository", async () => {
     const result = await getProjectReadme(
       ENV,
-      ctxWith({ data: { repository: null } }),
+      ctxWith({
+        data: { repository: null },
+        errors: [
+          {
+            type: "NOT_FOUND",
+            message: "Could not resolve to a Repository with the name 'gk/ghost-repo'.",
+          },
+        ],
+      }),
       "ghost-repo",
     );
     expect(result.ok).toBe(false);

@@ -37,6 +37,42 @@ describe("graphqlRequest", () => {
     }
   });
 
+  it("maps errors[] that are all typed NOT_FOUND to a non-retryable NOT_FOUND", async () => {
+    const result = await graphqlRequest({
+      url: URL,
+      query: "{ repository { url } }",
+      label: "GitHub",
+      http: httpWith({
+        data: { repository: null },
+        errors: [
+          {
+            type: "NOT_FOUND",
+            message: "Could not resolve to a Repository with the name 'gk/ghost'.",
+          },
+        ],
+      }),
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe("NOT_FOUND");
+      expect(result.error.retryable).toBe(false);
+    }
+  });
+
+  it("keeps UPSTREAM_ERROR when a NOT_FOUND sits beside another error", async () => {
+    const result = await graphqlRequest({
+      url: URL,
+      query: "{ x }",
+      http: httpWith({
+        errors: [{ type: "NOT_FOUND", message: "a" }, { message: "b" }],
+      }),
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.code).toBe("UPSTREAM_ERROR");
+  });
+
   it("maps a rate-limit error message to RATE_LIMITED + retryable", async () => {
     const result = await graphqlRequest({
       url: URL,
