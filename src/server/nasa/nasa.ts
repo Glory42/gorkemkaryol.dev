@@ -5,33 +5,21 @@ import { defineSource, type SourceCtx } from "@/server/common/source";
 
 const DAY = 86_400;
 
-function nasaKey(env: RuntimeEnv): string {
-  return env.NASA_API_KEY || "DEMO_KEY";
-}
-
 function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-// api.nasa.gov returns bodies that are already the payload (no envelope); the
-// shared client's get() returns those as-is. The api_key query param carries the
-// secret, so key the cache on a caller-supplied discriminant instead of the path.
+// api.nasa.gov returns the payload with no envelope. The api_key rides as a
+// client query param (DEMO_KEY when unset), so it never shapes a cache key.
 const nasaClient = defineSource({
   envKeys: [],
+  optionalEnvKeys: ["NASA_API_KEY"],
   scope: () => "nasa",
   base: () => "https://api.nasa.gov",
+  query: (e) => ({ api_key: e.NASA_API_KEY || "DEMO_KEY" }),
   defaultTtl: DAY,
   timeoutMs: 10_000,
 });
-
-function nasaGet<T>(
-  env: RuntimeEnv,
-  ctx: SourceCtx,
-  path: string,
-  cacheDiscriminant: string,
-): Promise<ServiceResult<T>> {
-  return nasaClient(env, ctx).get<T>(path, { cacheDiscriminant });
-}
 
 // --- Astronomy Picture of the Day ---
 
@@ -61,12 +49,10 @@ export async function getApod(
   env: RuntimeEnv,
   ctx: SourceCtx,
 ): Promise<ServiceResult<Apod>> {
-  const key = nasaKey(env);
-  const raw = await nasaGet<RawApod>(
-    env,
-    ctx,
-    `/planetary/apod?thumbs=true&api_key=${key}`,
-    `apod:${today()}`,
+  // The path has no date, so key on today's: the picture changes daily.
+  const raw = await nasaClient(env, ctx).get<RawApod>(
+    "/planetary/apod?thumbs=true",
+    { cacheDiscriminant: `apod:${today()}` },
   );
   if (!raw.ok) return raw;
 
@@ -126,14 +112,10 @@ export async function getNeoFeed(
   env: RuntimeEnv,
   ctx: SourceCtx,
 ): Promise<ServiceResult<NeoFeed>> {
-  const key = nasaKey(env);
   const date = today();
-  const raw = await nasaGet<{ near_earth_objects?: Record<string, RawNeo[]> }>(
-    env,
-    ctx,
-    `/neo/rest/v1/feed?start_date=${date}&end_date=${date}&api_key=${key}`,
-    `neo:${date}`,
-  );
+  const raw = await nasaClient(env, ctx).get<{
+    near_earth_objects?: Record<string, RawNeo[]>;
+  }>(`/neo/rest/v1/feed?start_date=${date}&end_date=${date}`);
   if (!raw.ok) return raw;
 
   const objects = (raw.data.near_earth_objects?.[date] ?? [])

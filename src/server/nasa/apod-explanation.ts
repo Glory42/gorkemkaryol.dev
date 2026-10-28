@@ -1,6 +1,7 @@
 import type { RuntimePort } from "@/server/common/runtime";
 
 const DAY = 86_400;
+const PAGE_TIMEOUT_MS = 5_000;
 
 // NASA's APOD JSON API drops a word's first letter when the source HTML
 // hyperlinks it ("Eclipses" -> "clipses"). On that signature, re-read the real
@@ -12,14 +13,16 @@ export async function resolveApodExplanation(
 ): Promise<string> {
   if (!apiText || !/^[a-z]/.test(apiText)) return apiText;
 
-  const key = `apod-expl:${date}`;
+  const key = `nasa:apod-expl:${date}`;
   const hit = await runtime.cache.get<string>(key);
   if (hit !== undefined) return hit;
 
   try {
     const stamp = date.slice(2).replace(/-/g, "");
+    // Bounded: a slow apod.nasa.gov must not hold up getApod.
     const res = await runtime.http.fetch(
       `https://apod.nasa.gov/apod/ap${stamp}.html`,
+      { signal: AbortSignal.timeout(PAGE_TIMEOUT_MS) },
     );
     if (res.ok) {
       const match = (await res.text()).match(

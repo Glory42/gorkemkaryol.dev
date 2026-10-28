@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ValidationError } from "@/lib/env";
 import {
+  allOk,
   envFail,
   fail,
   ok,
@@ -228,5 +229,27 @@ describe("envFail", () => {
       expect(e.retryable).toBe(false);
       expect(e.details).toBe("GITHUB_TOKEN, PUBLIC_GITHUB_USERNAME");
     }
+  });
+});
+
+describe("allOk", () => {
+  it("collects every result's data under its key", async () => {
+    const result = await allOk({
+      a: Promise.resolve(ok(1)),
+      b: Promise.resolve(ok("two")),
+    });
+    expect(result).toEqual({ ok: true, data: { a: 1, b: "two" } });
+  });
+
+  it("returns the first failure in key order", async () => {
+    const down = (message: string): ServiceResult<number> =>
+      fail({ code: "UPSTREAM_ERROR", message, retryable: true });
+    const result = await allOk({
+      a: Promise.resolve(ok(1)),
+      b: Promise.resolve(down("b")),
+      c: Promise.resolve(down("c")),
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.message).toBe("b");
   });
 });

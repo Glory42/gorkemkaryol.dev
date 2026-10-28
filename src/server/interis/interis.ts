@@ -1,5 +1,5 @@
 import type { RuntimeEnv } from "@/lib/env";
-import { ok, type ServiceResult } from "@/server/common/http";
+import { allOk, ok, type ServiceResult } from "@/server/common/http";
 import { defineSource, type SourceCtx } from "@/server/common/source";
 
 const BASE = "https://api.interis.gorkemkaryol.dev/api/public";
@@ -110,14 +110,10 @@ export async function getWatchedMedia(
   limit = 200,
 ): Promise<ServiceResult<WatchedMedia>> {
   const client = interisClient(env, ctx);
-  const [serials, movies] = await Promise.all([
-    client.get<WatchedSerial[]>(`/serials/watched?limit=${limit}`),
-    client.get<WatchedMovie[]>(`/movies/watched?limit=${limit}`),
-  ]);
-
-  if (!serials.ok) return serials;
-  if (!movies.ok) return movies;
-  return ok({ serials: serials.data, movies: movies.data });
+  return allOk({
+    serials: client.get<WatchedSerial[]>(`/serials/watched?limit=${limit}`),
+    movies: client.get<WatchedMovie[]>(`/movies/watched?limit=${limit}`),
+  });
 }
 
 export async function getInterisProfile(
@@ -131,19 +127,16 @@ export async function getInterisData(
   env: RuntimeEnv,
   ctx: SourceCtx,
 ): Promise<ServiceResult<InterisData>> {
-  const client = interisClient(env, ctx);
-  const [top4, profile] = await Promise.all([
-    client.get<Top4Response>("/top4"),
-    getInterisProfile(env, ctx),
-  ]);
+  const result = await allOk({
+    top4: interisClient(env, ctx).get<Top4Response>("/top4"),
+    profile: getInterisProfile(env, ctx),
+  });
+  if (!result.ok) return result;
 
-  if (!top4.ok) return top4;
-  if (!profile.ok) return profile;
-
-  const { categories } = top4.data;
+  const { categories } = result.data.top4;
   return ok({
     movie: categories.find((c) => c.key === "movie")?.items ?? [],
     serial: categories.find((c) => c.key === "serial")?.items ?? [],
-    profile: profile.data,
+    profile: result.data.profile,
   });
 }

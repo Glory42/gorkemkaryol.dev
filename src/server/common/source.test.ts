@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { createSourceClient, defineSource, sourceCtx } from "@/server/common/source";
+import {
+  createSourceClient,
+  defineSource,
+  resolveSources,
+  sourceCtx,
+} from "@/server/common/source";
+import { fail, ok } from "@/server/common/http";
 import { createInMemoryRuntime, type CannedResponse } from "@/server/common/runtime";
 import type { RuntimeEnv } from "@/lib/env";
 
@@ -220,5 +226,71 @@ describe("defineSource", () => {
     expect(calls).toHaveLength(2);
     await a.get("/profile");
     expect(calls).toHaveLength(2);
+  });
+});
+
+describe("defineSource — optional keys and query auth", () => {
+  const define = () =>
+    defineSource({
+      envKeys: [],
+      optionalEnvKeys: ["NASA_API_KEY"],
+      scope: () => "nasa",
+      base: () => "https://api.example.dev",
+      query: (e) => ({ api_key: e.NASA_API_KEY || "DEMO_KEY" }),
+      defaultTtl: 300,
+    });
+
+  it("appends the query to every get, reading an optional key when set", async () => {
+    const calls: string[] = [];
+    const ctx = () =>
+      sourceCtx({
+        runtime: createInMemoryRuntime({ calls, responses: [{ url: "/feed", body: {} }] }),
+      });
+    await define()(fakeEnv({ NASA_API_KEY: "k1" }), ctx()).get("/feed?d=1");
+    await define()(fakeEnv(), ctx()).get("/feed");
+    expect(calls).toEqual([
+      "https://api.example.dev/feed?d=1&api_key=k1",
+      "https://api.example.dev/feed?api_key=DEMO_KEY",
+    ]);
+  });
+
+  it("keeps the query out of the cache key", async () => {
+    const calls: string[] = [];
+    const runtime = createInMemoryRuntime({ calls, responses: [{ url: "/feed", body: { n: 1 } }] });
+    const make = define();
+    await make(fakeEnv({ NASA_API_KEY: "k1" }), sourceCtx({ runtime })).get("/feed");
+    const second = await make(fakeEnv({ NASA_API_KEY: "k2" }), sourceCtx({ runtime })).get("/feed");
+    expect(second).toEqual({ ok: true, data: { n: 1 } });
+    expect(calls).toHaveLength(1);
+  });
+});
+
+describe("resolveSources", () => {
+  it("runs every source under its key, each failing independently", async () => {
+    const results = await resolveSources(
+      {
+        good: () => ok(1),
+        bad: () =>
+          fail({ code: "UPSTREAM_ERROR", message: "down", retryable: true, details: "secret" }),
+      },
+      fakeEnv(),
+      sourceCtx({ runtime: createInMemoryRuntime() }),
+    );
+    expect(results.good).toEqual({ ok: true, data: 1 });
+    expect(results.bad).toEqual({
+      ok: false,
+      error: { code: "UPSTREAM_ERROR", message: "down", retryable: true },
+    });
+  });
+
+  it("hands each source the same env and ctx", async () => {
+    const ctx = sourceCtx({ runtime: createInMemoryRuntime() });
+    const env = fakeEnv({ INTERIS_USERNAME: "gk" });
+    const results = await resolveSources(
+      { seen: (e, c) => ok(e.INTERIS_USERNAME === "gk" && c === ctx) },
+      env,
+      ctx,
+    );
+    expect(results.seen).toEqual({ ok: true, data: true });
   });
 });

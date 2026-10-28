@@ -23,7 +23,7 @@ function fakeEnv(overrides: Partial<RuntimeEnv> = {}): RuntimeEnv {
 const CREDS = { LITERAL_EMAIL: "me@example.com", LITERAL_PASSWORD: "pw" };
 const LOGIN_URL = "api.literal.club/graphql";
 
-type Session = { authHeaders: { Authorization: string }; profileId: string };
+type Session = Parameters<Parameters<typeof withLiteralSession>[2]>[0];
 const spy = () =>
   vi.fn((_session: Session) => Promise.resolve({ ok: true as const, data: "done" }));
 
@@ -39,10 +39,8 @@ describe("withLiteralSession", () => {
     expect(use).not.toHaveBeenCalled();
   });
 
-  it("runs the callback with a bearer token after a successful login", async () => {
-    const calls: string[] = [];
-    const runtime = createInMemoryRuntime({
-      calls,
+  it("hands the callback a gql that sends the bearer token", async () => {
+    const base = createInMemoryRuntime({
       responses: [
         {
           url: LOGIN_URL,
@@ -50,16 +48,28 @@ describe("withLiteralSession", () => {
         },
       ],
     });
-    const use = spy();
+    const auth: (string | null)[] = [];
+    const runtime = {
+      ...base,
+      http: {
+        fetch: (url: string, init?: RequestInit) => {
+          auth.push(new Headers(init?.headers).get("Authorization"));
+          return base.http.fetch(url, init);
+        },
+      },
+    };
 
-    const res = await withLiteralSession(fakeEnv(CREDS), sourceCtx({ runtime }), use);
+    const res = await withLiteralSession(
+      fakeEnv(CREDS),
+      sourceCtx({ runtime }),
+      async (session) => {
+        expect(session.profileId).toBe("p1");
+        return session.gql("query Me { me { id } }");
+      },
+    );
 
-    expect(res).toEqual({ ok: true, data: "done" });
-    expect(use).toHaveBeenCalledTimes(1);
-    const session = use.mock.calls[0][0];
-    expect(session.authHeaders.Authorization).toBe("Bearer t0k3n");
-    expect(session.profileId).toBe("p1");
-    expect(calls).toHaveLength(1);
+    expect(res.ok).toBe(true);
+    expect(auth).toEqual([null, "Bearer t0k3n"]);
   });
 
   it("propagates a login failure", async () => {

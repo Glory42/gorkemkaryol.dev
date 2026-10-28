@@ -160,7 +160,7 @@ describe("getWatchedMedia", () => {
     expect(calls.every((c) => c.includes("limit=5"))).toBe(true);
   });
 
-  it("returns the serials failure without waiting on the movies call", async () => {
+  it("fails the whole read when either list fails", async () => {
     const ctx = ctxFor([
       { url: "/serials/watched", status: 503, body: {} },
       { url: "/movies/watched", body: [movie] },

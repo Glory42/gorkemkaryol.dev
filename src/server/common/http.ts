@@ -69,6 +69,26 @@ export function ok<T>(data: T): ServiceResult<T> {
   return { ok: true, data };
 }
 
+type Unwrapped<T> = {
+  [K in keyof T]: T[K] extends Promise<ServiceResult<infer R>> ? R : never;
+};
+
+// Await several results at once; the first failure (in key order) wins,
+// otherwise the data comes back under the same keys.
+export async function allOk<
+  T extends Record<string, Promise<ServiceResult<unknown>>>,
+>(pending: T): Promise<ServiceResult<Unwrapped<T>>> {
+  const settled = await Promise.all(
+    Object.entries(pending).map(async ([key, result]) => [key, await result] as const),
+  );
+  const data: Record<string, unknown> = {};
+  for (const [key, result] of settled) {
+    if (!result.ok) return fail(result.error);
+    data[key] = result.data;
+  }
+  return ok(data as Unwrapped<T>);
+}
+
 // Adapt an env-validation failure onto the ServiceError channel, so a source's
 // missing-binding check and its transport errors surface the same way.
 export function envFail<T>(error: ValidationError): ServiceResult<T> {

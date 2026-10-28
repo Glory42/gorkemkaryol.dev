@@ -40,4 +40,20 @@ describe("resolveApodExplanation", () => {
     const text = await resolveApodExplanation("clipses only.", DATE, runtime);
     expect(text).toBe("clipses only.");
   });
+
+  it("bounds the page fetch with an abort signal", async () => {
+    const base = runtimeFor([{ url: PAGE, body: "" }]);
+    let signal: AbortSignal | null | undefined;
+    const runtime = {
+      ...base,
+      http: {
+        fetch: (url: string, init?: RequestInit) => {
+          signal = init?.signal;
+          return base.http.fetch(url, init);
+        },
+      },
+    };
+    await resolveApodExplanation("clipses.", DATE, runtime);
+    expect(signal).toBeInstanceOf(AbortSignal);
+  });
 });

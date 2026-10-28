@@ -8,6 +8,7 @@ import {
   envFail,
   fail,
   ok,
+  publicResult,
   requestJsonWithRetry,
   type ServiceResult,
 } from "@/server/common/http";
@@ -52,6 +53,8 @@ export interface SourceClientOptions {
   retries?: number;
   /** Sent on every request from this client. */
   headers?: Record<string, string>;
+  /** Appended to every get() URL but kept out of cache keys, so secrets fit. */
+  query?: Record<string, string>;
   /** When present and not ok, every call short-circuits to this failure with
    *  no network hit. Use it for env / precondition checks. */
   guard?: ServiceResult<unknown>;
@@ -103,6 +106,12 @@ export function createSourceClient(
   const retries = options.retries ?? 1;
   const graphqlUrl = options.graphqlUrl ?? options.base;
 
+  function withQuery(path: string): string {
+    if (!options.query) return path;
+    const params = new URLSearchParams(options.query).toString();
+    return `${path}${path.includes("?") ? "&" : "?"}${params}`;
+  }
+
   function keyFor(kind: string, discriminant: string): string {
     return `upstream:${hashKey(`${options.scope}\n${kind}\n${discriminant}`)}`;
   }
@@ -118,7 +127,7 @@ export function createSourceClient(
       opts.ttl ?? options.defaultTtl,
       async (): Promise<ServiceResult<T>> => {
         const res = await requestJsonWithRetry<unknown>({
-          url: `${options.base}${path}`,
+          url: `${options.base}${withQuery(path)}`,
           method: "GET",
           headers: options.headers,
           timeoutMs: opts.timeoutMs ?? timeoutMs,
@@ -171,26 +180,42 @@ export function createSourceClient(
 // scope / base / headers from them. The returned factory reads the env, wires
 // the missing-binding `guard`, and hands back a ready client.
 
-export interface SourceDefinition<K extends RuntimeEnvKey> {
+export interface SourceDefinition<
+  K extends RuntimeEnvKey,
+  O extends RuntimeEnvKey = never,
+> {
   /** Required bindings. `[]` means the source needs no env (e.g. a public API). */
   envKeys: K[];
-  scope: (env: Pick<RuntimeEnv, K>) => string;
-  base: (env: Pick<RuntimeEnv, K>) => string;
-  graphqlUrl?: (env: Pick<RuntimeEnv, K>) => string;
+  /** Bindings read when set but never required (a key with a public fallback). */
+  optionalEnvKeys?: O[];
+  scope: (env: Pick<RuntimeEnv, K | O>) => string;
+  base: (env: Pick<RuntimeEnv, K | O>) => string;
+  graphqlUrl?: (env: Pick<RuntimeEnv, K | O>) => string;
   defaultTtl: number;
   timeoutMs?: number;
   retries?: number;
-  headers?: (env: Pick<RuntimeEnv, K>) => Record<string, string>;
+  headers?: (env: Pick<RuntimeEnv, K | O>) => Record<string, string>;
+  /** Query-string auth (e.g. `api_key`), sent on every get(), never cached on. */
+  query?: (env: Pick<RuntimeEnv, K | O>) => Record<string, string>;
 }
 
-export function defineSource<K extends RuntimeEnvKey>(
-  def: SourceDefinition<K>,
+export function defineSource<
+  K extends RuntimeEnvKey,
+  O extends RuntimeEnvKey = never,
+>(
+  def: SourceDefinition<K, O>,
 ): (env: RuntimeEnv, ctx: SourceCtx) => SourceClient {
   return (env, ctx) => {
     const envResult = requireEnv(env, def.envKeys);
+    const optional = Object.fromEntries(
+      (def.optionalEnvKeys ?? []).map((key) => [key, env[key]]),
+    );
     // On a missing key the guard fails every call before base/scope are used,
-    // so deriving them from an empty pick here is harmless.
-    const picked = (envResult.ok ? envResult.data : {}) as Pick<RuntimeEnv, K>;
+    // so deriving them from a partial pick here is harmless.
+    const picked = {
+      ...optional,
+      ...(envResult.ok ? envResult.data : {}),
+    } as Pick<RuntimeEnv, K | O>;
     return createSourceClient({
       base: def.base(picked),
       graphqlUrl: def.graphqlUrl?.(picked),
@@ -199,8 +224,28 @@ export function defineSource<K extends RuntimeEnvKey>(
       timeoutMs: def.timeoutMs,
       retries: def.retries,
       headers: def.headers?.(picked),
+      query: def.query?.(picked),
       guard: envResult.ok ? ok(envResult.data) : envFail(envResult.error),
       runtime: ctx.runtime,
     });
   };
+}
+
+type SourceResults<T> = {
+  [K in keyof T]: T[K] extends Source<infer R> ? ServiceResult<R> : never;
+};
+
+// Run several sources against one env + ctx, each failing independently, with
+// internal error details stripped for the wire. Route loaders reach this via page-data.
+export async function resolveSources<T extends Record<string, Source<unknown>>>(
+  sources: T,
+  env: RuntimeEnv,
+  ctx: SourceCtx,
+): Promise<SourceResults<T>> {
+  const entries = await Promise.all(
+    Object.entries(sources).map(
+      async ([key, source]) => [key, publicResult(await source(env, ctx))] as const,
+    ),
+  );
+  return Object.fromEntries(entries) as SourceResults<T>;
 }

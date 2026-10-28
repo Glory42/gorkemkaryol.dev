@@ -1,8 +1,8 @@
-import { requireEnv, type RuntimeEnv } from "@/lib/env";
-import { envFail, fail, ok, type ServiceResult } from "@/server/common/http";
+import type { RuntimeEnv } from "@/lib/env";
+import { allOk, fail, ok, type ServiceResult } from "@/server/common/http";
 import {
   defineSource,
-  type SourceClient,
+  type GqlOptions,
   type SourceCtx,
 } from "@/server/common/source";
 
@@ -98,17 +98,6 @@ const SHELF_BY_SLUG_QUERY = `
   }
 `;
 
-type LiteralCredentials = ServiceResult<{ email: string; password: string }>;
-
-function literalCredentials(runtimeEnv: RuntimeEnv): LiteralCredentials {
-  const result = requireEnv(runtimeEnv, ["LITERAL_EMAIL", "LITERAL_PASSWORD"]);
-  if (!result.ok) return envFail(result.error);
-  return ok({
-    email: result.data.LITERAL_EMAIL,
-    password: result.data.LITERAL_PASSWORD,
-  });
-}
-
 const literalClient = defineSource({
   envKeys: ["LITERAL_EMAIL", "LITERAL_PASSWORD"],
   scope: (e) => `literal:${e.LITERAL_EMAIL}`,
@@ -119,50 +108,28 @@ const literalClient = defineSource({
 });
 
 interface LiteralSession {
-  client: SourceClient;
-  authHeaders: { Authorization: string };
+  /** `gql` with the session's bearer token attached. */
+  gql: <T>(query: string, options?: GqlOptions) => Promise<ServiceResult<T>>;
   profileId: string;
 }
 
-// Log in once, then run `use` with an authenticated client. Both public reads
-// share this so the token dance lives in one place.
+// Log in once (cached; the client guard fails it with MISSING_ENV first when
+// credentials are unset), then run `use` with an authenticated gql.
 export async function withLiteralSession<T>(
   env: RuntimeEnv,
   ctx: SourceCtx,
   use: (session: LiteralSession) => Promise<ServiceResult<T>>,
 ): Promise<ServiceResult<T>> {
-  const credentials = literalCredentials(env);
   const client = literalClient(env, ctx);
-  const tokenResult = await getLiteralToken(client, credentials);
-  if (!tokenResult.ok) return tokenResult;
-
-  return use({
-    client,
-    authHeaders: { Authorization: `Bearer ${tokenResult.data.token}` },
-    profileId: tokenResult.data.profileId,
-  });
-}
-
-async function getLiteralToken(
-  client: SourceClient,
-  credentials: LiteralCredentials,
-): Promise<ServiceResult<{ token: string; profileId: string }>> {
-  if (!credentials.ok) return fail(credentials.error);
-
-  const result = await client.gql<LoginMutationData>(LOGIN_MUTATION, {
-    variables: {
-      email: credentials.data.email,
-      password: credentials.data.password,
-    },
+  const login = await client.gql<LoginMutationData>(LOGIN_MUTATION, {
+    variables: { email: env.LITERAL_EMAIL, password: env.LITERAL_PASSWORD },
     ttl: 1200,
     label: "Literal login",
   });
+  if (!login.ok) return login;
 
-  if (!result.ok) return result;
-
-  const token = result.data.login?.token ?? "";
-  const profileId = result.data.login?.profile?.id ?? "";
-
+  const token = login.data.login?.token ?? "";
+  const profileId = login.data.login?.profile?.id ?? "";
   if (!token || !profileId) {
     return fail({
       code: "UNAUTHORIZED",
@@ -171,7 +138,12 @@ async function getLiteralToken(
     });
   }
 
-  return ok({ token, profileId });
+  const auth = { Authorization: `Bearer ${token}` };
+  return use({
+    profileId,
+    gql: (query, options = {}) =>
+      client.gql(query, { ...options, headers: { ...options.headers, ...auth } }),
+  });
 }
 
 function readingVariables(
@@ -187,28 +159,25 @@ export async function getLiteralData(
   ctx: SourceCtx,
   readingLimit = 3,
 ): Promise<ServiceResult<LiteralData>> {
-  return withLiteralSession(env, ctx, async ({ client, authHeaders, profileId }) => {
-    const [reading, shelf] = await Promise.all([
-      client.gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
-        headers: authHeaders,
+  return withLiteralSession(env, ctx, async ({ gql, profileId }) => {
+    const result = await allOk({
+      reading: gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
         variables: readingVariables(profileId, readingLimit, "IS_READING"),
         label: "Literal currently-reading",
       }),
-      client.gql<ShelfBySlugQueryData>(SHELF_BY_SLUG_QUERY, {
-        headers: authHeaders,
+      shelf: gql<ShelfBySlugQueryData>(SHELF_BY_SLUG_QUERY, {
         variables: { shelfSlug: "favorits-b4k6z82" },
         label: "Literal shelves",
       }),
-    ]);
-
-    if (!reading.ok) return reading;
-    if (!shelf.ok) return shelf;
+    });
+    if (!result.ok) return result;
+    const { reading, shelf } = result.data;
 
     return ok({
-      currentlyReading: (reading.data.booksByReadingStateAndProfile ?? []).map(
+      currentlyReading: (reading.booksByReadingStateAndProfile ?? []).map(
         (book) => ({ status: "IS_READING" as const, book }),
       ),
-      favoriteBooks: (shelf.data.shelf?.books ?? []).slice(0, 2),
+      favoriteBooks: (shelf.shelf?.books ?? []).slice(0, 2),
     });
   });
 }
@@ -220,26 +189,23 @@ export async function getAllBooksData(
 ): Promise<
   ServiceResult<{ currentlyReading: LiteralBook[]; finishedBooks: LiteralBook[] }>
 > {
-  return withLiteralSession(env, ctx, async ({ client, authHeaders, profileId }) => {
-    const [reading, finished] = await Promise.all([
-      client.gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
-        headers: authHeaders,
+  return withLiteralSession(env, ctx, async ({ gql, profileId }) => {
+    const result = await allOk({
+      reading: gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
         variables: readingVariables(profileId, 50, "IS_READING"),
         label: "Literal currently-reading",
       }),
-      client.gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
-        headers: authHeaders,
+      finished: gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
         variables: readingVariables(profileId, finishedLimit, "FINISHED"),
         label: "Literal finished-books",
       }),
-    ]);
-
-    if (!reading.ok) return reading;
-    if (!finished.ok) return finished;
+    });
+    if (!result.ok) return result;
+    const { reading, finished } = result.data;
 
     return ok({
-      currentlyReading: reading.data.booksByReadingStateAndProfile ?? [],
-      finishedBooks: finished.data.booksByReadingStateAndProfile ?? [],
+      currentlyReading: reading.booksByReadingStateAndProfile ?? [],
+      finishedBooks: finished.booksByReadingStateAndProfile ?? [],
     });
   });
 }
