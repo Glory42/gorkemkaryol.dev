@@ -1,8 +1,6 @@
 import { workersRuntime, type CachePort } from "@/server/common/runtime";
 
-// Read-through cache over a CachePort — defaults to the Workers `caches` global,
-// tests pass an in-memory Map. `cacheWhen` gates the write so a caller can keep
-// a transient failure out of the cache (default: store every result).
+// Read-through cache; `cacheWhen` keeps results such as transient failures out.
 export async function withCache<T>(
   key: string,
   ttlSeconds: number,

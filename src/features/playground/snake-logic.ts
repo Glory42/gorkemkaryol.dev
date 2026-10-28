@@ -41,8 +41,7 @@ export function turn(state: SnakeState, dir: Dir): SnakeState {
   return OPPOSITE[dir] === state.dir ? state : { ...state, next: dir };
 }
 
-// One tick: move the head, then die on a wall (walls mode) or the body, grow
-// and re-roll food on a bite, otherwise drop the tail.
+// One tick: move, die on a wall (walls mode) or the body, grow on food, else drop the tail.
 export function stepSnake(
   state: SnakeState,
   rand: () => number = Math.random,

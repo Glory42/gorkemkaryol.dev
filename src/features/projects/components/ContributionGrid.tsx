@@ -46,8 +46,7 @@ export function ContributionGrid({ calendar }: Props) {
 
   const fills = useMemo(() => levelFill(accentRgb), [accentRgb]);
 
-  // Memoized on `calendar` alone so pointermove re-renders don't re-sort and
-  // re-group 364 days many times a second while hovering.
+  // Keyed on `calendar` alone so hover re-renders don't regroup 364 days.
   const weeks = useMemo(
     () => (calendar ? buildContributionWeeks(calendar.days) : []),
     [calendar],

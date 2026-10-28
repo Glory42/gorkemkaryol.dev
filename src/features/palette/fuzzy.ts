@@ -1,7 +1,4 @@
-// A small fzf-flavoured matcher: the query must appear as a case-insensitive
-// subsequence of the text. Contiguous runs and word starts score higher, and
-// gaps cost a little, so "shel" lands on the "shell" in "playground/shell"
-// rather than a scattered s…h…e…l.
+// fzf-flavoured subsequence match: contiguous runs and word starts score higher, gaps cost.
 
 export interface FuzzyMatch {
   score: number;

@@ -15,8 +15,7 @@ export function apodPageUrl(date: string): string {
   return `https://apod.nasa.gov/apod/ap${date.slice(2).replace(/-/g, "")}.html`;
 }
 
-// APOD video days hand us a YouTube URL; rewrite it to the nocookie embed host
-// our CSP frame-src allows. Returns null for players we can't frame (Vimeo etc).
+// Rewrite YouTube URLs to the nocookie host our CSP allows; null for unframeable players.
 function youtubeEmbedUrl(raw: string): string | null {
   try {
     const u = new URL(raw);
@@ -42,8 +41,7 @@ function isDirectVideo(url: string): boolean {
   return /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|$)/i.test(url);
 }
 
-// Collapse APOD's coarse `mediaType` and the messy URL into one render decision.
-// Precedence: image -> framed YouTube -> direct video file -> thumbnail -> link.
+// One render decision: image, then framed YouTube, video file, thumbnail, finally a link.
 export function resolveApodMedia(apod: Apod): ApodMedia {
   const pageUrl = apodPageUrl(apod.date);
 

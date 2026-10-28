@@ -30,8 +30,7 @@ function renderResult<T>(
   );
 }
 
-// Suspense + Await + the ok-branch + error StatusPanel in one place. The child
-// only ever sees resolved, successful data.
+// Suspense + Await + ok branch + error panel; children only ever see successful data.
 export function DataSection<T>({
   promise,
   fallback,
@@ -48,8 +47,7 @@ export function DataSection<T>({
   );
 }
 
-// The awaited twin of DataSection: same ok / error / renderError contract for a
-// ServiceResult a route loader already resolved, without the Suspense wrapper.
+// DataSection for a result the loader already resolved: same contract, no Suspense.
 export function ResultSection<T>({
   result,
   errorTitle,

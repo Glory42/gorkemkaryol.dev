@@ -3,8 +3,7 @@ import type { GithubProject } from "@/server/github/github";
 import gathinReadme from "@/features/projects/content/gathin.md?raw";
 import huddinReadme from "@/features/projects/content/huddin.md?raw";
 
-// Projects not in the GitHub feed (private company work). `card.name` is the
-// slug and `card.url` the live product; `readme` replaces a fetched README.
+// Private projects outside the GitHub feed: `card.name` is the slug, `readme` the detail body.
 export interface ManualProject {
   readme: string;
   card: GithubProject;
@@ -39,8 +38,7 @@ export const manualProjects: ManualProject[] = [
   },
 ];
 
-// The one place a project slug is matched. Case-insensitive so a hand-typed
-// `/projects/gathin` resolves the same as the linked `/projects/Gathin`.
+// Case-insensitive, so `/projects/gathin` resolves like the linked `/projects/Gathin`.
 export function findManualProject(slug: string): ManualProject | undefined {
   const wanted = slug.toLowerCase();
   return manualProjects.find(

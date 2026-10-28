@@ -4,8 +4,7 @@ interface SmartImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   wrapperClassName?: string;
 }
 
-// Load-gated image: shimmer placeholder until `onLoad`, then cross-fade in.
-// Also checks `img.complete` on mount for cache-hit images that never fire onLoad.
+// Shimmer until loaded, then cross-fade; checks `img.complete` for cache hits that skip onLoad.
 export function SmartImage({
   className,
   wrapperClassName,

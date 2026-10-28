@@ -22,8 +22,7 @@ import {
 } from "@/server/interis/interis";
 import { runSources } from "@/server/common/page-data";
 
-// Composite loader: three Interis reads that fail independently, folded into
-// one round-trip (the page shows a single skeleton, not per-section streaming).
+// Three Interis reads that fail independently, folded into one round-trip.
 const getWatchingPageDataServerFn = createServerFn({ method: "GET" }).handler(
   () =>
     runSources({

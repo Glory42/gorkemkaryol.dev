@@ -9,8 +9,7 @@ import type {
 } from "@/server/interis/interis";
 import type { LiteralBook } from "@/server/literal/literal";
 
-// The one render shape behind ShelfList and PosterGrid. Sources return wire
-// types; this module owns how they become shelves, ordering and labels included.
+// The one render shape behind ShelfList and PosterGrid; this module maps wire types onto it.
 export interface DisplayItem {
   id: string | number;
   title: string;
@@ -92,8 +91,7 @@ export const WATCHED_FILTERS = [
 
 export type WatchedFilter = (typeof WATCHED_FILTERS)[number]["id"];
 
-// The watched shelf: series and films merged newest-first by last
-// interaction, narrowed by `filter`, each row through its own adapter.
+// Series and films merged newest-first, narrowed by `filter`, each through its own adapter.
 export function watchedItems(
   media: WatchedMedia,
   filter: WatchedFilter,

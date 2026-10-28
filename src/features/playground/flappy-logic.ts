@@ -38,8 +38,7 @@ function hits(y: number, pipes: Pipe[]): boolean {
   );
 }
 
-// One frame: gravity, spawn a pipe every PIPE_EVERY frames, scroll, score each
-// pipe the bird clears, then die on the ceiling, floor or a pipe.
+// One frame: gravity, spawn and scroll pipes, score cleared ones, die on a wall or pipe.
 export function stepFlappy(
   state: FlappyState,
   rand: () => number = Math.random,

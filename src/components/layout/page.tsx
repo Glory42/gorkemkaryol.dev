@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 
-// Shared route chrome: the one main-column frame, the <head> meta shape, and
-// the `~$ cmd` prompt line that opens most pages.
+// Shared route chrome: the main-column classes, <head> meta and the `~$ cmd` prompt.
 
 /** The standard PageShell main-column classes. A few routes need a variant. */
 export const PAGE_MAIN = "px-[max(24px,4vw)] pb-20 pt-[max(12px,1.5vh)]";

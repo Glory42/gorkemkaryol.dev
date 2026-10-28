@@ -3,9 +3,7 @@ import type { RuntimePort } from "@/server/common/runtime";
 const DAY = 86_400;
 const PAGE_TIMEOUT_MS = 5_000;
 
-// NASA's APOD JSON API drops a word's first letter when the source HTML
-// hyperlinks it ("Eclipses" -> "clipses"). On that signature, re-read the real
-// text from the APOD web page and cache the repair for the day.
+// APOD's API drops a hyperlinked word's first letter; repair from the web page, cached a day.
 export async function resolveApodExplanation(
   apiText: string,
   date: string,

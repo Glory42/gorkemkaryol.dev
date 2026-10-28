@@ -41,9 +41,7 @@ a {
 /* scrollbar */
 html {
   scrollbar-width: thin;
-  /* Firefox reads this off <html>, which sits above [data-accent], so it stays
-     on the :root default. Chrome/Safari use the ::-webkit rules below, which
-     the __root.tsx effect keeps in sync with the section accent. */
+  /* Firefox reads this off <html> (stays default); Chrome/Safari use the synced ::-webkit rules. */
   scrollbar-color: rgb(var(--accent-rgb) / 0.25) transparent;
 }
 
@@ -171,8 +169,7 @@ html {
 }
 
 .readme-prose img {
-  /* Inline so badge rows (`[![a]()]() [![b]()]()`) sit side by side; Tailwind's
-     Preflight otherwise forces every img to display:block. */
+  /* Inline so README badge rows sit side by side; Preflight makes every img a block. */
   display: inline-block;
   vertical-align: middle;
   max-width: 100%;

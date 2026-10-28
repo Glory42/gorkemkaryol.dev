@@ -73,8 +73,7 @@ type Unwrapped<T> = {
   [K in keyof T]: T[K] extends Promise<ServiceResult<infer R>> ? R : never;
 };
 
-// Await several results at once; the first failure (in key order) wins,
-// otherwise the data comes back under the same keys.
+// Await several results at once; the first failure in key order wins.
 export async function allOk<
   T extends Record<string, Promise<ServiceResult<unknown>>>,
 >(pending: T): Promise<ServiceResult<Unwrapped<T>>> {
@@ -89,8 +88,7 @@ export async function allOk<
   return ok(data as Unwrapped<T>);
 }
 
-// Adapt an env-validation failure onto the ServiceError channel, so a source's
-// missing-binding check and its transport errors surface the same way.
+// Surface a missing-binding error on the same channel as transport errors.
 export function envFail<T>(error: ValidationError): ServiceResult<T> {
   return fail({
     code: error.code,

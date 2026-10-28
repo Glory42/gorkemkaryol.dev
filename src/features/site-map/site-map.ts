@@ -1,8 +1,7 @@
 import { playgroundEntries } from "@/features/playground/registry";
 import { SECTION_LIST } from "@/lib/sections";
 
-// Every place a visitor can jump to by name: sections, their sub-pages and
-// live playground toys. The palette lists them; the shell `cd`s into them.
+// Every place a visitor can jump to by name; the palette lists them, the shell `cd`s into them.
 export interface Place {
   href: string;
   /** The path as the shell prints it: `~`, `~/projects`, `~/interests/reading`. */
@@ -32,8 +31,7 @@ export const sectionDirs: string[] = SECTION_LIST.filter(
   (section) => section.href !== "/",
 ).map((section) => section.slug);
 
-// Resolve what a visitor types after `cd`: `projects`, `./projects`,
-// `~/interests/reading`, `/`, `home` or nothing. Unknown input is undefined.
+// Resolve a `cd` argument (`projects`, `./projects`, `~/interests/reading`, `/`, `home`, empty).
 export function findPlace(input: string): Place | undefined {
   const path = input
     .trim()

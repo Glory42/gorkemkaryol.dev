@@ -11,8 +11,7 @@ function sameHud(a: Hud, b: Hud): boolean {
   return Object.keys(b).every((key) => a[key] === b[key]);
 }
 
-// Owns the ritual every canvas game repeats: canvas, accent, frame loop, the
-// phase machine, death, and mirroring the game's numbers (`hud`) into React.
+// Owns what every canvas game repeats: canvas, accent, loop, phase, death and the HUD.
 export function useCanvasGame<H extends Hud>(opts: {
   driver: LoopDriver;
   tickMs?: number;

@@ -10,10 +10,7 @@ function nowMs(): number {
   return typeof performance !== "undefined" ? performance.now() : Date.now();
 }
 
-// A frame pump with two drivers: "raf" (requestAnimationFrame, smooth per-frame
-// games) and "tick" (setInterval at tickMs, fixed-step games). start() cancels
-// any prior run; stop() is idempotent; a queued frame that lands after stop()
-// is a no-op.
+// Frame pump over rAF ("raf") or setInterval ("tick"); stop() is idempotent and final.
 export function createGameLoop(opts: {
   driver: LoopDriver;
   tickMs?: number;

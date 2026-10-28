@@ -14,8 +14,7 @@ export function rotate(shape: Shape): Shape {
   return shape[0].map((_, i) => shape.map((row) => row[i]).reverse());
 }
 
-// Can `shape` sit at (px, py) — inside the walls and floor, not overlapping a
-// locked cell? Cells above the top edge (ny < 0) are allowed while spawning.
+// Does `shape` fit at (px, py)? Cells above the top edge are allowed while spawning.
 export function fits(
   board: Board,
   shape: Shape,
@@ -65,8 +64,7 @@ export function lockPiece(
   return clearLines(next);
 }
 
-// Rotate in place, else nudge one cell right, then left (a minimal wall
-// kick). Null when no position fits.
+// Rotate in place, else kick one cell right, then left; null when nothing fits.
 export function kickRotate(board: Board, piece: Piece): Piece | null {
   const shape = rotate(piece.shape);
   for (const dx of [0, 1, -1]) {

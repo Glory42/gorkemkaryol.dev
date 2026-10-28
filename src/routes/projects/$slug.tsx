@@ -99,8 +99,7 @@ function ReadmeLink({ readme }: { readme: ProjectReadme }) {
 
 function ProjectReadmePage() {
   const { slug } = Route.useParams();
-  // A validated createServerFn whose loader can throw notFound() widens the
-  // data; the loader's own guards are what actually narrow it.
+  // notFound() in the loader widens the data type; the loader's guards narrow it.
   const result = Route.useLoaderData() as ServiceResult<ProjectReadme>;
 
   return (

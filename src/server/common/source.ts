@@ -14,8 +14,7 @@ import {
 } from "@/server/common/http";
 import { workersRuntime, type RuntimePort } from "@/server/common/runtime";
 
-// An upstream source: given the env bindings and the ambient request context,
-// reach one external thing and return a render-ready result.
+// An upstream source: env + request context in, a render-ready result out.
 export interface SourceCtx {
   runtime: RuntimePort;
   /** The incoming request. Only request-shaped sources (edge) read it. */
@@ -35,10 +34,7 @@ export function sourceCtx(overrides: Partial<SourceCtx> = {}): SourceCtx {
   };
 }
 
-// --- Upstream client ---
-// One client per upstream: `get` / `gql` own transport, caching, base URL and
-// the GraphQL envelope. Cache keys derive from `scope` + request shape, and a
-// failed result is never written to the cache.
+// One client per upstream: transport, caching (failures never stored) and the GraphQL envelope.
 
 export interface SourceClientOptions {
   /** Absolute base URL. `get(path)` appends `path`; `gql()` posts here. */
@@ -55,8 +51,7 @@ export interface SourceClientOptions {
   headers?: Record<string, string>;
   /** Appended to every get() URL but kept out of cache keys, so secrets fit. */
   query?: Record<string, string>;
-  /** When present and not ok, every call short-circuits to this failure with
-   *  no network hit. Use it for env / precondition checks. */
+  /** If set and not ok, every call fails with it before any network hit. */
   guard?: ServiceResult<unknown>;
   runtime?: RuntimePort;
 }
@@ -64,8 +59,7 @@ export interface SourceClientOptions {
 export interface GetOptions {
   ttl?: number;
   timeoutMs?: number;
-  /** Cache discriminant override — set it when `path` carries volatile or
-   *  secret query params that must not shape the key. */
+  /** Cache key override for volatile or secret query params. */
   cacheDiscriminant?: string;
 }
 
@@ -75,8 +69,7 @@ export interface GqlOptions {
   ttl?: number;
   timeoutMs?: number;
   label?: string;
-  /** Cache discriminant override — set it when `variables` carry volatile
-   *  values (timestamps) that must not bust the cache every call. */
+  /** Cache key override for volatile variables such as timestamps. */
   cacheDiscriminant?: string;
   onMeta?: GraphqlRequestOptions["onMeta"];
 }
@@ -175,10 +168,7 @@ export function createSourceClient(
   return { get, gql };
 }
 
-// --- Source definition ---
-// Declare an upstream once: which env keys it needs, and how to derive its
-// scope / base / headers from them. The returned factory reads the env, wires
-// the missing-binding `guard`, and hands back a ready client.
+// Declare an upstream once: its env keys and how scope, base and headers derive from them.
 
 export interface SourceDefinition<
   K extends RuntimeEnvKey,
@@ -210,8 +200,7 @@ export function defineSource<
     const optional = Object.fromEntries(
       (def.optionalEnvKeys ?? []).map((key) => [key, env[key]]),
     );
-    // On a missing key the guard fails every call before base/scope are used,
-    // so deriving them from a partial pick here is harmless.
+    // A missing key fails every call via the guard, so a partial pick here is harmless.
     const picked = {
       ...optional,
       ...(envResult.ok ? envResult.data : {}),
@@ -235,8 +224,7 @@ type SourceResults<T> = {
   [K in keyof T]: T[K] extends Source<infer R> ? ServiceResult<R> : never;
 };
 
-// Run several sources against one env + ctx, each failing independently, with
-// internal error details stripped for the wire. Route loaders reach this via page-data.
+// Run sources against one env + ctx, each failing independently, details stripped for the wire.
 export async function resolveSources<T extends Record<string, Source<unknown>>>(
   sources: T,
   env: RuntimeEnv,

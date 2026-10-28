@@ -108,8 +108,7 @@ const book = (id: string) => ({
   authors: [{ name: "Author" }],
 });
 
-// One canned GraphQL body covers login + every follow-up read, since all three
-// Literal queries POST to the same endpoint.
+// One canned body serves login and every read, since all Literal queries share one endpoint.
 function literalRuntime(over: Record<string, unknown> = {}) {
   return createInMemoryRuntime({
     responses: [

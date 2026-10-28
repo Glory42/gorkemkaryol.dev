@@ -2,9 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getProjects } from "@/features/projects/projects";
 import { runSource } from "@/server/common/page-data";
 
-// Project names for the command palette, fetched the first time it opens.
-// Same cached source the /projects loader reads; on error the palette just
-// lists pages and actions.
+// Project names for the palette, fetched on first open from the same cached /projects source.
 export const getPaletteProjectsServerFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<string[]> => {
     const result = await runSource(getProjects);

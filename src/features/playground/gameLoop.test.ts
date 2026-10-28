@@ -8,8 +8,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-// Only the "tick" driver is exercised — requestAnimationFrame is not a node
-// global. The "raf" branch is the same shape with rAF in place of setInterval.
+// Only the tick driver runs here: requestAnimationFrame isn't a node global.
 describe("createGameLoop — tick driver", () => {
   it("calls step once per tickMs while running", () => {
     const step = vi.fn();

@@ -4,8 +4,7 @@ import { defineSource, type SourceCtx } from "@/server/common/source";
 
 const BASE = "https://api.interis.gorkemkaryol.dev/api/public";
 
-// A client scoped to one Interis account. No username → the `guard` fails every
-// call with MISSING_ENV before any network hit.
+// A client for one Interis account; the guard fails calls when the username is unset.
 const interisClient = defineSource({
   envKeys: ["INTERIS_USERNAME"],
   scope: (e) => `interis:${e.INTERIS_USERNAME}`,

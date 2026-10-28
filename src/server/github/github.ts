@@ -3,8 +3,7 @@ import { fail, ok, type ServiceResult } from "@/server/common/http";
 import { defineSource, type SourceCtx } from "@/server/common/source";
 import { EXTERNAL_REPOS } from "@/server/github/external-repos";
 
-// A client for GitHub's GraphQL API, scoped and authenticated for one user.
-// No token / username → the `guard` fails every call before a network hit.
+// GitHub GraphQL client for one user; the guard fails calls when token or username is missing.
 export const githubClient = defineSource({
   envKeys: ["GITHUB_TOKEN", "PUBLIC_GITHUB_USERNAME"],
   scope: (e) => `github:${e.PUBLIC_GITHUB_USERNAME}`,
@@ -269,8 +268,7 @@ export async function getGithubProjects(
         from: from.toISOString(),
         to: to.toISOString(),
       },
-      // `from` / `to` move every call — key on the stable inputs instead, but
-      // include EXTERNAL_REPOS so adding one busts the cache immediately.
+      // `from` / `to` change every call, so key on stable inputs (EXTERNAL_REPOS included).
       cacheDiscriminant: `overview:${username}:${EXTERNAL_REPOS.map(
         (repo) => `${repo.owner}/${repo.name}`,
       ).join(",")}`,

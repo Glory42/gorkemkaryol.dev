@@ -5,8 +5,7 @@ import { getPaletteProjectsServerFn } from "@/features/palette/palette-projects"
 import { contactItems, DOTFILES_URL } from "@/features/home/content";
 import { places } from "@/features/site-map/site-map";
 
-// fzf-style jump list: Ctrl/⌘+K (or the unlabelled ^K in the footer) opens it,
-// typing fuzzy-filters pages, projects and links, Enter runs the pick.
+// fzf-style jump list: Ctrl/⌘+K opens it, typing fuzzy-filters, Enter runs the pick.
 
 const OPEN_EVENT = "palette:open";
 

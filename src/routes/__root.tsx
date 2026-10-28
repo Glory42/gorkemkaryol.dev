@@ -44,8 +44,7 @@ function RootComponent() {
   });
   const accent = accentForPath(pathname);
 
-  // `data-accent` on this wrapper is the SSR source of truth (no flash); mirror
-  // it onto <html> in an effect so the page-level scrollbar can track it too.
+  // `data-accent` here is the SSR source of truth; mirror it to <html> for the page scrollbar.
   useEffect(() => {
     document.documentElement.dataset.accent = accent;
   }, [accent]);

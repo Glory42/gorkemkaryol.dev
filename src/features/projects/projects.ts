@@ -19,9 +19,7 @@ import {
   manualProjects,
 } from "@/features/projects/manual-projects";
 
-// The projects page composes local manual entries (infallible) with the GitHub
-// feed (fallible), so it degrades rather than fails: manual cards always show,
-// and a GitHub outage surfaces as `githubError` beside them.
+// Manual cards always show; a GitHub outage degrades to `githubError` beside them.
 export interface ProjectsView {
   username: string | null;
   featured: GithubProject[];

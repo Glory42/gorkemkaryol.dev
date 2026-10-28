@@ -6,10 +6,7 @@ import type { SectionHref } from "@/lib/sections";
 import { ResultSection } from "@/components/ui/DataSection";
 import type { ServiceResult } from "@/server/common/http";
 
-// The frame every awaited data route shares: the main column, the `~$ cmd`
-// prompt line, an optional back-link row, and the ok / error split. A route
-// passes a source result and a render fn; DataPage.Skeleton is the same frame
-// with a static body for the pending state.
+// The frame every awaited data route shares: column, prompt, back link and the ok / error split.
 
 interface FrameProps {
   cmd: string;
@@ -24,8 +21,7 @@ interface FrameProps {
   children: ReactNode;
 }
 
-// The chrome without a result split — for routes that render several
-// independent results (a runSources composite) inside one frame.
+// The frame without a result split, for routes that render several results (runSources).
 export function PageFrame(props: FrameProps) {
   return <Frame {...props} />;
 }

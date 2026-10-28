@@ -53,8 +53,7 @@ export async function getRepoReadmeData(
 
   if (!result.ok) return result;
 
-  // GitHub reports a missing repo as an errors[] entry (NOT_FOUND from gql);
-  // a bare null is the same answer.
+  // A missing repo usually arrives as NOT_FOUND from gql; a bare null means the same.
   const repository = result.data.repository;
   if (!repository) {
     return fail({

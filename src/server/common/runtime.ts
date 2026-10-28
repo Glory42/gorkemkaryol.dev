@@ -1,5 +1,4 @@
-// The seam under `fetch` and `caches`. Prod passes `workersRuntime` (real
-// globals); tests pass `createInMemoryRuntime` (a Map + canned responses).
+// The seam under `fetch` and `caches`: Workers globals in prod, in-memory fakes in tests.
 
 export interface HttpPort {
   fetch(url: string, init?: RequestInit): Promise<Response>;
@@ -91,8 +90,7 @@ export function createInMemoryRuntime(
     http: {
       async fetch(url: string): Promise<Response> {
         calls.push(url);
-        // Most specific (longest) matching pattern wins, so a loose pattern
-        // can't shadow a precise one regardless of declaration order.
+        // Longest matching pattern wins, so a loose one can't shadow a precise one.
         const match = responses
           .filter((r) => url.includes(r.url))
           .sort((a, b) => b.url.length - a.url.length)[0];

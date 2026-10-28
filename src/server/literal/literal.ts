@@ -113,8 +113,7 @@ interface LiteralSession {
   profileId: string;
 }
 
-// Log in once (cached; the client guard fails it with MISSING_ENV first when
-// credentials are unset), then run `use` with an authenticated gql.
+// Log in (cached), then run `use` with a gql that carries the bearer token.
 export async function withLiteralSession<T>(
   env: RuntimeEnv,
   ctx: SourceCtx,

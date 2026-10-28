@@ -1,8 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import type { SectionHref } from "@/lib/sections";
 
-// Full-page status frame: the router's not-found and error screens, and any
-// route's own notFoundComponent. One panel, one variant switch.
+// Full-page status frame for the router's not-found and error screens.
 
 interface Props {
   variant: "not-found" | "error";

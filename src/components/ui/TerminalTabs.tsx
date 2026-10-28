@@ -5,8 +5,7 @@ export interface TerminalTabOption<T extends string> {
   label: string;
 }
 
-// The site's one segmented tab control: a row of bordered mono buttons with one
-// selected. Used for the game and filter switchers.
+// The site's segmented tab control, used by the game and filter switchers.
 export function TerminalTabs<T extends string>({
   options,
   value,
@@ -38,8 +37,7 @@ export function TerminalTabs<T extends string>({
   );
 }
 
-// A single bordered mono action button (START, a mode pick). `selected` gives
-// the accent-on look without needing a hover.
+// A bordered mono action button; `selected` gives the accent-on look.
 export function TerminalButton({
   onClick,
   selected = false,

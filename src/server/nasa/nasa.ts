@@ -9,8 +9,7 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-// api.nasa.gov returns the payload with no envelope. The api_key rides as a
-// client query param (DEMO_KEY when unset), so it never shapes a cache key.
+// No envelope on api.nasa.gov; api_key rides as a query param (DEMO_KEY fallback), off cache keys.
 const nasaClient = defineSource({
   envKeys: [],
   optionalEnvKeys: ["NASA_API_KEY"],

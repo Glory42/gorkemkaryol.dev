@@ -3,8 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { activeSectionHref, SECTION_LIST } from "@/lib/sections";
 
-// JetBrains Mono's descent is deep, so flex-centring puts the icon ~2px below
-// the middle of the uppercase label; nudge it back up onto the cap height.
+// JetBrains Mono's deep descent drops flex-centred icons ~2px; nudge them onto the cap height.
 const ICON_NUDGE = "-translate-y-[2px]";
 
 export function Navbar() {

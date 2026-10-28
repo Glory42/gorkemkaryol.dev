@@ -4,8 +4,7 @@
   --panel-2: rgba(13, 13, 13, 0.5);
   --border-soft: rgba(255, 255, 255, 0.06);
 
-  /* Text scale on pure black — the faintest step still clears ~3:1. Use the
-     Tailwind `text-fg-1…4` aliases rather than hand-picked greys. */
+  /* Text scale on pure black (faintest step ~3:1); use the `text-fg-1…4` aliases. */
   --text-1: #ffffff;
   --text-2: #a3a3a3;
   --text-3: #7a7a7a;
@@ -15,10 +14,4 @@
   --radius-md: 0;
 }
 
-/*
- * `--accent` (plain hex) and `--accent-rgb` (space-separated channel triple, so
- * `accent/<opacity>` and `rgb(var(--accent-rgb) / a)` math work) are emitted by
- * __root.tsx from src/lib/sections.ts: a `:root` default plus a
- * `[data-accent="…"]` block per section. The attribute lives on the root wrapper
- * so everything inside — nav included — inherits it.
- */
+/* `--accent` / `--accent-rgb` come from src/lib/sections.ts via __root.tsx, one block per section. */

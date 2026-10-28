@@ -1,8 +1,6 @@
 import type { ServiceError } from "@/server/common/http";
 
-// In-place status box, rendered where content would be. `error` = a failed
-// upstream, `empty` = a successful-but-blank result, `degraded` = content that
-// rendered with a fallback.
+// In-place status box: `error` failed, `empty` blank success, `degraded` rendered with a fallback.
 
 interface Props {
   tone: "error" | "empty" | "degraded";

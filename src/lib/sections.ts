@@ -36,9 +36,7 @@ export interface Section {
   pages: SubPageHref[];
 }
 
-// The one place a section is defined: its nav entry, its route prefix, and its
-// accent. tokens.css no longer hand-maintains the accent — __root.tsx emits it
-// from sectionAccentCss() so the palette has a single source.
+// The one place a section is defined: nav entry, route prefix and accent.
 export const SECTIONS: Record<SectionSlug, Section> = {
   me: {
     slug: "me",
@@ -99,8 +97,7 @@ export const SECTION_LIST: Section[] = [
 /** The section a path with no match falls back to (`/`, 404s). */
 export const FALLBACK_SECTION: SectionSlug = "me";
 
-// The section owning `pathname`, exact or a sub-route (`/projects/foo` →
-// projects). `/` and unmatched paths return undefined.
+// The section owning `pathname` or its sub-routes; `/` and unknown paths are undefined.
 function matchSection(pathname: string): Section | undefined {
   return SECTION_LIST.find(
     (s) =>
@@ -114,8 +111,7 @@ export function accentForPath(pathname: string): SectionSlug {
   return matchSection(pathname)?.slug ?? FALLBACK_SECTION;
 }
 
-// Href of the nav item to highlight for `pathname`: sub-routes keep their
-// parent active, `/` highlights "me", a 404 highlights nothing.
+// Nav item to highlight: sub-routes keep their parent, `/` is "me", a 404 is nothing.
 export function activeSectionHref(pathname: string): SectionHref | undefined {
   if (pathname === "/") return "/";
   return matchSection(pathname)?.href;
@@ -126,9 +122,7 @@ export function sectionAccentRgb(slug: SectionSlug): string {
   return SECTIONS[slug].accentRgb;
 }
 
-// The `:root` default plus one `[data-accent="…"]` block per section, as CSS
-// text. __root.tsx renders this in a <style> so tokens.css is not a hand-kept
-// mirror of the same values.
+// Accent CSS (`:root` default + one `[data-accent]` block per section), rendered by __root.tsx.
 export function sectionAccentCss(): string {
   const block = (selector: string, s: Section) =>
     `${selector}{--accent:${s.accentHex};--accent-rgb:${s.accentRgb}}`;

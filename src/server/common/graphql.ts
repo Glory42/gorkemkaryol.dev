@@ -6,8 +6,7 @@ import {
 } from "@/server/common/http";
 import type { HttpPort } from "@/server/common/runtime";
 
-// GraphQL transport. A 200 can still be a failure (errors in the body), so this
-// owns "inspect errors[], map to fail()" once — callers get data or ServiceError.
+// GraphQL transport: maps errors[] in a 200 body to a ServiceError once.
 
 interface GraphQLError {
   message: string;

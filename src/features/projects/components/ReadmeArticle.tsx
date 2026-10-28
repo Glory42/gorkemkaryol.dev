@@ -7,8 +7,7 @@ interface Props {
 }
 
 export function ReadmeArticle({ html, hadError }: Props) {
-  // Router scroll restoration eats the native `#slug` jump, so scroll the
-  // heading in ourselves (scroll-margin-top clears the fixed navbar).
+  // Router scroll restoration eats `#slug` jumps, so scroll the heading in ourselves.
   function onAnchorClick(e: MouseEvent<HTMLDivElement>) {
     const link = (e.target as HTMLElement).closest("a");
     const href = link?.getAttribute("href");

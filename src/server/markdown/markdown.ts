@@ -38,8 +38,7 @@ function buildMarked(
     ) {
       return href;
     }
-    // No repo context (a hand-authored project page, not a GitHub README) —
-    // there's nothing to resolve a relative path against, so leave it as-is.
+    // No repo context (hand-authored page): nothing to resolve a relative path against.
     if (!owner || !repo) return href;
     const clean = href.replace(/^\.\//, "");
     return isImage ? `${rawBase}/${clean}` : `${blobBase}/${clean}`;
@@ -47,8 +46,7 @@ function buildMarked(
 
   const instance = new Marked();
 
-  // Give every heading a stable id so a README's own table-of-contents links
-  // (`#set-up-the-frontend`) have something to scroll to. Dupes get -1, -2.
+  // Stable heading ids so a README's own TOC links can scroll; duplicates get -1, -2.
   const slugCounts = new Map<string, number>();
   function uniqueSlug(text: string): string {
     const base = slugify(text) || "section";
@@ -60,15 +58,13 @@ function buildMarked(
   instance.use({
     renderer: {
       heading({ tokens, depth }) {
-        // Slug from the rendered text (tags stripped in slugify), so a linked
-        // heading `## [Title](url)` still slugs to `title`, matching GitHub.
+        // Slug the rendered text so `## [Title](url)` still becomes `title`, like GitHub.
         const inner = this.parser.parseInline(tokens);
         const id = escapeAttr(uniqueSlug(inner));
         return `<h${depth} id="${id}">${inner}</h${depth}>\n`;
       },
       html({ text }) {
-        // Escape raw HTML blocks to prevent XSS from malicious READMEs.
-        // Markdown-generated HTML (tables, code blocks, etc.) is safe and unaffected.
+        // Escape raw HTML blocks against XSS; markdown-generated HTML is unaffected.
         return text
           .replace(/&/g, "&amp;")
           .replace(/</g, "&lt;")
@@ -89,8 +85,7 @@ function buildMarked(
         const externalAttrs = isExternal
           ? ` target="_blank" rel="noopener noreferrer nofollow"`
           : "";
-        // Render the inner tokens, not the raw text, so `[![badge](img)](url)`
-        // keeps its nested image instead of printing literal markdown.
+        // Render inner tokens so `[![badge](img)](url)` keeps its image instead of raw markdown.
         const inner = this.parser.parseInline(tokens);
         return `<a href="${safeHref}"${titleAttr}${externalAttrs}>${inner}</a>`;
       },
@@ -105,8 +100,7 @@ export interface MarkdownResult {
   hadError: boolean;
 }
 
-// Repo coordinates for resolving a README's relative links and images. Omit
-// every field for a hand-authored page — relative paths are then left as-is.
+// Repo coordinates for resolving relative links; omit for hand-authored pages.
 export interface MarkdownContext {
   owner?: string;
   repo?: string;

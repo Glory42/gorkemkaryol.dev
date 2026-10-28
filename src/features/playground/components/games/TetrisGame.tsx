@@ -24,8 +24,7 @@ const CELL = 22;
 const W = BW * CELL, H = BH * CELL;
 const NCELL = 18, NW = 4 * NCELL, NH = 4 * NCELL;
 
-// Each piece has a fixed shape and a `tint` (push the section accent toward
-// white/black) so the seven stay distinct in whatever colour the section is.
+// Each piece tints the section accent toward white or black so all seven stay distinct.
 const PIECE_DEFS: { shape: Shape; tint: number }[] = [
   { shape: [[1, 1, 1, 1]], tint: 0.35 },
   { shape: [[1, 1], [1, 1]], tint: 0 },

@@ -2,8 +2,7 @@ import type { RuntimeEnv } from "@/lib/env";
 import { ok, type ServiceResult } from "@/server/common/http";
 import type { SourceCtx } from "@/server/common/source";
 
-// What the Cloudflare edge knows about the current request. `request.cf` carries
-// the rich fields in production; a few headers are the fallback everywhere else.
+// What the edge knows about this request: `request.cf` in prod, a few headers elsewhere.
 
 export interface EdgeInfo {
   ip: string | null;

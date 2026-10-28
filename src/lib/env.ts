@@ -41,8 +41,7 @@ export function readRuntimeEnv(source: unknown): RuntimeEnv {
   };
 }
 
-// The one sanctioned gate for required bindings: pass the keys a source needs
-// and get back either the narrowed env or a MISSING_ENV listing the absent ones.
+// The one gate for required bindings: the narrowed env, or MISSING_ENV listing absent keys.
 export function requireEnv<K extends RuntimeEnvKey>(
   env: RuntimeEnv,
   keys: K[],

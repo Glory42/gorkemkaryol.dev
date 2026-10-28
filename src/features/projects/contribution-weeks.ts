@@ -20,8 +20,7 @@ export function buildContributionWeeks(
   return weeks;
 }
 
-// SVG `fill=` can't resolve `var()`, so the ramp is built in JS from the section
-// accent read on mount; level 0 stays a fixed white wash.
+// SVG `fill=` can't read `var()`, so build the ramp from the accent; level 0 stays white.
 export function levelFill(accentRgb: string): Record<number, string> {
   return {
     0: "rgba(255,255,255,0.03)",

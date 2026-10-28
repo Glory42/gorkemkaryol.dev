@@ -2,8 +2,7 @@ import type { ReactNode } from "react";
 import { TerminalButton } from "@/components/ui/TerminalTabs";
 import type { GamePhase } from "@/features/playground/useCanvasGame";
 
-// The play-area frame + the dark overlay every game shares. `overlay` is what
-// shows while not playing; simple games pass <GameOverlay>, others compose it.
+// The play area plus the dark overlay shown whenever the game isn't running.
 export function GameShell({
   phase,
   overlay,
@@ -25,8 +24,7 @@ export function GameShell({
   );
 }
 
-// The idle / game-over panel: title, score line, a start button, a hint.
-// `children` sits between score and button; omit `onStart` to supply your own.
+// Idle / game-over panel; `children` sit above the button, omit `onStart` to bring your own.
 export function GameOverlay({
   phase,
   title,

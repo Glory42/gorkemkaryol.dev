@@ -6,8 +6,7 @@ interface Props {
   mainClassName?: string;
 }
 
-// Play the page fade-in once per session (else it replays on every client nav).
-// Set in an effect, not render — a render-time read would break hydration.
+// Fade in once per session; flagged in an effect, since reading it in render breaks hydration.
 let hasPlayedEntrance = false;
 
 export function PageShell({ children, mainClassName }: Props) {
