@@ -1,32 +1,33 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import {
   GameOverlay,
   GameShell,
+  ScoreLine,
 } from "@/features/playground/components/GameShell";
+import {
+  BIRD_X,
+  flap,
+  GAP,
+  H,
+  newFlappy,
+  PIPE_W,
+  stepFlappy,
+  W,
+} from "@/features/playground/flappy-logic";
 import { useCanvasGame } from "@/features/playground/useCanvasGame";
 
-const W = 280, H = 420;
-const BIRD_X = 65, BIRD_R = 10;
-const PIPE_W = 44, GAP = 118;
-const GRAVITY = 0.38, JUMP_VEL = -7.2;
-const PIPE_SPEED = 2.2, PIPE_EVERY = 88;
-
-type Pipe = { x: number; topH: number; passed: boolean };
-
 export function FlappyGame() {
-  const game = useRef({
-    y: H / 2, vy: 0,
-    pipes: [] as Pipe[],
-    frame: 0,
-    alive: false,
-    score: 0,
-  });
-  const [score, setScore] = useState(0);
+  const game = useRef(newFlappy());
 
-  const { canvasRef, accentRef, phase, beginPlay, endPlay } = useCanvasGame({
+  const { canvasRef, accentRef, phase, hud, playing, start } = useCanvasGame({
     driver: "raf",
-    step,
+    step: () => {
+      const next = stepFlappy(game.current);
+      if (next === "over") return "over";
+      game.current = next;
+    },
     redraw: draw,
+    hud: () => ({ score: game.current.score }),
   });
 
   function draw() {
@@ -82,70 +83,28 @@ export function FlappyGame() {
     ctx.restore();
   }
 
-  function jump() {
-    game.current.vy = JUMP_VEL;
-  }
-
-  function step() {
-    const s = game.current;
-    if (!s.alive) return;
-    s.vy += GRAVITY;
-    s.y += s.vy;
-    s.frame++;
-    // spawn pipes
-    if (s.frame % PIPE_EVERY === 0) {
-      const topH = 55 + Math.random() * (H - GAP - 110);
-      s.pipes.push({ x: W + 10, topH, passed: false });
-    }
-    s.pipes.forEach(p => { p.x -= PIPE_SPEED; });
-    s.pipes = s.pipes.filter(p => p.x + PIPE_W > -10);
-    // score
-    s.pipes.forEach(p => {
-      if (!p.passed && p.x + PIPE_W < BIRD_X - BIRD_R) {
-        p.passed = true;
-        s.score++;
-        setScore(s.score);
-      }
+  function play() {
+    start(() => {
+      game.current = newFlappy();
     });
-    // collision: ceiling / floor / pipes
-    const dead = s.y - BIRD_R <= 0 || s.y + BIRD_R >= H ||
-      s.pipes.some(p =>
-        BIRD_X + BIRD_R > p.x + 2 && BIRD_X - BIRD_R < p.x + PIPE_W - 2 &&
-        (s.y - BIRD_R < p.topH || s.y + BIRD_R > p.topH + GAP)
-      );
-    if (dead) {
-      s.alive = false;
-      endPlay();
-      draw();
-      return;
-    }
-    draw();
   }
 
-  function start() {
-    const s = game.current;
-    s.y = H / 2; s.vy = -3; s.pipes = []; s.frame = 0; s.alive = true; s.score = 0;
-    setScore(0);
-    beginPlay();
-    canvasRef.current?.focus();
+  // Space, click and tap all flap mid-run and (re)start otherwise.
+  function act() {
+    if (playing()) game.current = flap(game.current);
+    else play();
   }
 
   function onKey(e: React.KeyboardEvent) {
     if (e.key === " " || e.key === "ArrowUp") {
       e.preventDefault();
-      if (game.current.alive) jump();
-      else start();
+      act();
     }
-  }
-
-  function onClick() {
-    if (game.current.alive) jump();
-    else start();
   }
 
   function onTouch(e: React.TouchEvent) {
     e.preventDefault();
-    if (game.current.alive) jump(); else start();
+    act();
   }
 
   return (
@@ -156,20 +115,20 @@ export function FlappyGame() {
           <GameOverlay
             phase={phase}
             title="FLAPPY BIRD"
-            score={score}
+            score={hud.score}
             hint="space or click to flap"
-            onStart={start}
+            onStart={play}
           />
         }
       >
         <canvas
           ref={canvasRef} width={W} height={H} tabIndex={0}
-          onKeyDown={onKey} onClick={onClick} onTouchStart={onTouch}
+          onKeyDown={onKey} onClick={act} onTouchStart={onTouch}
           className="block cursor-pointer border border-[rgba(255,255,255,0.06)] outline-none focus:border-accent/[0.25]"
           style={{ touchAction: "none" }}
         />
       </GameShell>
-      {phase !== "idle" && <p className="mono text-[10px] text-accent/[0.6]">score — {score}</p>}
+      <ScoreLine phase={phase} score={hud.score} />
     </div>
   );
 }

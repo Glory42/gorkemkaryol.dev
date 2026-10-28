@@ -43,3 +43,52 @@ export function clearLines(board: Board): { board: Board; cleared: number } {
   );
   return { board: [...empty, ...kept], cleared };
 }
+
+export interface Piece {
+  shape: Shape;
+  color: string;
+  x: number;
+  y: number;
+}
+
+// Write `piece` into a copy of `board`, then clear any rows it completed.
+export function lockPiece(
+  board: Board,
+  piece: Piece,
+): { board: Board; cleared: number } {
+  const next = board.map((row) => [...row]);
+  piece.shape.forEach((row, dy) =>
+    row.forEach((v, dx) => {
+      if (v && piece.y + dy >= 0) next[piece.y + dy][piece.x + dx] = piece.color;
+    }),
+  );
+  return clearLines(next);
+}
+
+// Rotate in place, else nudge one cell right, then left (a minimal wall
+// kick). Null when no position fits.
+export function kickRotate(board: Board, piece: Piece): Piece | null {
+  const shape = rotate(piece.shape);
+  for (const dx of [0, 1, -1]) {
+    if (fits(board, shape, piece.x + dx, piece.y)) {
+      return { ...piece, shape, x: piece.x + dx };
+    }
+  }
+  return null;
+}
+
+const LINE_SCORES = [0, 100, 300, 500, 800];
+
+export function lineClearScore(cleared: number, level: number): number {
+  return LINE_SCORES[Math.min(cleared, 4)] * level;
+}
+
+/** A level every 10 lines, starting at 1. */
+export function levelFor(lines: number): number {
+  return Math.floor(lines / 10) + 1;
+}
+
+/** Milliseconds between gravity drops; 550 at level 1, floored at 80. */
+export function dropIntervalMs(level: number): number {
+  return Math.max(80, 550 - (level - 1) * 50);
+}

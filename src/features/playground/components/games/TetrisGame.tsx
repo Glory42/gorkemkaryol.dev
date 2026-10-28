@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { accentMix } from "@/lib/accent";
 import { sectionAccentRgb } from "@/lib/sections";
 import {
@@ -8,11 +8,14 @@ import {
 import {
   BOARD_H as BH,
   BOARD_W as BW,
-  clearLines,
+  dropIntervalMs,
   fits,
+  kickRotate,
+  levelFor,
+  lineClearScore,
+  lockPiece,
   mkBoard,
-  rotate,
-  type Board,
+  type Piece,
   type Shape,
 } from "@/features/playground/tetris-logic";
 import { useCanvasGame } from "@/features/playground/useCanvasGame";
@@ -33,35 +36,38 @@ const PIECE_DEFS: { shape: Shape; tint: number }[] = [
   { shape: [[0, 0, 1], [1, 1, 1]], tint: 0.6 },
 ];
 
-// Resolved from the section accent on mount; seeded with the fallback so a piece
-// rolled on the first render still has a colour.
-let PIECE_PALETTE = PIECE_DEFS.map((d) =>
-  accentMix(sectionAccentRgb("playground"), d.tint),
-);
+const paletteFor = (accentRgb: string) =>
+  PIECE_DEFS.map((d) => accentMix(accentRgb, d.tint));
 
-function randPiece() {
+type NextPiece = Pick<Piece, "shape" | "color">;
+
+function randPiece(palette: string[]): NextPiece {
   const i = Math.floor(Math.random() * PIECE_DEFS.length);
-  return { shape: PIECE_DEFS[i].shape, color: PIECE_PALETTE[i] };
+  return { shape: PIECE_DEFS[i].shape, color: palette[i] };
 }
 
 export function TetrisGame() {
   const nextRef = useRef<HTMLCanvasElement>(null);
+  // Seeded with the fallback accent, re-resolved from the section on mount.
+  const palette = useRef(paletteFor(sectionAccentRgb("playground")));
   const game = useRef({
     board: mkBoard(),
-    cur: null as ({ shape: Shape; color: string; x: number; y: number }) | null,
-    next: randPiece(),
-    score: 0, level: 1, lines: 0,
-    alive: false, lastTick: 0,
+    cur: null as Piece | null,
+    next: randPiece(palette.current),
+    score: 0, lines: 0, lastTick: 0,
   });
-  const [stats, setStats] = useState({ score: 0, level: 1, lines: 0 });
 
-  const { canvasRef, accentRef, phase, beginPlay, endPlay } = useCanvasGame({
+  const { canvasRef, accentRef, phase, hud, playing, start, die, refresh } = useCanvasGame({
     driver: "raf",
     step,
     redraw: draw,
+    hud: () => {
+      const { score, lines } = game.current;
+      return { score, lines, level: levelFor(lines) };
+    },
     onAccent: (rgb) => {
-      PIECE_PALETTE = PIECE_DEFS.map((d) => accentMix(rgb, d.tint));
-      game.current.next = randPiece();
+      palette.current = paletteFor(rgb);
+      game.current.next = randPiece(palette.current);
     },
   });
 
@@ -117,101 +123,69 @@ export function TetrisGame() {
     drawNext();
   }
 
-  function spawnPiece() {
+  /** Bring in the queued piece; false when it can't fit (the stack topped out). */
+  function spawnPiece(): boolean {
     const s = game.current;
     const p = s.next;
-    s.next = randPiece();
+    s.next = randPiece(palette.current);
     const x = Math.floor((BW - p.shape[0].length) / 2);
     s.cur = { ...p, x, y: 0 };
-    if (!fits(s.board, p.shape, x, 0)) {
-      s.alive = false;
-      endPlay();
-    }
+    return fits(s.board, p.shape, x, 0);
   }
 
-  function lockPiece() {
+  function lock(): "over" | void {
     const s = game.current;
-    const p = s.cur; if (!p) return;
-    p.shape.forEach((row, dy) => row.forEach((v, dx) => {
-      if (v && p.y + dy >= 0) s.board[p.y + dy][p.x + dx] = p.color;
-    }));
-    const cleared = clearLines(s.board);
-    s.board = cleared.board;
-    if (cleared.cleared > 0) {
-      s.score += [0, 100, 300, 500, 800][Math.min(cleared.cleared, 4)] * s.level;
-      s.lines += cleared.cleared;
-      s.level = Math.floor(s.lines / 10) + 1;
-      setStats({ score: s.score, level: s.level, lines: s.lines });
-    }
-    spawnPiece();
+    if (!s.cur) return;
+    const locked = lockPiece(s.board, s.cur);
+    s.board = locked.board;
+    s.score += lineClearScore(locked.cleared, levelFor(s.lines));
+    s.lines += locked.cleared;
+    if (!spawnPiece()) return "over";
   }
 
-  function step(t: number) {
+  function step(t: number): "over" | void {
     const s = game.current;
-    if (!s.alive) return;
-    const speed = Math.max(80, 550 - (s.level - 1) * 50);
-    if (t - s.lastTick >= speed) {
-      s.lastTick = t;
-      if (s.cur && fits(s.board, s.cur.shape, s.cur.x, s.cur.y + 1)) {
-        s.cur.y++;
-      } else {
-        lockPiece();
-        if (!s.alive) { draw(); return; }
-      }
-      draw();
-    }
+    if (t - s.lastTick < dropIntervalMs(levelFor(s.lines))) return;
+    s.lastTick = t;
+    if (s.cur && fits(s.board, s.cur.shape, s.cur.x, s.cur.y + 1)) s.cur.y++;
+    else return lock();
   }
 
-  function start() {
+  function play() {
+    start(() => {
+      const s = game.current;
+      s.board = mkBoard(); s.cur = null; s.next = randPiece(palette.current);
+      s.score = 0; s.lines = 0; s.lastTick = 0;
+      spawnPiece();
+    });
+  }
+
+  // Input runs between frames: apply the move, end the run if it topped out.
+  function act(move: (s: typeof game.current, p: Piece) => "over" | void) {
     const s = game.current;
-    s.board = mkBoard(); s.cur = null; s.next = randPiece();
-    s.score = 0; s.level = 1; s.lines = 0; s.alive = true; s.lastTick = 0;
-    setStats({ score: 0, level: 1, lines: 0 });
-    spawnPiece();
-    beginPlay();
-    draw();
-    canvasRef.current?.focus();
+    if (!playing() || !s.cur) return;
+    if (move(s, s.cur) === "over") die();
+    else refresh();
   }
 
-  function moveLeft() {
-    const s = game.current; const p = s.cur;
-    if (!s.alive || !p) return;
-    if (fits(s.board, p.shape, p.x - 1, p.y)) p.x--;
-    draw();
-  }
-  function moveRight() {
-    const s = game.current; const p = s.cur;
-    if (!s.alive || !p) return;
-    if (fits(s.board, p.shape, p.x + 1, p.y)) p.x++;
-    draw();
-  }
-  function rotatePiece() {
-    const s = game.current; const p = s.cur;
-    if (!s.alive || !p) return;
-    const rot = rotate(p.shape);
-    if (fits(s.board, rot, p.x, p.y)) p.shape = rot;
-    else if (fits(s.board, rot, p.x + 1, p.y)) { p.x++; p.shape = rot; }
-    else if (fits(s.board, rot, p.x - 1, p.y)) { p.x--; p.shape = rot; }
-    draw();
-  }
-  function hardDrop() {
-    const s = game.current; const p = s.cur;
-    if (!s.alive || !p) return;
+  const moveLeft = () => act((s, p) => { if (fits(s.board, p.shape, p.x - 1, p.y)) p.x--; });
+  const moveRight = () => act((s, p) => { if (fits(s.board, p.shape, p.x + 1, p.y)) p.x++; });
+  const rotatePiece = () => act((s, p) => { s.cur = kickRotate(s.board, p) ?? p; });
+  const softDrop = () => act((s, p) => {
+    if (fits(s.board, p.shape, p.x, p.y + 1)) p.y++;
+    else return lock();
+  });
+  const hardDrop = () => act((s, p) => {
     while (fits(s.board, p.shape, p.x, p.y + 1)) p.y++;
-    lockPiece();
-    draw();
-  }
+    return lock();
+  });
 
   function onKey(e: React.KeyboardEvent) {
-    const s = game.current;
-    if (!s.alive) { if (e.key === " " || e.key === "Enter") start(); return; }
+    if (!playing()) { if (e.key === " " || e.key === "Enter") play(); return; }
     if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", " "].includes(e.key)) e.preventDefault();
     if (e.key === "ArrowLeft") moveLeft();
     else if (e.key === "ArrowRight") moveRight();
-    else if (e.key === "ArrowDown") {
-      const p = s.cur; if (!p) return;
-      if (fits(s.board, p.shape, p.x, p.y + 1)) { p.y++; draw(); } else lockPiece();
-    }
+    else if (e.key === "ArrowDown") softDrop();
     else if (e.key === "ArrowUp" || e.key === "x" || e.key === "X") rotatePiece();
     else if (e.key === " ") hardDrop();
   }
@@ -232,13 +206,13 @@ export function TetrisGame() {
             <GameOverlay
               phase={phase}
               title="TETRIS"
-              score={stats.score}
+              score={hud.score}
               hint={<>← → move · ↑ rotate · ↓ drop<br />space hard drop</>}
-              onStart={start}
+              onStart={play}
             >
               {phase === "over" && (
                 <p className="mono text-[9px] text-fg-4">
-                  level {stats.level} · {stats.lines} lines
+                  level {hud.level} · {hud.lines} lines
                 </p>
               )}
             </GameOverlay>
@@ -276,7 +250,7 @@ export function TetrisGame() {
           />
         </div>
         <div className="flex flex-col gap-3">
-          {([["SCORE", stats.score], ["LEVEL", stats.level], ["LINES", stats.lines]] as [string, number][]).map(([label, val]) => (
+          {([["SCORE", hud.score], ["LEVEL", hud.level], ["LINES", hud.lines]] as [string, number][]).map(([label, val]) => (
             <div key={label}>
               <p className="mono text-[7px] tracking-[0.18em] text-fg-4">{label}</p>
               <p className="mono text-[13px] text-accent/[0.65]">{val}</p>

@@ -25,8 +25,8 @@ export function GameShell({
   );
 }
 
-// The default idle / game-over panel: title, score line, a start button, a hint.
-// `children` slot sits between the score and the button for per-game extras.
+// The idle / game-over panel: title, score line, a start button, a hint.
+// `children` sits between score and button; omit `onStart` to supply your own.
 export function GameOverlay({
   phase,
   title,
@@ -39,7 +39,7 @@ export function GameOverlay({
   title: string;
   score?: number;
   hint: ReactNode;
-  onStart: () => void;
+  onStart?: () => void;
   children?: ReactNode;
 }) {
   return (
@@ -51,12 +51,20 @@ export function GameOverlay({
         <p className="mono text-[10px] text-accent/[0.65]">score — {score}</p>
       )}
       {children}
-      <TerminalButton onClick={onStart}>
-        {phase === "over" ? "RESTART" : "START"}
-      </TerminalButton>
+      {onStart && (
+        <TerminalButton onClick={onStart}>
+          {phase === "over" ? "RESTART" : "START"}
+        </TerminalButton>
+      )}
       <p className="mono text-center text-[9px] leading-[1.8] text-fg-4">
         {hint}
       </p>
     </>
   );
+}
+
+/** The running score under the play area, once a first run has started. */
+export function ScoreLine({ phase, score }: { phase: GamePhase; score: number }) {
+  if (phase === "idle") return null;
+  return <p className="mono text-[10px] text-accent/[0.6]">score — {score}</p>;
 }

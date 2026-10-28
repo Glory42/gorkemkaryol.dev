@@ -1,39 +1,45 @@
 import { useRef, useState } from "react";
 import { TerminalButton } from "@/components/ui/TerminalTabs";
-import { GameShell } from "@/features/playground/components/GameShell";
+import {
+  GameOverlay,
+  GameShell,
+  ScoreLine,
+} from "@/features/playground/components/GameShell";
+import {
+  COLS,
+  newSnake,
+  ROWS,
+  stepSnake,
+  turn,
+  type Dir,
+  type Mode,
+} from "@/features/playground/snake-logic";
 import { useCanvasGame } from "@/features/playground/useCanvasGame";
 
-const COLS = 24, ROWS = 24, CELL = 15;
+const CELL = 15;
 const W = COLS * CELL, H = ROWS * CELL;
 const TICK_MS = 110;
 
-type Dir = "U" | "D" | "L" | "R";
-type Mode = "walls" | "wrap";
-type Pt = { x: number; y: number };
-
-const OPP: Record<Dir, Dir> = { U: "D", D: "U", L: "R", R: "L" };
-
-function randFood(snake: Pt[]): Pt {
-  let p: Pt;
-  do { p = { x: (Math.random() * COLS) | 0, y: (Math.random() * ROWS) | 0 }; }
-  while (snake.some(s => s.x === p.x && s.y === p.y));
-  return p;
-}
+const KEY_DIRS: Record<string, Dir> = {
+  ArrowUp: "U", ArrowDown: "D", ArrowLeft: "L", ArrowRight: "R",
+  w: "U", s: "D", a: "L", d: "R",
+};
 
 export function SnakeGame() {
-  const game = useRef({
-    snake: [] as Pt[], dir: "R" as Dir, next: "R" as Dir,
-    food: { x: 18, y: 12 } as Pt, alive: false, score: 0, mode: "walls" as Mode,
-  });
+  const game = useRef(newSnake("walls"));
   const touchStart = useRef<{ x: number; y: number } | null>(null);
-  const [score, setScore] = useState(0);
   const [mode, setMode] = useState<Mode>("walls");
 
-  const { canvasRef, accentRef, phase, beginPlay, endPlay } = useCanvasGame({
+  const { canvasRef, accentRef, phase, hud, start } = useCanvasGame({
     driver: "tick",
     tickMs: TICK_MS,
-    step,
+    step: () => {
+      const next = stepSnake(game.current);
+      if (next === "over") return "over";
+      game.current = next;
+    },
     redraw: draw,
+    hud: () => ({ score: game.current.score }),
   });
 
   function draw() {
@@ -53,63 +59,16 @@ export function SnakeGame() {
     });
   }
 
-  function step() {
-    const s = game.current;
-    if (!s.alive) return;
-    s.dir = s.next;
-    let hx = s.snake[0].x, hy = s.snake[0].y;
-    if (s.dir === "U") hy--;
-    else if (s.dir === "D") hy++;
-    else if (s.dir === "L") hx--;
-    else hx++;
-
-    if (s.mode === "wrap") {
-      hx = (hx + COLS) % COLS;
-      hy = (hy + ROWS) % ROWS;
-    } else if (hx < 0 || hx >= COLS || hy < 0 || hy >= ROWS) {
-      s.alive = false;
-      endPlay();
-      draw();
-      return;
-    }
-
-    if (s.snake.some(p => p.x === hx && p.y === hy)) {
-      s.alive = false;
-      endPlay();
-      draw();
-      return;
-    }
-
-    s.snake.unshift({ x: hx, y: hy });
-    if (hx === s.food.x && hy === s.food.y) {
-      s.score++;
-      s.food = randFood(s.snake);
-      setScore(s.score);
-    } else {
-      s.snake.pop();
-    }
-    draw();
-  }
-
-  function start(m: Mode) {
-    const s = game.current;
-    s.snake = [{ x: 12, y: 12 }, { x: 11, y: 12 }, { x: 10, y: 12 }];
-    s.dir = s.next = "R";
-    s.food = randFood(s.snake);
-    s.alive = true;
-    s.score = 0;
-    s.mode = m;
-    setScore(0);
+  function play(m: Mode) {
     setMode(m);
-    beginPlay();
-    draw();
-    canvasRef.current?.focus();
+    start(() => {
+      game.current = newSnake(m);
+    });
   }
 
   function onKey(e: React.KeyboardEvent) {
-    const map: Record<string, Dir> = { ArrowUp: "U", ArrowDown: "D", ArrowLeft: "L", ArrowRight: "R", w: "U", s: "D", a: "L", d: "R" };
-    const d = map[e.key];
-    if (d) { e.preventDefault(); if (OPP[d] !== game.current.dir) game.current.next = d; }
+    const d = KEY_DIRS[e.key];
+    if (d) { e.preventDefault(); game.current = turn(game.current, d); }
   }
 
   function onTouchStart(e: React.TouchEvent) {
@@ -128,12 +87,12 @@ export function SnakeGame() {
     const d: Dir = Math.abs(dx) > Math.abs(dy)
       ? (dx > 0 ? "R" : "L")
       : (dy > 0 ? "D" : "U");
-    if (OPP[d] !== game.current.dir) game.current.next = d;
+    game.current = turn(game.current, d);
   }
 
   const ModeBtn = ({ m, label }: { m: Mode; label: string }) => (
     <TerminalButton
-      onClick={() => start(m)}
+      onClick={() => play(m)}
       selected={mode === m && phase !== "idle"}
     >
       {label}
@@ -145,13 +104,12 @@ export function SnakeGame() {
       <GameShell
         phase={phase}
         overlay={
-          <>
-            <p className="mono text-[12px] font-bold tracking-[0.15em] text-white">
-              {phase === "over" ? "GAME OVER" : "SNAKE"}
-            </p>
-            {phase === "over" && (
-              <p className="mono text-[10px] text-accent/[0.65]">score — {score}</p>
-            )}
+          <GameOverlay
+            phase={phase}
+            title="SNAKE"
+            score={hud.score}
+            hint="arrow keys or wasd"
+          >
             <div className="flex flex-col items-center gap-3">
               <p className="mono text-[9px] text-fg-3">
                 {phase === "over" ? "play again:" : "choose border mode:"}
@@ -161,8 +119,7 @@ export function SnakeGame() {
                 <ModeBtn m="wrap" label="WRAP" />
               </div>
             </div>
-            <p className="mono text-[9px] text-fg-4">arrow keys or wasd</p>
-          </>
+          </GameOverlay>
         }
       >
         <canvas
@@ -172,7 +129,7 @@ export function SnakeGame() {
           style={{ touchAction: "none" }}
         />
       </GameShell>
-      {phase !== "idle" && <p className="mono text-[10px] text-accent/[0.6]">score — {score}</p>}
+      <ScoreLine phase={phase} score={hud.score} />
     </div>
   );
 }
