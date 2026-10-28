@@ -10,6 +10,7 @@ import { StatusPanel } from "@/components/ui/StatusPanel";
 import { ShelfList } from "@/features/interests/components/ShelfList";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { favoriteBands, interestsIntro } from "@/features/interests/content";
+import type { SubPageHref } from "@/lib/sections";
 import {
   bookToDisplayItem,
   currentlyWatchingToDisplayItem,
@@ -52,7 +53,7 @@ function SectionLabel({
 }: {
   label: string;
   meta?: string;
-  href?: "/interests/reading" | "/interests/watching";
+  href?: SubPageHref;
 }) {
   return (
     <div className="mb-3">

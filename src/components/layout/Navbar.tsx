@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
-import { activeSectionHref, navigationItems } from "@/lib/navigation";
+import { activeSectionHref, SECTION_LIST } from "@/lib/sections";
 
 // JetBrains Mono's descent is deep, so flex-centring puts the icon ~2px below
 // the middle of the uppercase label; nudge it back up onto the cap height.
@@ -20,7 +20,7 @@ export function Navbar() {
       aria-label="Primary"
     >
       <div className="hidden items-center gap-6 md:flex">
-        {navigationItems.map((item) => {
+        {SECTION_LIST.map((item) => {
           const isActive = item.href === activeHref;
           const Icon = item.icon;
           return (
@@ -52,7 +52,7 @@ export function Navbar() {
 
         {isOpen && (
           <div className="absolute right-0 mt-2 w-40 border border-[rgba(255,255,255,0.06)] bg-black p-3">
-            {navigationItems.map((item) => {
+            {SECTION_LIST.map((item) => {
               const isActive = item.href === activeHref;
               const Icon = item.icon;
               return (

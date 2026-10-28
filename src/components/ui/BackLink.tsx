@@ -1,11 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
 import type { ReactNode } from "react";
-
-export type BackLinkTo = "/" | "/projects" | "/interests" | "/playground";
+import type { SectionHref } from "@/lib/sections";
 
 interface Props {
-  to: BackLinkTo;
+  to: SectionHref;
   children: ReactNode;
   /** Wrapper classes; defaults to a bottom margin. Pass "" inside a flex row. */
   className?: string;

@@ -1,4 +1,5 @@
 import { contactItems, DOTFILES_URL, introText, techItems } from "@/features/home/content";
+import { findPlace, sectionDirs } from "@/features/site-map/site-map";
 import { SECTION_LIST, SECTIONS } from "@/lib/sections";
 
 export interface ShellSegment {
@@ -27,15 +28,6 @@ function uptimeSinceLaunch(): string {
   return `${days} days, ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 }
 
-const DIRS: Record<string, string> = {
-  "/": "home",
-  home: "home",
-  experience: "experience",
-  projects: "projects",
-  interests: "interests",
-  playground: "playground",
-};
-
 const FILES: Record<string, string[]> = {
   "about.txt": [introText],
   "stack.txt": techItems.map((t) => `${t.title}: ${t.spec} — ${t.description}`),
@@ -46,7 +38,7 @@ const HELP_LINES = [
   "help ............ this list",
   "ls ............... what's here",
   "cat <file> ....... about.txt, stack.txt, contact.txt",
-  "cd <section> ..... home, experience, projects, interests, playground",
+  `cd <section> ..... ${["home", ...sectionDirs].join(", ")}`,
   "whoami ........... who's running this thing",
   "fastfetch ........ the setup, terminal-style",
   "clear ............ wipe the scrollback",
@@ -145,7 +137,12 @@ export function runShellCommand(input: string): ShellResult {
       return { lines: HELP_LINES };
 
     case "ls":
-      return { lines: [Object.keys(FILES).join("  "), "experience/  projects/  interests/  playground/"] };
+      return {
+        lines: [
+          Object.keys(FILES).join("  "),
+          sectionDirs.map((dir) => `${dir}/`).join("  "),
+        ],
+      };
 
     case "cat": {
       if (!arg) return { lines: ["usage: cat <file>"] };
@@ -154,12 +151,11 @@ export function runShellCommand(input: string): ShellResult {
     }
 
     case "cd": {
-      const dest = arg.trim();
-      const section = DIRS[dest] ?? DIRS[dest.replace(/^\.\//, "")];
-      if (!section) return { lines: [`cd: ${arg || "~"}: no such section`] };
+      const place = findPlace(arg);
+      if (!place) return { lines: [`cd: ${arg}: no such section`] };
       return {
-        lines: [`heading to /${section === "home" ? "" : section} ...`],
-        navigateTo: section === "home" ? "/" : `/${section}`,
+        lines: [`heading to ${place.href} ...`],
+        navigateTo: place.href,
       };
     }
 

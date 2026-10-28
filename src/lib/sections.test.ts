@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { accentForPath, activeSectionHref } from "@/lib/navigation";
 import {
+  accentForPath,
+  activeSectionHref,
   SECTIONS,
   SECTION_LIST,
   sectionAccentCss,

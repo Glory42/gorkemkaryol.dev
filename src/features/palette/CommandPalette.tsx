@@ -3,8 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { rankByQuery, type Ranked } from "@/features/palette/fuzzy";
 import { getPaletteProjectsServerFn } from "@/features/palette/palette-projects";
 import { contactItems, DOTFILES_URL } from "@/features/home/content";
-import { playgroundEntries } from "@/features/playground/registry";
-import { SECTION_LIST } from "@/lib/sections";
+import { places } from "@/features/site-map/site-map";
 
 // fzf-style jump list: Ctrl/⌘+K (or the unlabelled ^K in the footer) opens it,
 // typing fuzzy-filters pages, projects and links, Enter runs the pick.
@@ -37,12 +36,7 @@ function staticItems(): PaletteItem[] {
   });
 
   return [
-    ...SECTION_LIST.map((s) => page(`~${s.href === "/" ? "" : s.href}`, s.href)),
-    page("~/interests/reading", "/interests/reading"),
-    page("~/interests/watching", "/interests/watching"),
-    ...playgroundEntries
-      .filter((e) => e.status === "live" && e.href)
-      .map((e) => page(`~/playground/${e.slug}`, e.href!, "toy")),
+    ...places.map((p) => page(p.label, p.href, p.kind)),
     ...contactItems.map<PaletteItem>((c) => ({
       label: `open ${c.label.toLowerCase()}`,
       kind: "link",

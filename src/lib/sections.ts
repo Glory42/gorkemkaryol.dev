@@ -21,6 +21,9 @@ export type SectionHref =
   | "/interests"
   | "/playground";
 
+/** Fixed pages under a section, beyond its index. */
+export type SubPageHref = "/interests/reading" | "/interests/watching";
+
 export interface Section {
   slug: SectionSlug;
   label: string;
@@ -30,6 +33,7 @@ export interface Section {
   accentHex: string;
   /** Space-separated channel triple for `rgb(… / a)` math and canvas paints. */
   accentRgb: string;
+  pages: SubPageHref[];
 }
 
 // The one place a section is defined: its nav entry, its route prefix, and its
@@ -43,6 +47,7 @@ export const SECTIONS: Record<SectionSlug, Section> = {
     icon: User,
     accentHex: "#a855f7",
     accentRgb: "168 85 247",
+    pages: [],
   },
   projects: {
     slug: "projects",
@@ -51,6 +56,7 @@ export const SECTIONS: Record<SectionSlug, Section> = {
     icon: FolderGit2,
     accentHex: "#22c55e",
     accentRgb: "34 197 94",
+    pages: [],
   },
   experience: {
     slug: "experience",
@@ -59,6 +65,7 @@ export const SECTIONS: Record<SectionSlug, Section> = {
     icon: Briefcase,
     accentHex: "#f43f5e",
     accentRgb: "244 63 94",
+    pages: [],
   },
   interests: {
     slug: "interests",
@@ -67,6 +74,7 @@ export const SECTIONS: Record<SectionSlug, Section> = {
     icon: Heart,
     accentHex: "#3b82f6",
     accentRgb: "59 130 246",
+    pages: ["/interests/reading", "/interests/watching"],
   },
   playground: {
     slug: "playground",
@@ -75,6 +83,7 @@ export const SECTIONS: Record<SectionSlug, Section> = {
     icon: GamepadDirectional,
     accentHex: "#f5b301",
     accentRgb: "245 179 1",
+    pages: [],
   },
 };
 
@@ -89,6 +98,28 @@ export const SECTION_LIST: Section[] = [
 
 /** The section a path with no match falls back to (`/`, 404s). */
 export const FALLBACK_SECTION: SectionSlug = "me";
+
+// The section owning `pathname`, exact or a sub-route (`/projects/foo` →
+// projects). `/` and unmatched paths return undefined.
+function matchSection(pathname: string): Section | undefined {
+  return SECTION_LIST.find(
+    (s) =>
+      s.href !== "/" &&
+      (pathname === s.href || pathname.startsWith(`${s.href}/`)),
+  );
+}
+
+/** Section accent for a pathname; `/` and 404s get the fallback. */
+export function accentForPath(pathname: string): SectionSlug {
+  return matchSection(pathname)?.slug ?? FALLBACK_SECTION;
+}
+
+// Href of the nav item to highlight for `pathname`: sub-routes keep their
+// parent active, `/` highlights "me", a 404 highlights nothing.
+export function activeSectionHref(pathname: string): SectionHref | undefined {
+  if (pathname === "/") return "/";
+  return matchSection(pathname)?.href;
+}
 
 /** The `--accent-rgb` triple for a section — for canvas/SVG paints. */
 export function sectionAccentRgb(slug: SectionSlug): string {

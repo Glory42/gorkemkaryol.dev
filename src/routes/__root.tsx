@@ -12,8 +12,7 @@ import {
 import { FooterBadge } from "@/components/layout/FooterBadge";
 import { Navbar } from "@/components/layout/Navbar";
 import { CommandPalette } from "@/features/palette/CommandPalette";
-import { accentForPath } from "@/lib/navigation";
-import { sectionAccentCss } from "@/lib/sections";
+import { accentForPath, sectionAccentCss } from "@/lib/sections";
 import appCss from "@/styles/app.css?url";
 
 export const Route = createRootRoute({

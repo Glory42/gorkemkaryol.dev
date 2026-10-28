@@ -8,8 +8,8 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-// One entry per thing living under /playground. The hub maps over this list and
-// each route re-reads its entry for the page title and crumb.
+// One entry per thing living under /playground. The hub card grid and the site
+// map (palette, shell `cd`) both read this list.
 export interface PlaygroundEntry {
   slug: string;
   href?:
@@ -75,7 +75,3 @@ export const playgroundEntries: PlaygroundEntry[] = [
     status: "soon",
   },
 ];
-
-export function playgroundEntry(slug: string): PlaygroundEntry | undefined {
-  return playgroundEntries.find((entry) => entry.slug === slug);
-}

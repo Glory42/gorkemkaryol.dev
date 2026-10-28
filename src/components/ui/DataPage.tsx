@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { PageShell } from "@/components/layout/PageShell";
 import { PAGE_MAIN, TerminalPrompt } from "@/components/layout/page";
-import { BackLink, type BackLinkTo } from "@/components/ui/BackLink";
+import { BackLink } from "@/components/ui/BackLink";
+import type { SectionHref } from "@/lib/sections";
 import { ResultSection } from "@/components/ui/DataSection";
 import type { ServiceResult } from "@/server/common/http";
 
@@ -14,7 +15,7 @@ interface FrameProps {
   cmd: string;
   /** Right-aligned on the prompt line (e.g. a count). */
   promptAside?: ReactNode;
-  backTo?: BackLinkTo;
+  backTo?: SectionHref;
   backLabel?: string;
   /** Right-aligned on the back-link row (e.g. an "open on GitHub" link). */
   rightSlot?: ReactNode;

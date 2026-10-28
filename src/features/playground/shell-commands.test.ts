@@ -24,6 +24,18 @@ describe("runShellCommand", () => {
     expect(runShellCommand("cd /").navigateTo).toBe("/");
   });
 
+  it("navigates on cd to a sub-page, a toy or bare home", () => {
+    expect(runShellCommand("cd interests/reading").navigateTo).toBe("/interests/reading");
+    expect(runShellCommand("cd ~/playground/games").navigateTo).toBe("/playground/games");
+    expect(runShellCommand("cd").navigateTo).toBe("/");
+  });
+
+  it("lists the files and every section directory on ls", () => {
+    expect(runShellCommand("ls").lines[1]).toBe(
+      "projects/  experience/  interests/  playground/",
+    );
+  });
+
   it("errors on cd to an unknown section", () => {
     expect(runShellCommand("cd nowhere").navigateTo).toBeUndefined();
   });

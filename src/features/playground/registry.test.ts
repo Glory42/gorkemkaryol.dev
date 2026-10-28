@@ -1,16 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { playgroundEntries, playgroundEntry } from "@/features/playground/registry";
-
-describe("playgroundEntry", () => {
-  it("looks an entry up by slug", () => {
-    expect(playgroundEntry("games")?.title).toBe("games");
-    expect(playgroundEntry("whoami")?.href).toBe("/playground/whoami");
-  });
-
-  it("returns undefined for an unknown slug", () => {
-    expect(playgroundEntry("nope")).toBeUndefined();
-  });
-});
+import { playgroundEntries } from "@/features/playground/registry";
 
 describe("playgroundEntries", () => {
   it("gives every live entry an href and leaves 'soon' entries routeless", () => {
