@@ -1,12 +1,18 @@
 import { Marked } from "marked";
+import {
+  escapeAttr,
+  isExternalUrl,
+  isSafeUrl,
+  sanitizeRawHtml,
+} from "@/server/markdown/raw-html";
 
-function escapeAttr(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
+const ALERT_TITLES: Record<string, string> = {
+  NOTE: "Note",
+  TIP: "Tip",
+  IMPORTANT: "Important",
+  WARNING: "Warning",
+  CAUTION: "Caution",
+};
 
 // GitHub-style heading slug: lowercase, punctuation dropped, spaces to hyphens.
 function slugify(text: string): string {
@@ -64,29 +70,35 @@ function buildMarked(
         return `<h${depth} id="${id}">${inner}</h${depth}>\n`;
       },
       html({ text }) {
-        // Escape raw HTML blocks against XSS; markdown-generated HTML is unaffected.
-        return text
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;");
+        return sanitizeRawHtml(text, resolveUrl);
+      },
+      blockquote({ tokens }) {
+        const body = this.parser.parse(tokens);
+        // GitHub alerts: `> [!NOTE]` becomes a titled callout instead of a literal tag.
+        const alert = body.match(/^<p>\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*/);
+        if (!alert) return `<blockquote>\n${body}</blockquote>\n`;
+        const kind = alert[1];
+        const rest = body.slice(alert[0].length);
+        const content = rest.startsWith("</p>") ? rest.slice(4) : `<p>${rest}`;
+        return `<div class="readme-alert readme-alert-${kind.toLowerCase()}"><p class="readme-alert-title">${ALERT_TITLES[kind]}</p>${content}</div>\n`;
       },
       image({ href, title, text }) {
+        if (!isSafeUrl(href ?? "")) return escapeAttr(text ?? "");
         const src = escapeAttr(resolveUrl(href ?? "", true));
         const alt = escapeAttr(text ?? "");
         const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
         return `<img src="${src}" alt="${alt}"${titleAttr} loading="lazy" />`;
       },
       link({ href, title, tokens }) {
-        const resolved = resolveUrl(href ?? "", false);
-        const isExternal =
-          resolved.startsWith("http://") || resolved.startsWith("https://");
-        const safeHref = escapeAttr(resolved);
-        const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
-        const externalAttrs = isExternal
-          ? ` target="_blank" rel="noopener noreferrer nofollow"`
-          : "";
         // Render inner tokens so `[![badge](img)](url)` keeps its image instead of raw markdown.
         const inner = this.parser.parseInline(tokens);
+        if (!isSafeUrl(href ?? "")) return inner;
+        const resolved = resolveUrl(href ?? "", false);
+        const safeHref = escapeAttr(resolved);
+        const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
+        const externalAttrs = isExternalUrl(resolved)
+          ? ` target="_blank" rel="noopener noreferrer nofollow"`
+          : "";
         return `<a href="${safeHref}"${titleAttr}${externalAttrs}>${inner}</a>`;
       },
     },

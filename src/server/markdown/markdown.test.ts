@@ -36,9 +36,50 @@ describe("renderMarkdownToHTML", () => {
     expect(html).toContain('href="./docs/x.md"');
   });
 
-  it("escapes raw HTML blocks in an untrusted README", () => {
-    const { html } = renderMarkdownToHTML("<script>alert(1)</script>");
-    expect(html).not.toContain("<script>");
-    expect(html).toContain("&lt;script&gt;");
+  const repoCtx = {
+    owner: "gk",
+    repo: "proj",
+    branch: "main",
+    repoUrl: "https://github.com/gk/proj",
+  };
+
+  it("renders a centred raw-HTML icon with its relative src resolved", () => {
+    const md = '<p align="center">\n  <img src="assets/icon.png" alt="" width="112">\n</p>';
+    const { html } = renderMarkdownToHTML(md, repoCtx);
+    expect(html).toContain('<p align="center">');
+    expect(html).toContain(
+      '<img src="https://raw.githubusercontent.com/gk/proj/main/assets/icon.png" alt="" width="112" loading="lazy">',
+    );
+    expect(html).not.toContain("&lt;img");
+  });
+
+  it("keeps a raw-HTML screenshot table", () => {
+    const md = '<table>\n  <tr>\n    <td align="center"><img src="shots/a.webp"></td>\n  </tr>\n</table>';
+    const { html } = renderMarkdownToHTML(md, repoCtx);
+    expect(html).toContain('<td align="center"><img src="https://raw.githubusercontent.com/gk/proj/main/shots/a.webp"');
+    expect(html).toContain("</table>");
+  });
+
+  it("drops scripts, event handlers and javascript: urls from raw HTML", () => {
+    const { html } = renderMarkdownToHTML(
+      '<script>alert(1)</script>\n\n<img src="x.png" onerror="alert(1)">\n\n<a href="jav&#x61;script:alert(1)">x</a>',
+    );
+    expect(html).not.toContain("<script");
+    expect(html).not.toContain("alert(1)");
+    expect(html).not.toContain("onerror");
+    expect(html).not.toContain("javascript");
+  });
+
+  it("does not link a javascript: markdown url", () => {
+    const { html } = renderMarkdownToHTML("[x](javascript:alert(1))");
+    expect(html).not.toContain("<a");
+    expect(html).toContain("x");
+  });
+
+  it("renders a GitHub alert as a titled callout", () => {
+    const { html } = renderMarkdownToHTML("> [!NOTE]\n> **Early** days.");
+    expect(html).toContain('<div class="readme-alert readme-alert-note">');
+    expect(html).toContain('<p class="readme-alert-title">Note</p><p><strong>Early</strong> days.</p>');
+    expect(html).not.toContain("[!NOTE]");
   });
 });

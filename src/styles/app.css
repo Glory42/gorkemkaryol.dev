@@ -221,6 +221,40 @@ html {
   color: rgba(255, 255, 255, 0.7);
 }
 
+/* README raw HTML centres hero images and captions with the legacy align attribute. */
+.readme-prose [align="center"] {
+  text-align: center;
+}
+.readme-prose [align="right"] {
+  text-align: right;
+}
+
+.readme-prose sub {
+  font-size: 0.75em;
+}
+
+.readme-alert {
+  border-left: 2px solid rgb(var(--accent-rgb) / 0.55);
+  background: rgb(var(--accent-rgb) / 0.04);
+  padding: 0.5rem 1rem;
+  margin: 1em 0;
+}
+
+.readme-alert-warning,
+.readme-alert-caution {
+  border-left-color: rgba(251, 191, 36, 0.6);
+  background: rgba(251, 191, 36, 0.04);
+}
+
+.readme-prose .readme-alert-title {
+  color: rgba(255, 255, 255, 0.75);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
 .readme-prose hr {
   border: none;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
