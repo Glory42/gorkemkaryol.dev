@@ -6,7 +6,7 @@ and a full organizer panel - instead of stitching five separate tools together.
 
 **[gathin.com →](https://gathin.com)**
 
-![Gathin landing](/projects/gathin/landing-page.png)
+![Gathin landing](/projects/gathin/landing-page.webp)
 
 ## What I built
 
@@ -38,9 +38,9 @@ convert: hero image, venue and capacity, RSVP and ticket flows, speakers,
 sponsors, and a gallery. Every community gets its own branded page with events
 flowing inline, and every member a public profile.
 
-![Discovery feed](/projects/gathin/discover.png)
+![Discovery feed](/projects/gathin/discover.webp)
 
-![Public event page](/projects/gathin/event-page.png)
+![Public event page](/projects/gathin/event-page.webp)
 
 ## Organizer panel
 
@@ -48,7 +48,7 @@ Members and segments, events, ticketing, bulk email, payments, gallery, and
 settings in a single panel built around how organizers actually work - no
 jumping between apps.
 
-![Organizer panel overview](/projects/gathin/panel.png)
+![Organizer panel overview](/projects/gathin/panel.webp)
 
 - **Ticketing & payments** - ticket tiers with quota, price, sale window, and
   refund rules; the public page updates instantly, and paid tickets flow into
@@ -65,7 +65,7 @@ jumping between apps.
 - **Sponsorships** - add backing companies with logos and links, grouped into
   tiers.
 
-![Community analytics](/projects/gathin/analytics.png)
+![Community analytics](/projects/gathin/analytics.webp)
 
 ## Stack
 

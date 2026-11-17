@@ -8,7 +8,7 @@ backend.
 
 **[huddin.com →](https://huddin.com)**
 
-![Huddin landing](/projects/huddin/feature-page.png)
+![Huddin landing](/projects/huddin/feature-page.webp)
 
 ## What I built
 
@@ -33,7 +33,7 @@ cohort, a studio, or a remote team. Channels carry real-time chat with file
 uploads, reactions, and typing indicators; direct messages add read receipts
 and 1-on-1 calls; announcements, galleries, and discover round it out.
 
-![One platform for any community](/projects/huddin/general-features.png)
+![One platform for any community](/projects/huddin/general-features.webp)
 
 ## Shared task lists
 
@@ -43,7 +43,7 @@ assignees, due dates, status and priority, reactions and labels, and a per-task
 audit timeline with live presence. Any task can be referenced in chat through a
 `<task:...>` mention chip.
 
-![Channel checklists](/projects/huddin/task-managment.png)
+![Channel checklists](/projects/huddin/task-management.webp)
 
 ## Voice rooms
 
@@ -52,7 +52,7 @@ at will; the connected strip travels with them as they read other channels, and
 voice intent survives a page reload so a refresh never kicks anyone out. Low
 latency and clear audio through a LiveKit SFU.
 
-![Persistent voice rooms](/projects/huddin/voice-room-showcase.png)
+![Persistent voice rooms](/projects/huddin/voice-room-showcase.webp)
 
 ## Stack
 
