@@ -58,12 +58,12 @@ function WatchingPageSkeleton() {
       backLabel="back to interests"
     >
       <section className="mb-10">
-        <SectionHeader sig="./currently-watching" />
+        <SectionHeader label="./currently-watching" />
         <PosterGridSkeleton count={4} />
       </section>
 
       <section>
-        <SectionHeader sig="./watched" />
+        <SectionHeader label="./watched" />
         <PosterGridSkeleton count={10} />
       </section>
     </DataPage.Skeleton>
@@ -76,7 +76,7 @@ function WatchedSection({ media }: { media: WatchedMedia }) {
 
   return (
     <section>
-      <SectionHeader sig="./watched" />
+      <SectionHeader label="./watched" />
       <TerminalTabs
         options={WATCHED_FILTERS}
         value={filter}
@@ -110,7 +110,7 @@ function WatchingPage() {
     >
       {currentlyWatching.ok && currentlyWatching.data.length > 0 && (
         <section className="mb-10">
-          <SectionHeader sig="./currently-watching" />
+          <SectionHeader label="./currently-watching" />
           <PosterGrid
             items={currentlyWatching.data.map(currentlyWatchingToDisplayItem)}
             emptyTitle="Nothing in progress"

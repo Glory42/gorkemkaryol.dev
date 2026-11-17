@@ -1,4 +1,4 @@
-import { createFileRoute, defer, Link } from "@tanstack/react-router";
+import { createFileRoute, defer } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { BookOpen, Film, Music, Tv } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -10,22 +10,23 @@ import { StatusPanel } from "@/components/ui/StatusPanel";
 import { ShelfList } from "@/features/interests/components/ShelfList";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { favoriteBands, interestsIntro } from "@/features/interests/content";
-import type { SubPageHref } from "@/lib/sections";
+import { getReadingNow, getWatchingNow } from "@/features/interests/currently";
 import {
   bookToDisplayItem,
-  currentlyWatchingToDisplayItem,
   top4ToDisplayItem,
   watchStatsLabel,
 } from "@/features/interests/display-item";
-import {
-  getInterisData,
-  getCurrentlyWatchingSerials,
-} from "@/server/interis/interis";
-import { getLiteralData } from "@/server/literal/literal";
+import { getInterisData } from "@/server/interis/interis";
+import { getFavoriteBooks } from "@/server/literal/literal";
 import { runSource } from "@/server/common/page-data";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 
-const getLiteralDataServerFn = createServerFn({ method: "GET" }).handler(() =>
-  runSource((env, ctx) => getLiteralData(env, ctx, 3)),
+const getReadingServerFn = createServerFn({ method: "GET" }).handler(() =>
+  runSource(getReadingNow),
+);
+
+const getFavoriteBooksServerFn = createServerFn({ method: "GET" }).handler(() =>
+  runSource(getFavoriteBooks),
 );
 
 const getInterisDataServerFn = createServerFn({ method: "GET" }).handler(() =>
@@ -33,55 +34,24 @@ const getInterisDataServerFn = createServerFn({ method: "GET" }).handler(() =>
 );
 
 const getWatchingServerFn = createServerFn({ method: "GET" }).handler(() =>
-  runSource((env, ctx) => getCurrentlyWatchingSerials(env, ctx, 2)),
+  runSource(getWatchingNow),
 );
 
 export const Route = createFileRoute("/interests/")({
   head: () =>
     pageHead("Interests", "Favorites and currently reading shelf from Literal.", "/interests"),
   loader: () => ({
-    literal: defer(getLiteralDataServerFn()),
+    reading: defer(getReadingServerFn()),
+    favoriteBooks: defer(getFavoriteBooksServerFn()),
     interis: defer(getInterisDataServerFn()),
     watching: defer(getWatchingServerFn()),
   }),
   component: InterestsPage,
 });
 
-function SectionLabel({
-  label,
-  meta,
-  href,
-}: {
-  label: string;
-  meta?: string;
-  href?: SubPageHref;
-}) {
-  return (
-    <div className="mb-3">
-      <div className="flex items-center gap-3">
-        <span className="mono text-[10px] tracking-[0.25em] text-accent/[0.65] uppercase">
-          {label}
-        </span>
-        <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
-      </div>
-      {href && (
-        <Link
-          to={href}
-          className="mono mt-0.5 inline-block text-[10px] tracking-[0.15em] text-accent/[0.6] no-underline transition-colors hover:text-accent/[0.85]"
-        >
-          see all →
-        </Link>
-      )}
-      {meta && (
-        <p className="mono mt-1 text-[11px] text-accent/[0.75]">{meta}</p>
-      )}
-    </div>
-  );
-}
-
 function SubLabel({ label, icon: Icon }: { label: string; icon: LucideIcon }) {
   return (
-    <div className="mono mb-3 flex items-center gap-1.5 text-[9px] tracking-[0.2em] text-accent/[0.6] uppercase">
+    <div className="mono mb-3 flex items-center gap-1.5 text-[11px] tracking-[0.2em] text-accent/[0.6] uppercase">
       <Icon size={10} />
       {label}
     </div>
@@ -110,12 +80,11 @@ function SectionLoading() {
   );
 }
 
-
 function InterestsPage() {
-  const { literal, interis, watching } = Route.useLoaderData();
+  const { reading, favoriteBooks, interis, watching } = Route.useLoaderData();
 
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-10 pt-[max(12px,1.5vh)]">
+    <PageShell>
       <section className="mx-auto max-w-[900px]">
         <TerminalPrompt cmd="ls ./interests" className="mb-2" />
 
@@ -138,17 +107,16 @@ function InterestsPage() {
         )}
 
         <div className="flex flex-col gap-8 md:flex-row md:gap-10">
-          {/* Left: currently reading + currently watching */}
           <div className="w-full md:w-[200px] md:shrink-0">
-            <SectionLabel label="./interests/reading" href="/interests/reading" />
+            <SectionHeader label="./interests/reading" more="/interests/reading" className="mb-3" />
             <DataSection
-              promise={literal}
+              promise={reading}
               fallback={<SectionLoading />}
               errorTitle="Literal API Unavailable"
             >
-              {(books) => (
+              {(items) => (
                 <ShelfList
-                  items={books.currentlyReading.slice(0, 2).map((rs) => bookToDisplayItem(rs.book))}
+                  items={items}
                   emptyTitle="No books found"
                   emptyDescription="No books currently in progress on Literal."
                 />
@@ -156,15 +124,15 @@ function InterestsPage() {
             </DataSection>
 
             <div className="mt-4">
-              <SectionLabel label="./interests/watching" href="/interests/watching" />
+              <SectionHeader label="./interests/watching" more="/interests/watching" className="mb-3" />
               <DataSection
                 promise={watching}
                 fallback={<SectionLoading />}
                 errorTitle="Interis API Unavailable"
               >
-                {(serials) => (
+                {(items) => (
                   <ShelfList
-                    items={serials.map(currentlyWatchingToDisplayItem)}
+                    items={items}
                     emptyTitle="Nothing in progress"
                     emptyDescription="No serials currently being watched on Interis."
                   />
@@ -173,9 +141,8 @@ function InterestsPage() {
             </div>
           </div>
 
-          {/* Right: favorites */}
           <div className="min-w-0 flex-1">
-            <SectionLabel label="./interests/favorites" />
+            <SectionHeader label="./interests/favorites" className="mb-3" />
 
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
               <DataSection
@@ -249,13 +216,13 @@ function InterestsPage() {
               <div>
                 <SubLabel label="Books" icon={BookOpen} />
                 <DataSection
-                  promise={literal}
+                  promise={favoriteBooks}
                   fallback={<SectionLoading />}
                   errorTitle="Literal API Unavailable"
                 >
                   {(books) => (
                     <ShelfList
-                      items={books.favoriteBooks.map(bookToDisplayItem)}
+                      items={books.map(bookToDisplayItem)}
                       emptyTitle="No books found"
                       emptyDescription="No favorite books found on Literal."
                     />

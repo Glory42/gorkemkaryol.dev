@@ -6,12 +6,12 @@ import {
 
 describe("findManualProject", () => {
   it("resolves a slug by exact match", () => {
-    expect(findManualProject("Gathin")?.card.name).toBe("Gathin");
+    expect(findManualProject("Gathin")?.name).toBe("Gathin");
   });
 
   it("resolves a slug case-insensitively", () => {
-    expect(findManualProject("gathin")?.card.name).toBe("Gathin");
-    expect(findManualProject("HUDDIN")?.card.name).toBe("Huddin");
+    expect(findManualProject("gathin")?.name).toBe("Gathin");
+    expect(findManualProject("HUDDIN")?.name).toBe("Huddin");
   });
 
   it("returns undefined for an unknown slug", () => {

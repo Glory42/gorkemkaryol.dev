@@ -16,7 +16,6 @@ interface Props {
   backLabel?: string;
 }
 
-// The router's 404: an offline-style runner to play while you find your way back.
 export function NotFoundPage({
   title = "This page went offline.",
   message = "Nothing lives at this address. Jump a few firewalls while you're here, or head back.",
@@ -65,9 +64,9 @@ export function NotFoundPage({
         <button
           type="button"
           onClick={openCommandPalette}
-          className="focus-ring mono cursor-pointer text-[11px] tracking-[0.08em] text-fg-3 transition-colors hover:text-fg-1"
+          className="focus-ring tap-target mono cursor-pointer text-[11px] tracking-[0.08em] text-fg-3 transition-colors hover:text-fg-1"
         >
-          or search with ^K
+          or search<span className="hidden md:inline"> with ^K</span>
         </button>
       </div>
     </main>

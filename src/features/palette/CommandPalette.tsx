@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { rankByQuery, type Ranked } from "@/features/palette/fuzzy";
 import { getPaletteProjectsServerFn } from "@/features/palette/palette-projects";
-import { contactItems, DOTFILES_URL } from "@/features/home/content";
+import { contactItems, DOTFILES_URL } from "@/lib/profile";
 import { places } from "@/features/site-map/site-map";
 
 // fzf-style jump list: Ctrl/⌘+K opens it, typing fuzzy-filters, Enter runs the pick.
@@ -189,7 +189,7 @@ export function CommandPalette() {
             aria-label="Search pages, projects and links"
             aria-controls="palette-results"
             aria-activedescendant={results[cursor] ? `palette-${cursor}` : undefined}
-            className="w-full min-w-0 bg-transparent text-fg-1 caret-accent outline-none placeholder:text-fg-4"
+            className="w-full min-w-0 bg-transparent text-[16px] text-fg-1 caret-accent outline-none placeholder:text-fg-4 md:text-[13px]"
             spellCheck={false}
             autoComplete="off"
             autoCapitalize="off"
@@ -224,7 +224,7 @@ export function CommandPalette() {
                 aria-selected={selected}
                 onMouseMove={() => setCursor(i)}
                 onClick={() => runAt(i)}
-                className={`flex cursor-pointer items-center gap-2 px-3 py-[5px] ${
+                className={`flex cursor-pointer items-center gap-2 px-3 py-[10px] md:py-[5px] ${
                   selected ? "bg-accent/[0.1] text-fg-1" : "text-fg-2"
                 }`}
               >
@@ -234,7 +234,7 @@ export function CommandPalette() {
                 <span className="min-w-0 flex-1 truncate">
                   <Highlighted text={r.item.label} positions={r.positions} />
                 </span>
-                <span className="shrink-0 text-[10px] tracking-[0.12em] text-fg-4 uppercase">
+                <span className="shrink-0 text-[11px] tracking-[0.12em] text-fg-4 uppercase">
                   {r.item.kind}
                 </span>
               </li>
@@ -242,7 +242,7 @@ export function CommandPalette() {
           })}
         </ul>
 
-        <div className="flex gap-4 border-t border-[rgba(255,255,255,0.06)] px-3 py-2 text-[10px] tracking-[0.08em] text-fg-4">
+        <div className="hidden gap-4 border-t border-[rgba(255,255,255,0.06)] px-3 py-2 text-[11px] tracking-[0.08em] text-fg-4 md:flex">
           <span>↑↓ move</span>
           <span>⏎ open</span>
           <span>esc close</span>

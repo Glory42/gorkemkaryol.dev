@@ -79,7 +79,7 @@ function ProjectsPageSkeleton() {
 function SkeletonColumn({ sig, rows }: { sig: string; rows: number }) {
   return (
     <section className="min-w-0 flex-1">
-      <SectionHeader sig={sig} />
+      <SectionHeader label={sig} />
       <div className="flex animate-pulse flex-col">
         {Array.from({ length: rows }).map((_, i) => (
           <div
@@ -139,7 +139,7 @@ function ProjectsBody({
 
       <div className="flex flex-col gap-8 lg:flex-row">
         <section className="min-w-0 flex-1">
-          <SectionHeader sig="./projects/featured" />
+          <SectionHeader label="./projects/featured" />
           {featured.length === 0 ? (
             <StatusPanel
               tone="empty"
@@ -154,7 +154,7 @@ function ProjectsBody({
         <div className="hidden w-px shrink-0 self-stretch bg-[rgba(255,255,255,0.05)] lg:block" />
 
         <section className="min-w-0 flex-1">
-          <SectionHeader sig="./projects/contributed" />
+          <SectionHeader label="./projects/contributed" />
           {contributed.length === 0 ? (
             <StatusPanel
               tone="empty"

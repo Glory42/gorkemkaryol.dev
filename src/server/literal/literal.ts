@@ -14,16 +14,6 @@ export interface LiteralBook {
   authors: Array<{ name: string }>;
 }
 
-export interface ReadingState {
-  status: "IS_READING";
-  book: LiteralBook;
-}
-
-export interface LiteralData {
-  currentlyReading: ReadingState[];
-  favoriteBooks: LiteralBook[];
-}
-
 interface LoginMutationData {
   login?: {
     token?: string;
@@ -153,31 +143,31 @@ function readingVariables(
   return { limit, offset: 0, readingStatus, profileId };
 }
 
-export async function getLiteralData(
+export async function getCurrentlyReading(
   env: RuntimeEnv,
   ctx: SourceCtx,
-  readingLimit = 3,
-): Promise<ServiceResult<LiteralData>> {
+  limit: number,
+): Promise<ServiceResult<LiteralBook[]>> {
   return withLiteralSession(env, ctx, async ({ gql, profileId }) => {
-    const result = await allOk({
-      reading: gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
-        variables: readingVariables(profileId, readingLimit, "IS_READING"),
-        label: "Literal currently-reading",
-      }),
-      shelf: gql<ShelfBySlugQueryData>(SHELF_BY_SLUG_QUERY, {
-        variables: { shelfSlug: "favorits-b4k6z82" },
-        label: "Literal shelves",
-      }),
+    const result = await gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {
+      variables: readingVariables(profileId, limit, "IS_READING"),
+      label: "Literal currently-reading",
     });
-    if (!result.ok) return result;
-    const { reading, shelf } = result.data;
+    return result.ok ? ok(result.data.booksByReadingStateAndProfile ?? []) : result;
+  });
+}
 
-    return ok({
-      currentlyReading: (reading.booksByReadingStateAndProfile ?? []).map(
-        (book) => ({ status: "IS_READING" as const, book }),
-      ),
-      favoriteBooks: (shelf.shelf?.books ?? []).slice(0, 2),
+/** The first two books on the favourites shelf. */
+export async function getFavoriteBooks(
+  env: RuntimeEnv,
+  ctx: SourceCtx,
+): Promise<ServiceResult<LiteralBook[]>> {
+  return withLiteralSession(env, ctx, async ({ gql }) => {
+    const result = await gql<ShelfBySlugQueryData>(SHELF_BY_SLUG_QUERY, {
+      variables: { shelfSlug: "favorits-b4k6z82" },
+      label: "Literal shelves",
     });
+    return result.ok ? ok((result.data.shelf?.books ?? []).slice(0, 2)) : result;
   });
 }
 

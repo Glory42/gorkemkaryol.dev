@@ -210,7 +210,7 @@ export function TetrisGame() {
               onStart={play}
             >
               {phase === "over" && (
-                <p className="mono text-[9px] text-fg-4">
+                <p className="mono text-[11px] text-fg-4">
                   level {hud.level} · {hud.lines} lines
                 </p>
               )}
@@ -223,7 +223,6 @@ export function TetrisGame() {
           />
         </GameShell>
 
-        {/* Touch controls — shown while playing */}
         {phase === "playing" && (
           <div className="mt-2 grid grid-cols-4 gap-1.5">
             {([ ["←", moveLeft], ["↺", rotatePiece], ["→", moveRight], ["↓↓", hardDrop] ] as [string, () => void][]).map(([label, action]) => (
@@ -239,10 +238,9 @@ export function TetrisGame() {
         )}
       </div>
 
-      {/* Side panel — only shown while playing */}
       {phase === "playing" && <div className="flex flex-col gap-5 pt-1">
         <div>
-          <p className="mono mb-2 text-[9px] tracking-[0.18em] text-accent/[0.6]">NEXT</p>
+          <p className="mono mb-2 text-[11px] tracking-[0.18em] text-accent/[0.6]">NEXT</p>
           <canvas
             ref={nextRef} width={NW} height={NH}
             className="border border-[rgba(255,255,255,0.05)]"

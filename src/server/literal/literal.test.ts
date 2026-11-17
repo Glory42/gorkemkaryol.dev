@@ -4,7 +4,8 @@ import { createInMemoryRuntime } from "@/server/common/runtime";
 import { sourceCtx } from "@/server/common/source";
 import {
   getAllBooksData,
-  getLiteralData,
+  getCurrentlyReading,
+  getFavoriteBooks,
   withLiteralSession,
 } from "@/server/literal/literal";
 
@@ -127,20 +128,23 @@ function literalRuntime(over: Record<string, unknown> = {}) {
   });
 }
 
-describe("getLiteralData", () => {
-  it("wraps currently-reading rows and caps favourites at two", async () => {
-    const runtime = literalRuntime();
-    const res = await getLiteralData(fakeEnv(CREDS), sourceCtx({ runtime }));
+describe("getCurrentlyReading / getFavoriteBooks", () => {
+  it("returns the in-progress books", async () => {
+    const res = await getCurrentlyReading(fakeEnv(CREDS), sourceCtx({ runtime: literalRuntime() }), 3);
     if (!res.ok) throw new Error("expected ok");
-    expect(res.data.currentlyReading).toHaveLength(3);
-    expect(res.data.currentlyReading.every((r) => r.status === "IS_READING")).toBe(true);
-    expect(res.data.favoriteBooks.map((b) => b.id)).toEqual(["x", "y"]);
+    expect(res.data.map((b) => b.id)).toEqual(["a", "b", "c"]);
+  });
+
+  it("caps favourites at two", async () => {
+    const res = await getFavoriteBooks(fakeEnv(CREDS), sourceCtx({ runtime: literalRuntime() }));
+    if (!res.ok) throw new Error("expected ok");
+    expect(res.data.map((b) => b.id)).toEqual(["x", "y"]);
   });
 
   it("propagates a missing-credentials failure without a network hit", async () => {
     const calls: string[] = [];
     const runtime = createInMemoryRuntime({ responses: [], calls });
-    const res = await getLiteralData(fakeEnv(), sourceCtx({ runtime }));
+    const res = await getCurrentlyReading(fakeEnv(), sourceCtx({ runtime }), 2);
     expect(res.ok).toBe(false);
     if (!res.ok) expect(res.error.code).toBe("MISSING_ENV");
     expect(calls).toHaveLength(0);

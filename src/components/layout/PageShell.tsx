@@ -3,13 +3,14 @@ import type { ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
-  mainClassName?: string;
+  /** Skip the bottom padding, for a layout that pads its own column instead (home's pinned panel). */
+  flushBottom?: boolean;
 }
 
 // Fade in once per session; flagged in an effect, since reading it in render breaks hydration.
 let hasPlayedEntrance = false;
 
-export function PageShell({ children, mainClassName }: Props) {
+export function PageShell({ children, flushBottom = false }: Props) {
   const [shouldAnimate, setShouldAnimate] = useState(false);
 
   useEffect(() => {
@@ -21,11 +22,9 @@ export function PageShell({ children, mainClassName }: Props) {
   return (
     <main
       id="main-content"
-      className={
-        (shouldAnimate ? "page-enter " : "") +
-        (mainClassName ??
-          "mx-auto w-full max-w-6xl px-4 pb-10 pt-10 md:px-8 md:pt-14")
-      }
+      className={`px-[max(24px,4vw)] pt-[var(--page-pt)] ${flushBottom ? "" : "pb-20"} ${
+        shouldAnimate ? "page-enter" : ""
+      }`}
     >
       {children}
     </main>

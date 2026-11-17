@@ -47,7 +47,6 @@ export interface SourceClientOptions {
   defaultTtl: number;
   timeoutMs?: number;
   retries?: number;
-  /** Sent on every request from this client. */
   headers?: Record<string, string>;
   /** Appended to every get() URL but kept out of cache keys, so secrets fit. */
   query?: Record<string, string>;

@@ -82,4 +82,13 @@ describe("renderMarkdownToHTML", () => {
     expect(html).toContain('<p class="readme-alert-title">Note</p><p><strong>Early</strong> days.</p>');
     expect(html).not.toContain("[!NOTE]");
   });
+
+  it("adds width and height when the image's size is known, and nothing otherwise", () => {
+    const sizes = { "/a.webp": { width: 1600, height: 1000 } };
+    const { html } = renderMarkdownToHTML("![A](/a.webp) ![B](/b.webp)", {
+      imageSize: (src) => sizes[src as keyof typeof sizes],
+    });
+    expect(html).toContain('<img src="/a.webp" alt="A" width="1600" height="1000" loading="lazy" />');
+    expect(html).toContain('<img src="/b.webp" alt="B" loading="lazy" />');
+  });
 });

@@ -19,10 +19,19 @@ export const githubClient = defineSource({
   }),
 });
 
+// Each GitHub topic that pulls your own repos into a list: featured → /projects, showcase → home.
+export const TOPIC_LISTS = ["featured", "showcase"] as const;
+export type TopicList = (typeof TOPIC_LISTS)[number];
+
+/** List topics only steer placement, so they're never rendered as tags. */
+export const META_TOPICS: readonly string[] = TOPIC_LISTS;
+
 export interface GithubProject {
   name: string;
   description: string;
   url: string;
+  /** The repo's "Website" field, for a live link. */
+  homepageUrl?: string | null;
   stargazerCount: number;
   topics: string[];
   primaryLanguage?: {
@@ -30,6 +39,8 @@ export interface GithubProject {
     color?: string | null;
   } | null;
   updatedAt: string;
+  /** Last code push; unlike updatedAt, topic or description edits don't move it. */
+  pushedAt?: string;
 }
 
 export interface GithubContributionDay {
@@ -43,10 +54,9 @@ export interface GithubContributionCalendar {
   days: GithubContributionDay[];
 }
 
-export interface GithubProjectsPayload {
+// One newest-push-first list per TOPIC_LISTS entry (`featured`, `showcase`), plus the overview.
+export type GithubProjectsPayload = Record<TopicList, GithubProject[]> & {
   username: string;
-  /** Your own repos tagged `topic:featured`. */
-  featured: GithubProject[];
   /** Repos you don't own (from `EXTERNAL_REPOS`). */
   contributed: GithubProject[];
   contributions: GithubContributionCalendar | null;
@@ -56,14 +66,16 @@ export interface GithubProjectsPayload {
     resetAt: string;
     cost: number;
   } | null;
-}
+};
 
 interface RepositoryNode {
   name?: string;
   description?: string | null;
   url?: string;
+  homepageUrl?: string | null;
   stargazerCount?: number;
   updatedAt?: string;
+  pushedAt?: string;
   isFork?: boolean;
   repositoryTopics?: {
     nodes?: Array<{
@@ -79,9 +91,6 @@ interface RepositoryNode {
 }
 
 interface GithubOverviewQueryData {
-  search?: {
-    nodes?: Array<RepositoryNode>;
-  };
   user?: {
     contributionsCollection?: {
       contributionCalendar?: {
@@ -107,8 +116,10 @@ interface GithubOverviewQueryData {
     resetAt?: string;
     cost?: number;
   };
-  [key: string]: unknown; // Allow repo0, repo1, etc. aliases
+  [key: string]: unknown; // Aliases: list_featured, list_showcase, repo0, repo1, …
 }
+
+type SearchResult = { nodes?: Array<RepositoryNode> } | undefined;
 
 const GITHUB_GRAPHQL_API = "https://api.github.com/graphql";
 
@@ -116,10 +127,12 @@ const REPO_FRAGMENT = `
   name
   description
   url
+  homepageUrl
   stargazerCount
   updatedAt
+  pushedAt
   isFork
-  repositoryTopics(first: 4) {
+  repositoryTopics(first: 8) {
     nodes {
       topic {
         name
@@ -132,7 +145,22 @@ const REPO_FRAGMENT = `
   }
 `;
 
+const listVar = (list: TopicList) => `${list}Query`;
+
 function buildGithubOverviewQuery() {
+  const listVars = TOPIC_LISTS.map((list) => `$${listVar(list)}: String!`).join("\n    ");
+  const listSearches = TOPIC_LISTS.map(
+    (list) => `
+    list_${list}: search(query: $${listVar(list)}, type: REPOSITORY, first: 12) {
+      nodes {
+        ... on Repository {
+          ${REPO_FRAGMENT}
+        }
+      }
+    }
+    `,
+  ).join("");
+
   const externalRepoAliases = EXTERNAL_REPOS.map(
     ({ owner, name }, i) => `
     repo${i}: repository(owner: "${owner}", name: "${name}") {
@@ -144,17 +172,11 @@ function buildGithubOverviewQuery() {
   return `
   query GithubOverview(
     $username: String!
-    $repoQuery: String!
+    ${listVars}
     $from: DateTime!
     $to: DateTime!
   ) {
-    search(query: $repoQuery, type: REPOSITORY, first: 12) {
-      nodes {
-        ... on Repository {
-          ${REPO_FRAGMENT}
-        }
-      }
-    }
+    ${listSearches}
     ${externalRepoAliases}
     user(login: $username) {
       contributionsCollection(from: $from, to: $to) {
@@ -180,7 +202,9 @@ function buildGithubOverviewQuery() {
   `;
 }
 
-// Filter out forks and incomplete nodes, map to GithubProject, newest push first.
+const lastPush = (p: GithubProject): number => new Date(p.pushedAt || p.updatedAt).getTime();
+
+// Filter out forks and incomplete nodes, map to GithubProject, newest code push first.
 function toProjects(nodes: Array<RepositoryNode | undefined>): GithubProject[] {
   return nodes
     .filter(
@@ -191,8 +215,10 @@ function toProjects(nodes: Array<RepositoryNode | undefined>): GithubProject[] {
       name: node.name ?? "unknown",
       description: node.description ?? "No description provided.",
       url: node.url ?? "",
+      homepageUrl: node.homepageUrl || null,
       stargazerCount: node.stargazerCount ?? 0,
       updatedAt: node.updatedAt ?? "",
+      pushedAt: node.pushedAt ?? undefined,
       topics:
         node.repositoryTopics?.nodes
           ?.map((topicNode) => topicNode.topic?.name)
@@ -202,10 +228,7 @@ function toProjects(nodes: Array<RepositoryNode | undefined>): GithubProject[] {
           ? { name: node.primaryLanguage.name, color: node.primaryLanguage.color }
           : null,
     }))
-    .sort(
-      (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-    );
+    .sort((a, b) => lastPush(b) - lastPush(a));
 }
 
 function mapContributionLevel(level: string): 0 | 1 | 2 | 3 | 4 {
@@ -242,8 +265,8 @@ function mapRateLimitFromHeaders(headers: Headers): {
   };
 }
 
-function buildRepoQuery(username: string): string {
-  return `user:${username} topic:featured sort:updated-desc`;
+function buildRepoQuery(username: string, topic: string): string {
+  return `user:${username} topic:${topic} sort:updated-desc`;
 }
 
 export async function getGithubProjects(
@@ -264,12 +287,14 @@ export async function getGithubProjects(
     {
       variables: {
         username,
-        repoQuery: buildRepoQuery(username),
+        ...Object.fromEntries(
+          TOPIC_LISTS.map((list) => [listVar(list), buildRepoQuery(username, list)]),
+        ),
         from: from.toISOString(),
         to: to.toISOString(),
       },
       // `from` / `to` change every call, so key on stable inputs (EXTERNAL_REPOS included).
-      cacheDiscriminant: `overview:${username}:${EXTERNAL_REPOS.map(
+      cacheDiscriminant: `overview:v4:${username}:${EXTERNAL_REPOS.map(
         (repo) => `${repo.owner}/${repo.name}`,
       ).join(",")}`,
       label: "GitHub",
@@ -287,7 +312,12 @@ export async function getGithubProjects(
     (_, i) => queryData[`repo${i}`] as RepositoryNode | undefined,
   ).filter((node): node is RepositoryNode => Boolean(node));
 
-  const featured = toProjects(queryData.search?.nodes ?? []);
+  const lists = Object.fromEntries(
+    TOPIC_LISTS.map((list) => [
+      list,
+      toProjects((queryData[`list_${list}`] as SearchResult)?.nodes ?? []),
+    ]),
+  ) as Record<TopicList, GithubProject[]>;
   const contributed = toProjects(externalNodes);
 
   const contributionDays =
@@ -333,7 +363,7 @@ export async function getGithubProjects(
 
   return ok({
     username,
-    featured,
+    ...lists,
     contributed,
     contributions,
     rateLimit,

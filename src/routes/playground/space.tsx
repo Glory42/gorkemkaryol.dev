@@ -190,7 +190,7 @@ function NeoBlock({ feed }: { feed: NeoFeed }) {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[560px] border-collapse text-left">
           <thead>
-            <tr className="mono text-[10px] tracking-[0.15em] text-fg-3 uppercase">
+            <tr className="mono text-[11px] tracking-[0.15em] text-fg-3 uppercase">
               <th className="py-2 pr-4 font-normal">object</th>
               <th className="py-2 pr-4 font-normal">Ø approx (m)</th>
               <th className="py-2 pr-4 font-normal">miss (km)</th>
@@ -234,7 +234,7 @@ function SpacePage() {
   return (
     <div className="flex flex-col gap-12">
       <section>
-        <SectionHeader sig="./space/picture-of-the-day" />
+        <SectionHeader label="./space/picture-of-the-day" />
         <DataSection
           promise={apod}
           fallback={<Loading />}
@@ -245,7 +245,7 @@ function SpacePage() {
       </section>
 
       <section>
-        <SectionHeader sig="./space/near-earth-today" />
+        <SectionHeader label="./space/near-earth-today" />
         <DataSection
           promise={neo}
           fallback={<Loading />}

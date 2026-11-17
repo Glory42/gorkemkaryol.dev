@@ -38,7 +38,6 @@ a {
   color: inherit;
 }
 
-/* scrollbar */
 html {
   scrollbar-width: thin;
   /* Firefox reads this off <html> (stays default); Chrome/Safari use the synced ::-webkit rules. */
@@ -173,6 +172,7 @@ html {
   display: inline-block;
   vertical-align: middle;
   max-width: 100%;
+  height: auto;
   border: 1px solid rgba(255, 255, 255, 0.06);
   margin: 0.5em 0;
 }
@@ -298,7 +298,6 @@ html {
   animation: page-in 220ms ease-out both;
 }
 
-/* Entrance animations — CSS only, no JS. Apply directly via className. */
 .animate-fade-in {
   animation: fade-in 400ms ease-out both;
 }
@@ -419,5 +418,38 @@ html {
     animation: none !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Home spacing grows with screen height, capped so it never gets airy: 27/12/10px up to ~900px tall, 36/16/13px from ~1200px. */
+.home-grid {
+  --home-gap: clamp(27px, 3vh, 36px);
+  --home-gap-sm: clamp(12px, 1.35vh, 16px);
+  --home-gap-row: clamp(10px, 1.1vh, 13px);
+}
+
+/* Grows a small link's tappable area to about 24px tall without moving anything. */
+.tap-target {
+  position: relative;
+}
+.tap-target::after {
+  content: "";
+  position: absolute;
+  inset: -6px -4px;
+}
+
+/* Visible gaps equal --home-gap; 7px is the half-leading of the 12-14px lines either side. */
+.home-heading {
+  margin-bottom: calc(var(--home-gap) - 7px);
+}
+.home-stack > * + * {
+  margin-top: calc(var(--home-gap) - 7px);
+}
+
+/* Pin the home panel on windows it fits in (~580px panel + nav); raise min-height if the panel grows. */
+@media (min-width: 768px) and (min-height: 660px) {
+  .home-panel {
+    position: sticky;
+    top: calc(var(--nav-h) + var(--page-pt));
   }
 }

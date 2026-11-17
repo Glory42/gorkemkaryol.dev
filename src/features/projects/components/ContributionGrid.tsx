@@ -8,6 +8,7 @@ import {
 import { readAccentRgb } from "@/lib/accent";
 import { sectionAccentRgb } from "@/lib/sections";
 import type { GithubContributionCalendar } from "@/server/github/github";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 
 interface Props {
   username: string;
@@ -89,13 +90,10 @@ export function ContributionGrid({ calendar }: Props) {
 
   return (
     <section>
-      <div className="mb-4 flex items-center gap-3">
-        <span className="mono text-[10px] tracking-[0.25em] text-accent/[0.6] uppercase">
-          ./projects/contributions —{" "}
-          <span className="text-accent/[0.65]">{totalContributions}</span>
-        </span>
-        <div className="h-px flex-1 bg-[rgba(255,255,255,0.05)]" />
-      </div>
+      <SectionHeader
+        label="./projects/contributions"
+        meta={<> — <span className="text-accent/[0.65]">{totalContributions}</span></>}
+      />
 
       <div ref={wrapRef} className="relative w-full" onPointerLeave={() => setHover(null)}>
         <svg

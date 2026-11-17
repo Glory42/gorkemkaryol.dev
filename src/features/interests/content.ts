@@ -13,12 +13,12 @@ export const interestsIntro =
 export const favoriteBands: BandItem[] = [
   {
     name: "Radiohead",
-    image: "/radiohead.jpg",
+    image: "/radiohead.webp",
     url: "https://radiohead.com/",
   },
   {
     name: "Deftones",
-    image: "/deftones.jpg",
+    image: "/deftones.webp",
     url: "https://www.deftones.com/",
   },
 ];

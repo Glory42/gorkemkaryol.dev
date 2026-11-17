@@ -21,7 +21,7 @@ function PlaygroundHub() {
                 {entry.title}
               </span>
               {entry.status === "soon" && (
-                <span className="mono ml-auto text-[9px] tracking-[0.2em] text-fg-3 uppercase">
+                <span className="mono ml-auto text-[11px] tracking-[0.2em] text-fg-3 uppercase">
                   soon
                 </span>
               )}

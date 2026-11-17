@@ -1,10 +1,8 @@
-export interface ContactItem {
-  href: string;
-  label: string;
-  icon: "github" | "linkedin" | "mail" | "file";
-}
+import { DOTFILES_URL, profile } from "@/lib/profile";
 
 export interface TechItem {
+  /** Stable key the shell's fastfetch looks rows up by. */
+  id: "laptop" | "os" | "editor" | "terminal" | "browser";
   title: string;
   spec: string;
   description: string;
@@ -13,25 +11,31 @@ export interface TechItem {
   href?: string;
 }
 
-/** The Arch + Hyprland config repo behind the "OS" row. */
-export const DOTFILES_URL = "https://github.com/Glory42/arch-config";
+export const hero = {
+  /** Typed out in turn under the name; the first is also the role screen readers get. */
+  roles: [profile.role, "linux enjoyer", "web developer"],
+  status: "Open to full-stack & freelance work",
+};
 
 export const introText =
-  "I’m a software engineer who builds web apps and likes working across the whole stack. Most of my time goes to real projects, picking up new tools along the way and looking for better ways to build and ship.";
+  "I build web apps end to end, all in TypeScript: React and Next.js on the front, NestJS or Bun with Postgres behind it. At Lodos I work on Gathin; on my own I build and run Interis.";
 
-export const contactItems: ContactItem[] = [
-  { href: "https://github.com/glory42", label: "GitHub", icon: "github" },
-  {
-    href: "https://linkedin.com/in/glory42",
-    label: "LinkedIn",
-    icon: "linkedin",
-  },
-  { href: "mailto:me@gorkemkaryol.dev", label: "Mail", icon: "mail" },
-  { href: "/Gorkem-Karyol-CV.pdf", label: "CV", icon: "file" },
+export interface NowItem {
+  label: "building" | "at work" | "shipped";
+  text: string;
+  href: string;
+}
+
+/** Hand-written `now.txt` lines; reading and watching are appended live. Keep each to one short line. */
+export const nowItems: NowItem[] = [
+  { label: "building", text: "Interis film & TV diary", href: "https://interis.gorkemkaryol.dev" },
+  { label: "at work", text: "Gathin at Lodos", href: "https://gathin.com" },
+  { label: "shipped", text: "RigCheck for Linux", href: "https://rigcheck.gorkemkaryol.dev" },
 ];
 
 export const techItems: TechItem[] = [
   {
+    id: "laptop",
     title: "Laptop",
     spec: "ASUS Zenbook UM3402YAR",
     description:
@@ -39,6 +43,7 @@ export const techItems: TechItem[] = [
     iconId: "monitor",
   },
   {
+    id: "os",
     title: "OS",
     spec: "Arch Linux, Hyprland",
     description:
@@ -47,6 +52,7 @@ export const techItems: TechItem[] = [
     href: DOTFILES_URL,
   },
   {
+    id: "editor",
     title: "Editor",
     spec: "Zed",
     description:
@@ -54,12 +60,14 @@ export const techItems: TechItem[] = [
     iconId: "code",
   },
   {
+    id: "terminal",
     title: "Terminal",
     spec: "Foot",
     description: "It’s so fast I make typos before I even think of them.",
     iconId: "terminal",
   },
   {
+    id: "browser",
     title: "Browser",
     spec: "Helium Browser",
     description:

@@ -49,7 +49,6 @@ function ownsKeys(target: EventTarget | null): boolean {
   );
 }
 
-// The 404 page's endless runner: a lost request hopping firewalls until it finds a route.
 export function RunnerGame() {
   const game = useRef(newRunner());
   const status = useRef<Status>("idle");

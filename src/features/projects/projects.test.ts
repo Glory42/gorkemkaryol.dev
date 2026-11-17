@@ -17,7 +17,7 @@ const ENV: RuntimeEnv = {
   NASA_API_KEY: "",
 };
 
-function repoNode(name: string) {
+function repoNode(name: string, over: Record<string, unknown> = {}) {
   return {
     name,
     description: "d",
@@ -27,12 +27,24 @@ function repoNode(name: string) {
     isFork: false,
     repositoryTopics: { nodes: [] },
     primaryLanguage: null,
+    ...over,
   };
 }
 
+const topics = (...names: string[]) => ({ nodes: names.map((name) => ({ topic: { name } })) });
+
 const overviewBody = {
   data: {
-    search: { nodes: [repoNode("own-featured")] },
+    list_featured: { nodes: [repoNode("own-featured")] },
+    list_showcase: {
+      nodes: [
+        repoNode("rigcheck", {
+          homepageUrl: "https://rigcheck.dev",
+          primaryLanguage: { name: "Rust" },
+          repositoryTopics: topics("showcase", "rust", "featured", "desktop-app", "Desktop-App"),
+        }),
+      ],
+    },
     repo0: repoNode("WasteWise"),
     user: null,
     rateLimit: { limit: 5000, remaining: 5000, resetAt: "", cost: 1 },
@@ -48,34 +60,57 @@ function ctxWith(body: unknown, calls: string[] = []) {
   });
 }
 
+async function loadProjects(body: unknown = overviewBody) {
+  const result = await getProjects(ENV, ctxWith(body));
+  if (!result.ok) throw new Error("getProjects never fails outright");
+  return result.data;
+}
+
+const manualNames = manualProjects.map((p) => p.name);
+
 describe("getProjects", () => {
   it("leads the contributed column with manual cards, then GitHub repos", async () => {
-    const result = await getProjects(ENV, ctxWith(overviewBody));
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
-
-    const names = result.data.contributed.map((p) => p.name);
-    expect(names.slice(0, manualProjects.length)).toEqual(
-      manualProjects.map((p) => p.card.name),
-    );
+    const view = await loadProjects();
+    const names = view.contributed.map((p) => p.name);
+    expect(names.slice(0, manualNames.length)).toEqual(manualNames);
     expect(names).toContain("WasteWise");
-    expect(result.data.featured.map((p) => p.name)).toEqual(["own-featured"]);
-    expect(result.data.githubError).toBeNull();
+    expect(view.featured.map((p) => p.name)).toEqual(["own-featured"]);
+    expect(view.githubError).toBeNull();
+  });
+
+  it("links a repo's Website as live and the repo as code", async () => {
+    const [card] = (await loadProjects()).showcase;
+    expect(card).toMatchObject({
+      kind: "github",
+      live: "https://rigcheck.dev",
+      code: "https://github.com/gk/rigcheck",
+    });
+    expect((await loadProjects()).featured[0]?.live).toBeNull();
+  });
+
+  it("links a manual project to its site, with no code link", async () => {
+    const gathin = (await loadProjects()).contributed.find((p) => p.name === "Gathin");
+    expect(gathin).toMatchObject({ kind: "manual", live: "https://gathin.com", code: null });
+  });
+
+  it("never renders list topics or a repeat of the language as tags", async () => {
+    const [card] = (await loadProjects()).showcase;
+    expect(card?.language).toBe("Rust");
+    expect(card?.tags).toEqual(["desktop-app"]);
+  });
+
+  it("lists every project page once in slugs, showcase-only repos included", async () => {
+    const view = await loadProjects();
+    expect(view.slugs).toEqual(["own-featured", "rigcheck", ...manualNames, "WasteWise"]);
   });
 
   it("keeps manual cards and reports githubError on a GitHub outage", async () => {
-    const result = await getProjects(
-      ENV,
-      ctxWith({ errors: [{ message: "boom" }] }),
-    );
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
-
-    expect(result.data.featured).toEqual([]);
-    expect(result.data.contributed.map((p) => p.name)).toEqual(
-      manualProjects.map((p) => p.card.name),
-    );
-    expect(result.data.githubError).not.toBeNull();
+    const view = await loadProjects({ errors: [{ message: "boom" }] });
+    expect(view.featured).toEqual([]);
+    expect(view.showcase).toEqual([]);
+    expect(view.contributed.map((p) => p.name)).toEqual(manualNames);
+    expect(view.slugs).toEqual(manualNames);
+    expect(view.githubError).not.toBeNull();
   });
 });
 

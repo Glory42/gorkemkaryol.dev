@@ -1,12 +1,10 @@
 import type { ReactNode } from "react";
 import { PageShell } from "@/components/layout/PageShell";
-import { PAGE_MAIN, TerminalPrompt } from "@/components/layout/page";
+import { TerminalPrompt } from "@/components/layout/page";
 import { BackLink } from "@/components/ui/BackLink";
 import type { SectionHref } from "@/lib/sections";
 import { ResultSection } from "@/components/ui/DataSection";
 import type { ServiceResult } from "@/server/common/http";
-
-// The frame every awaited data route shares: column, prompt, back link and the ok / error split.
 
 interface FrameProps {
   cmd: string;
@@ -37,13 +35,13 @@ function Frame({
   children,
 }: FrameProps) {
   return (
-    <PageShell mainClassName={PAGE_MAIN}>
+    <PageShell>
       <div
         className={`mx-auto min-w-0 ${wrapClassName}`}
         style={{ maxWidth: `${maxWidth}px` }}
       >
         {promptAside ? (
-          <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
             <TerminalPrompt cmd={cmd} />
             {promptAside}
           </div>
@@ -53,7 +51,7 @@ function Frame({
 
         {backTo &&
           (rightSlot ? (
-            <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
               <BackLink to={backTo} className="">
                 {backLabel}
               </BackLink>

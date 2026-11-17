@@ -46,7 +46,7 @@ export function GameOverlay({
         {phase === "over" ? "GAME OVER" : title}
       </p>
       {phase === "over" && score != null && (
-        <p className="mono text-[10px] text-accent/[0.65]">score — {score}</p>
+        <p className="mono text-[11px] text-accent/[0.65]">score — {score}</p>
       )}
       {children}
       {onStart && (
@@ -54,7 +54,7 @@ export function GameOverlay({
           {phase === "over" ? "RESTART" : "START"}
         </TerminalButton>
       )}
-      <p className="mono text-center text-[9px] leading-[1.8] text-fg-4">
+      <p className="mono text-center text-[11px] leading-[1.8] text-fg-4">
         {hint}
       </p>
     </>
@@ -64,5 +64,5 @@ export function GameOverlay({
 /** The running score under the play area, once a first run has started. */
 export function ScoreLine({ phase, score }: { phase: GamePhase; score: number }) {
   if (phase === "idle") return null;
-  return <p className="mono text-[10px] text-accent/[0.6]">score — {score}</p>;
+  return <p className="mono text-[11px] text-accent/[0.6]">score — {score}</p>;
 }

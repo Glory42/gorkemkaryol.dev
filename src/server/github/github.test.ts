@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getGithubProjects } from "@/server/github/github";
+import { getGithubProjects, TOPIC_LISTS } from "@/server/github/github";
 import { createInMemoryRuntime, type CannedResponse } from "@/server/common/runtime";
 import { sourceCtx } from "@/server/common/source";
 import type { RuntimeEnv } from "@/lib/env";
@@ -30,11 +30,21 @@ function repoNode(over: Record<string, unknown> = {}) {
 function overviewBody(over: Record<string, unknown> = {}) {
   return {
     data: {
-      search: {
+      list_featured: {
         nodes: [
           repoNode({ name: "newer", updatedAt: "2026-06-01T00:00:00Z" }),
           repoNode({ name: "older", updatedAt: "2026-02-01T00:00:00Z" }),
           repoNode({ name: "a-fork", isFork: true }),
+        ],
+      },
+      list_showcase: {
+        nodes: [
+          repoNode({
+            name: "shown",
+            homepageUrl: "https://shown.example",
+            repositoryTopics: { nodes: [{ topic: { name: "showcase" } }, { topic: { name: "rust" } }] },
+          }),
+          repoNode({ name: "no-site", homepageUrl: "" }),
         ],
       },
       repo0: repoNode({
@@ -84,6 +94,27 @@ describe("getGithubProjects — mapping through the interface", () => {
     if (!result.ok) throw new Error("expected ok");
     expect(result.data.featured.map((p) => p.name)).toEqual(["newer", "older"]);
     expect(result.data.contributed.map((p) => p.name)).toEqual(["WasteWise"]);
+  });
+
+  it("returns showcase repos with their live site, or null when the Website field is empty", async () => {
+    const result = await getGithubProjects(ENV, ctxFor(overviewBody()));
+    if (!result.ok) throw new Error("expected ok");
+    const byName = Object.fromEntries(result.data.showcase.map((p) => [p.name, p.homepageUrl]));
+    expect(byName).toEqual({ shown: "https://shown.example", "no-site": null });
+  });
+
+  it.each(TOPIC_LISTS)("orders the %s list by last code push, not by metadata edits", async (list) => {
+    const body = overviewBody({
+      [`list_${list}`]: {
+        nodes: [
+          repoNode({ name: "retagged", updatedAt: "2026-09-01T00:00:00Z", pushedAt: "2026-01-01T00:00:00Z" }),
+          repoNode({ name: "active", updatedAt: "2026-03-01T00:00:00Z", pushedAt: "2026-08-01T00:00:00Z" }),
+        ],
+      },
+    });
+    const result = await getGithubProjects(ENV, ctxFor(body));
+    if (!result.ok) throw new Error("expected ok");
+    expect(result.data[list].map((p) => p.name)).toEqual(["active", "retagged"]);
   });
 
   it("maps GitHub contribution levels to the 0-4 ramp", async () => {

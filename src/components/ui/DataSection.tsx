@@ -9,7 +9,6 @@ interface Props<T> {
   children: (data: T) => ReactNode;
   /** Title for the default error StatusPanel; ignored when `renderError` is set. */
   errorTitle?: string;
-  /** Custom failure render — replaces the default StatusPanel. */
   renderError?: (error: ServiceError) => ReactNode;
 }
 

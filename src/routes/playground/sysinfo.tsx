@@ -37,7 +37,19 @@ function SysinfoPage() {
   if (!revealed) {
     return (
       <pre className="mono whitespace-pre-wrap text-[12px] leading-[2] text-fg-2">
-        {LINES.slice(0, shown).join("\n")}
+        {LINES.slice(0, shown).map((line, i) => (
+          <span key={i}>
+            {i > 0 && "\n"}
+            {line.startsWith("~$") ? (
+              <>
+                <span className="text-accent/[0.8]">~$</span>
+                {line.slice(2)}
+              </>
+            ) : (
+              line
+            )}
+          </span>
+        ))}
         <span className="animate-pulse text-accent/[0.6]">_</span>
       </pre>
     );

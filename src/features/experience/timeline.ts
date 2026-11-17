@@ -1,6 +1,8 @@
 export interface ExperienceItem {
   role: string;
   company: string;
+  /** Company website; the name links to it on the home page and /experience. */
+  url?: string;
   date: string;
   type?: string;
   description: string[];
@@ -11,6 +13,7 @@ export const workExperiences: ExperienceItem[] = [
   {
     role: "Frontend Developer Intern",
     company: "Lodos",
+    url: "https://lodos.io/",
     date: "April 2026 – Present",
     type: "internship",
     description: [
@@ -24,6 +27,7 @@ export const workExperiences: ExperienceItem[] = [
   {
     role: "Full Stack Intern",
     company: "Troy Depo",
+    url: "https://troydepo.com/",
     date: "Jul 2026 – Sep 2026",
     type: "internship",
     description: [
@@ -37,6 +41,7 @@ export const workExperiences: ExperienceItem[] = [
   {
     role: "Full Stack Engineer",
     company: "Holala",
+    url: "https://holala.ai/",
     date: "Feb 2026 – March 2026",
     type: "part-time",
     description: [
@@ -57,6 +62,7 @@ export const workExperiences: ExperienceItem[] = [
   {
     role: "Cyber Security Intern",
     company: "Opet",
+    url: "https://www.opet.com.tr/",
     date: "Jul 2024 – Aug 2025",
     type: "internship",
     description: [
@@ -72,6 +78,7 @@ export const volunteeringExperiences: ExperienceItem[] = [
   {
     role: "Core Member, Project Team Member",
     company: "Google Developer Groups on Campus Halic",
+    url: "https://www.instagram.com/gdgoncampushalic/",
     date: "Sep 2024 – Present",
     type: "community",
     description: [

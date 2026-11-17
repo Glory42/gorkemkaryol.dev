@@ -15,8 +15,6 @@ export interface RuntimePort {
   cache: CachePort;
 }
 
-// --- Production adapter: the Cloudflare Workers globals ---
-
 const CACHE_ORIGIN = "https://portfolio-cache.internal";
 
 function workersCache(): CachePort {
@@ -59,8 +57,6 @@ export function workersRuntime(): RuntimePort {
   }
   return cachedWorkersRuntime;
 }
-
-// --- Test adapter: in-memory ---
 
 export interface CannedResponse {
   /** Substring match against the request URL. */

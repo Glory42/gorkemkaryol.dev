@@ -12,6 +12,10 @@
 
   --radius-sm: 0;
   --radius-md: 0;
+
+  /* Fixed navbar height, and the gap between it and each page's first line. */
+  --nav-h: 48px;
+  --page-pt: max(12px, 1.5vh);
 }
 
 /* `--accent` / `--accent-rgb` come from src/lib/sections.ts via __root.tsx, one block per section. */

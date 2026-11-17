@@ -41,7 +41,7 @@ export function currentlyWatchingToDisplayItem(
     id: serial.tmdbId,
     title: serial.title,
     subtitle: serial.currentEpisode
-      ? `Up Next: S${serial.currentEpisode.seasonNumber}E${serial.currentEpisode.episodeNumber}`
+      ? `S${serial.currentEpisode.seasonNumber}E${serial.currentEpisode.episodeNumber} next`
       : `${serial.progressPercent}% watched`,
     imageUrl: tmdbPoster(serial.posterPath),
     href: `${INTERIS_BASE}/serials/${serial.tmdbId}`,

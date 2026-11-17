@@ -9,10 +9,8 @@ export const Route = createFileRoute("/sitemap.xml")({
     handlers: {
       GET: async () => {
         const result = await runSource(getProjects);
-        const names = result.ok
-          ? [...result.data.featured, ...result.data.contributed].map((p) => p.name)
-          : [];
-        return new Response(renderSitemapXml(sitemapPaths(names)), {
+        const slugs = result.ok ? result.data.slugs : [];
+        return new Response(renderSitemapXml(sitemapPaths(slugs)), {
           headers: {
             "Content-Type": "application/xml; charset=utf-8",
             "Cache-Control": "public, max-age=3600, s-maxage=86400",

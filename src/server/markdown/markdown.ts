@@ -29,6 +29,7 @@ function buildMarked(
   repo: string,
   branch: string,
   repoUrl: string,
+  imageSize: MarkdownContext["imageSize"],
 ): Marked {
   const rawBase = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}`;
   const blobBase = `${repoUrl}/blob/${branch}`;
@@ -87,7 +88,10 @@ function buildMarked(
         const src = escapeAttr(resolveUrl(href ?? "", true));
         const alt = escapeAttr(text ?? "");
         const titleAttr = title ? ` title="${escapeAttr(title)}"` : "";
-        return `<img src="${src}" alt="${alt}"${titleAttr} loading="lazy" />`;
+        // Known dimensions reserve the image's space, so the page doesn't jump as it loads.
+        const size = imageSize?.(href ?? "");
+        const sizeAttrs = size ? ` width="${size.width}" height="${size.height}"` : "";
+        return `<img src="${src}" alt="${alt}"${titleAttr}${sizeAttrs} loading="lazy" />`;
       },
       link({ href, title, tokens }) {
         // Render inner tokens so `[![badge](img)](url)` keeps its image instead of raw markdown.
@@ -118,6 +122,8 @@ export interface MarkdownContext {
   repo?: string;
   branch?: string;
   repoUrl?: string;
+  /** Pixel size of an image by its markdown src, when known. */
+  imageSize?: (src: string) => { width: number; height: number } | undefined;
 }
 
 export function renderMarkdownToHTML(
@@ -130,6 +136,7 @@ export function renderMarkdownToHTML(
       ctx.repo ?? "",
       ctx.branch ?? "",
       ctx.repoUrl ?? "",
+      ctx.imageSize,
     );
     const html = markedInstance.parse(markdown, { async: false }) as string;
     return { html, hadError: false };

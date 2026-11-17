@@ -7,14 +7,23 @@ import {
   Outlet,
   Scripts,
   createRootRoute,
+  useMatches,
   useRouterState,
 } from "@tanstack/react-router";
-import { FooterBadge } from "@/components/layout/FooterBadge";
+import { SignOff } from "@/components/layout/SignOff";
 import { Navbar } from "@/components/layout/Navbar";
 import { CommandPalette } from "@/features/palette/CommandPalette";
 import { accentForPath, sectionAccentCss } from "@/lib/sections";
+import { profile } from "@/lib/profile";
 import { OG_IMAGE, personJsonLd, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 import appCss from "@/styles/app.css?url";
+
+declare module "@tanstack/react-router" {
+  interface StaticDataRouteOption {
+    /** The route renders its own SignOff (e.g. inside a column) instead of the one below the page. */
+    ownSignOff?: boolean;
+  }
+}
 
 export const Route = createRootRoute({
   head: () => ({
@@ -33,7 +42,7 @@ export const Route = createRootRoute({
       { property: "og:image", content: OG_IMAGE.url },
       { property: "og:image:width", content: String(OG_IMAGE.width) },
       { property: "og:image:height", content: String(OG_IMAGE.height) },
-      { property: "og:image:alt", content: `${SITE_NAME}, software engineer` },
+      { property: "og:image:alt", content: `${SITE_NAME}, ${profile.role}` },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: OG_IMAGE.url },
       { "script:ld+json": personJsonLd },
@@ -55,6 +64,9 @@ function RootComponent() {
     select: (state) => state.location.pathname,
   });
   const accent = accentForPath(pathname);
+  const ownSignOff = useMatches({
+    select: (matches) => matches.some((match) => match.staticData?.ownSignOff),
+  });
 
   // `data-accent` here is the SSR source of truth; mirror it to <html> for the page scrollbar.
   useEffect(() => {
@@ -67,10 +79,10 @@ function RootComponent() {
         Skip to content
       </a>
       <Navbar />
-      <div className="flex-1 pt-[48px]">
+      <div className="flex-1 pt-[var(--nav-h)]">
         <Outlet />
       </div>
-      <FooterBadge />
+      {!ownSignOff && <SignOff className="pb-12 pt-6" />}
       <CommandPalette />
     </div>
   );

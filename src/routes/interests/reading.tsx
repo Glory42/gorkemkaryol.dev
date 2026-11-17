@@ -34,11 +34,11 @@ function ReadingPageSkeleton() {
       backLabel="back to interests"
     >
       <section className="mb-10">
-        <SectionHeader sig="./currently-reading" />
+        <SectionHeader label="./currently-reading" />
         <PosterGridSkeleton count={4} />
       </section>
       <section>
-        <SectionHeader sig="./finished" />
+        <SectionHeader label="./finished" />
         <PosterGridSkeleton count={10} />
       </section>
     </DataPage.Skeleton>
@@ -67,7 +67,7 @@ function ReadingPage() {
       {(data) => (
         <>
           <section className="mb-10">
-            <SectionHeader sig="./currently-reading" />
+            <SectionHeader label="./currently-reading" />
             <PosterGrid
               items={data.currentlyReading.map(bookToDisplayItem)}
               emptyTitle="Nothing being read"
@@ -76,7 +76,7 @@ function ReadingPage() {
           </section>
 
           <section>
-            <SectionHeader sig="./finished" />
+            <SectionHeader label="./finished" />
             <PosterGrid
               items={data.finishedBooks.map(bookToDisplayItem)}
               emptyTitle="No finished books"

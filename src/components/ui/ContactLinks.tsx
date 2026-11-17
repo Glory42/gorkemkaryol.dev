@@ -1,5 +1,5 @@
 import { FileText, Mail } from "lucide-react";
-import type { ContactItem } from "@/features/home/content";
+import type { ContactItem } from "@/lib/profile";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/icons";
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
 
 export function ContactLinks({ items }: Props) {
   return (
-    <div className="flex flex-wrap items-center gap-5">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
       {items.map((item) => {
         const external =
           item.href.startsWith("http") || item.href.startsWith("mailto:");
@@ -19,7 +19,7 @@ export function ContactLinks({ items }: Props) {
             href={item.href}
             target={external ? "_blank" : undefined}
             rel={external ? "noopener noreferrer" : undefined}
-            className="focus-ring mono inline-flex items-center gap-1.5 text-[12px] tracking-[0.06em] text-fg-2 no-underline transition-colors duration-150 hover:text-white"
+            className="focus-ring tap-target mono inline-flex items-center gap-1.5 text-[12px] text-fg-2 no-underline transition-colors duration-150 hover:text-white"
           >
             {item.icon === "github" ? (
               <GithubIcon size={11} />

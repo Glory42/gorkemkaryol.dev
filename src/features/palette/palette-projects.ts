@@ -7,6 +7,6 @@ export const getPaletteProjectsServerFn = createServerFn({ method: "GET" }).hand
   async (): Promise<string[]> => {
     const result = await runSource(getProjects);
     if (!result.ok) return [];
-    return [...result.data.featured, ...result.data.contributed].map((p) => p.name);
+    return result.data.slugs;
   },
 );

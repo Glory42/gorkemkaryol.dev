@@ -20,8 +20,6 @@ const nasaClient = defineSource({
   timeoutMs: 10_000,
 });
 
-// --- Astronomy Picture of the Day ---
-
 export interface Apod {
   title: string;
   date: string;
@@ -72,8 +70,6 @@ export async function getApod(
     copyright: raw.data.copyright?.trim() || null,
   });
 }
-
-// --- Near-Earth objects passing close today ---
 
 export interface NearEarthObject {
   id: string;

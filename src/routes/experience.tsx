@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/layout/PageShell";
-import { PAGE_MAIN, pageHead, TerminalPrompt } from "@/components/layout/page";
+import { pageHead, TerminalPrompt } from "@/components/layout/page";
 import { ExperienceTimeline } from "@/features/experience/components/ExperienceTimeline";
 import { volunteeringExperiences, workExperiences } from "@/features/experience/timeline";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 
 export const Route = createFileRoute("/experience")({
   head: () =>
@@ -12,24 +13,14 @@ export const Route = createFileRoute("/experience")({
 
 function ExperiencePage() {
   return (
-    <PageShell mainClassName={PAGE_MAIN}>
+    <PageShell>
       <section className="mx-auto max-w-[900px]">
         <TerminalPrompt cmd="ls ./experience" className="mb-6" />
 
-        <div className="mb-2 flex items-center gap-3">
-          <span className="mono text-[10px] tracking-[0.25em] text-accent/[0.6] uppercase">
-            ./experience/work
-          </span>
-          <div className="h-px flex-1 bg-[rgba(255,255,255,0.04)]" />
-        </div>
+        <SectionHeader label="./experience/work" className="mb-2" />
         <ExperienceTimeline items={workExperiences} />
 
-        <div className="mb-2 mt-10 flex items-center gap-3">
-          <span className="mono text-[10px] tracking-[0.25em] text-accent/[0.6] uppercase">
-            ./experience/volunteering
-          </span>
-          <div className="h-px flex-1 bg-[rgba(255,255,255,0.04)]" />
-        </div>
+        <SectionHeader label="./experience/volunteering" className="mb-2 mt-10" />
         <ExperienceTimeline items={volunteeringExperiences} />
       </section>
     </PageShell>

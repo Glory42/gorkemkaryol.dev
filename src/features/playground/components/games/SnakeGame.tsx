@@ -48,10 +48,8 @@ export function SnakeGame() {
     const { snake, food } = game.current;
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, W, H);
-    // food
     ctx.fillStyle = `rgb(${accentRef.current})`;
     ctx.fillRect(food.x * CELL + 2, food.y * CELL + 2, CELL - 4, CELL - 4);
-    // snake
     snake.forEach((p, i) => {
       const alpha = i === 0 ? 1 : Math.max(0.18, 0.82 - i * 0.032);
       ctx.fillStyle = i === 0 ? "#fff" : `rgb(${accentRef.current} / ${alpha})`;
@@ -111,7 +109,7 @@ export function SnakeGame() {
             hint="arrow keys or wasd"
           >
             <div className="flex flex-col items-center gap-3">
-              <p className="mono text-[9px] text-fg-3">
+              <p className="mono text-[11px] text-fg-3">
                 {phase === "over" ? "play again:" : "choose border mode:"}
               </p>
               <div className="flex gap-2">

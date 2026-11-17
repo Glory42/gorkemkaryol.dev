@@ -63,4 +63,15 @@ describe("runShellCommand", () => {
     expect(result.lines.some((l) => l.includes("Dotfiles: github.com/Glory42/arch-config"))).toBe(true);
     expect(result.lines.some((l) => l.includes("OS:"))).toBe(true);
   });
+
+  it("fills every fastfetch field from the setup list", () => {
+    const fields = runShellCommand("fastfetch").lines.flatMap((line) => {
+      const m = line.match(/\b(OS|Host|WM|Terminal|Editor|Browser):(.*)$/);
+      return m ? [m] : [];
+    });
+    expect(fields).toHaveLength(6);
+    for (const [, name, value] of fields) {
+      expect(value.replace("x86_64", "").trim(), name).not.toBe("");
+    }
+  });
 });

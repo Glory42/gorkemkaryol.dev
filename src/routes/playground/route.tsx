@@ -12,7 +12,7 @@ function PlaygroundLayout() {
   const sub = pathname.replace(/^\/playground\/?/, "").split("/")[0];
 
   return (
-    <PageShell mainClassName="px-[max(24px,4vw)] pb-16 pt-[max(12px,1.5vh)]">
+    <PageShell>
       <section className="mx-auto max-w-[900px]">
         <TerminalPrompt
           cmd={sub ? `cd ./playground/${sub}` : "ls ./playground"}

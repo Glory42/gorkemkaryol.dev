@@ -1,4 +1,6 @@
-import { contactItems, DOTFILES_URL, introText, techItems } from "@/features/home/content";
+import { introText, techItems, type TechItem } from "@/features/home/content";
+import { contactItems, DOTFILES_URL } from "@/lib/profile";
+import { CAT_ART } from "@/lib/ascii-cat";
 import { findPlace, sectionDirs } from "@/features/site-map/site-map";
 import { SECTION_LIST, SECTIONS } from "@/lib/sections";
 
@@ -45,58 +47,30 @@ const HELP_LINES = [
   "exit ............. back to the playground",
 ];
 
-const FASTFETCH_ART = [
-  "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣤⣄⡀⠀⠀⠀",
-  "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡸⠋⠀⠘⣇⠀⠀⠀",
-  "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠇⠀⠀⠀⢸⠀⠀⠀",
-  "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡜⠀⠀⠀⠀⢸⠀⠀⠀",
-  "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠇⠀⠀⠀⠀⢸⠇⠀⠀",
-  "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡎⠀⠀⠀⠀⠀⢸⠀⠀⠀",
-  "⠀⠀⢀⣀⣀⣀⠀⠀⠀⠀⠀⢀⣀⣤⡤⠤⠤⠤⠤⢤⣤⣀⡤⢖⡿⠛⠉⢳⠀⠀⠀⠀⠀⢸⠀⠀⠀",
-  "⠀⢼⠁⠉⠉⠛⠻⢭⡓⠒⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠰⣏⠀⠀⠀⢸⠀⠀⠀⠀⠀⡤⠀⠀⠀",
-  "⠀⠸⡄⠀⠀⠀⠀⢸⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠂⠀⠀⡜⠀⠀⠀⠀⢀⡇⠀⠀⠀",
-  "⠀⠀⢷⠀⠀⠀⠠⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢣⢠⠏⠀⠀⠀⠀⢸⠃⠀⠀⠀",
-  "⠀⠀⠈⢧⠀⢀⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡞⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀",
-  "⠀⠀⠀⠈⢳⡈⠁⠀⠀⠀⠀⠀⣀⡀⠀⠀⠀⠀⠀⠀⠀⣶⣶⣦⠀⠀⢹⠀⠀⠀⠀⠀⡎⠀⠀⠀⠀",
-  "⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⢠⣾⣟⣹⡄⠀⠀⠀⠀⡀⠀⣿⣿⣿⡇⠀⢈⣧⠤⠤⠶⠶⢷⠒⠒⠂⠀",
-  "⠀⠀⢀⣀⣠⡧⠄⠀⠀⠀⣾⣿⣿⣿⠇⠀⠀⠀⠙⠁⠀⠙⠻⠿⠃⠀⠨⣼⣤⣀⡀⠀⠈⢧⠀⠀⠀",
-  "⠘⠉⠁⠀⢸⣤⡤⠀⠀⠀⠛⢿⡿⠋⠀⠀⠀⠀⠴⠦⠀⠀⠀⠀⠀⠐⣲⣯⡀⠀⠈⠙⠓⠺⣧⣄⡀",
-  "⠀⣀⡤⠚⠉⢳⡴⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡼⠃⠀⠈⠓⢦⡀⠀⠀⢸⠀⠈",
-  "⠀⠁⠀⢀⡔⠉⠙⡶⢄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠴⠚⠁⠀⠀⠀⠀⠀⠀⠈⠓⠆⠀⡇⠀",
-  "⠀⠀⠰⠋⠀⠀⢸⡇⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠁⠀",
-  "⠀⠀⠀⠀⠀⠀⠈⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡎⠀⠀",
-  "⠀⠀⠀⠀⠀⠀⠀⠹⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀",
-  "⠀⠀⠀⠀⠀⠀⠀⠀⠙⢆⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠄⠀⢰⠇⠀⠀",
-  "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⠶⠺⣇⠀⣀⡜⠀⠀⠀",
-  "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢱⡄⠀⠀⠀⠹⡟⠒⢢⡀⠀⠀⠀⠀⢀⡏⠀⠀⠀⠈⠉⠉⠁⠀⠀⠀",
-  "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣄⠀⠀⢀⡇⠀⠀⠻⣄⠀⠀⠀⡸⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-  "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢷⠶⠋⠀⠀⠀⠀⠈⣣⠶⠖⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-];
-
 function fastfetchOutput(): { lines: string[]; rich: ShellSegment[][] } {
-  const spec = (title: string) => techItems.find((t) => t.title === title)?.spec ?? "";
-  const [osName, wm] = spec("OS").split(",").map((s) => s.trim());
+  const spec = (id: TechItem["id"]) => techItems.find((t) => t.id === id)?.spec ?? "";
+  const [osName, wm] = spec("os").split(",").map((s) => s.trim());
 
   const info = [
     "gorkem@portfolio",
     "-----------------",
     `OS: ${osName} x86_64`,
-    `Host: ${spec("Laptop")}`,
+    `Host: ${spec("laptop")}`,
     "Kernel: 7.2.5-3-arch1-1",
     `Uptime: ${uptimeSinceLaunch()}`,
     "Shell: zsh 5.9",
     `WM: ${wm}`,
-    `Terminal: ${spec("Terminal")}`,
-    `Editor: ${spec("Editor")}`,
-    `Browser: ${spec("Browser")}`,
+    `Terminal: ${spec("terminal")}`,
+    `Editor: ${spec("editor")}`,
+    `Browser: ${spec("browser")}`,
     `Dotfiles: ${DOTFILES_URL.replace(/^https:\/\//, "")}`,
     "CPU: overheats easily, just like the owner",
     "Memory: too expensive to disclose",
   ];
 
-  const artWidth = Math.max(...FASTFETCH_ART.map((line) => line.length)) + 4;
+  const artWidth = Math.max(...CAT_ART.map((line) => line.length)) + 4;
   const colorRow = info.length + 1;
-  const rows = Math.max(FASTFETCH_ART.length, colorRow + 1);
+  const rows = Math.max(CAT_ART.length, colorRow + 1);
 
   const plainColorRow = SECTION_LIST.map(() => "███ ").join("");
 
@@ -104,7 +78,7 @@ function fastfetchOutput(): { lines: string[]; rich: ShellSegment[][] } {
   const rich: ShellSegment[][] = [];
 
   for (let i = 0; i < rows; i++) {
-    const art = (FASTFETCH_ART[i] ?? "").padEnd(artWidth);
+    const art = (CAT_ART[i] ?? "").padEnd(artWidth);
     const artSegment: ShellSegment = { text: art, color: SECTIONS.playground.accentHex };
 
     if (i < info.length) {

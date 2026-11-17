@@ -66,7 +66,6 @@ function WhoamiPage() {
     ["agent", e.userAgent],
   ];
 
-  // Print the rows one at a time, sysinfo-style.
   const [shown, setShown] = useState(0);
   const done = shown >= rows.length;
 

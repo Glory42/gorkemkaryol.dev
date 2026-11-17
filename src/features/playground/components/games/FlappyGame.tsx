@@ -37,12 +37,10 @@ export function FlappyGame() {
     const { y, pipes } = game.current;
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, W, H);
-    // pipes
     ctx.fillStyle = `rgb(${accent} / 0.45)`;
     pipes.forEach(p => {
       ctx.fillRect(p.x, 0, PIPE_W, p.topH);
       ctx.fillRect(p.x, p.topH + GAP, PIPE_W, H - p.topH - GAP);
-      // pipe caps
       ctx.fillStyle = `rgb(${accent} / 0.65)`;
       ctx.fillRect(p.x - 3, p.topH - 10, PIPE_W + 6, 10);
       ctx.fillRect(p.x - 3, p.topH + GAP, PIPE_W + 6, 10);
@@ -53,17 +51,14 @@ export function FlappyGame() {
     ctx.save();
     ctx.translate(BIRD_X, y);
     ctx.rotate(tilt);
-    // wing
     ctx.fillStyle = `rgb(${accent} / 0.65)`;
     ctx.beginPath();
     ctx.ellipse(-1, 5, 8, 4, -0.3, 0, Math.PI * 2);
     ctx.fill();
-    // body
     ctx.fillStyle = "#ffffff";
     ctx.beginPath();
     ctx.ellipse(0, 0, 12, 8, 0, 0, Math.PI * 2);
     ctx.fill();
-    // beak
     ctx.fillStyle = "rgba(246,193,119,0.95)";
     ctx.beginPath();
     ctx.moveTo(11, -1);
@@ -71,7 +66,6 @@ export function FlappyGame() {
     ctx.lineTo(11, 3);
     ctx.closePath();
     ctx.fill();
-    // eye
     ctx.fillStyle = "#111";
     ctx.beginPath();
     ctx.arc(6, -3, 2.5, 0, Math.PI * 2);

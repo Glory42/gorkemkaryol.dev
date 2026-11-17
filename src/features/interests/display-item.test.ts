@@ -55,9 +55,9 @@ describe("currentlyWatchingToDisplayItem", () => {
     currentEpisode: { seasonNumber: 2, episodeNumber: 3, name: "x" },
   };
 
-  it("builds the Up Next subtitle and a TMDB poster URL", () => {
+  it("builds the next-episode subtitle and a TMDB poster URL", () => {
     const item = currentlyWatchingToDisplayItem(base);
-    expect(item.subtitle).toBe("Up Next: S2E3");
+    expect(item.subtitle).toBe("S2E3 next");
     expect(item.imageUrl).toBe("https://image.tmdb.org/t/p/w185/sev.jpg");
     expect(item.href).toBe("https://interis.gorkemkaryol.dev/serials/42");
     expect(item.progressPercent).toBe(60);
