@@ -24,7 +24,12 @@ const getProjectReadmeServerFn = createServerFn({ method: "GET" })
   );
 
 export const Route = createFileRoute("/projects/$slug")({
-  head: ({ params }) => pageHead(params.slug, `README for ${params.slug}.`),
+  head: ({ params }) =>
+    pageHead(
+      params.slug,
+      `${params.slug}: what it is, how it's built, and what I worked on.`,
+      `/projects/${params.slug}`,
+    ),
   loader: async ({ params }) => {
     const result = await getProjectReadmeServerFn({ data: params.slug });
     if (!result.ok && result.error.code === "NOT_FOUND") throw notFound();

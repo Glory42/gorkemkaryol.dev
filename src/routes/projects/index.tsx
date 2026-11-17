@@ -23,6 +23,7 @@ export const Route = createFileRoute("/projects/")({
     pageHead(
       "Projects",
       "Featured and contributed projects, plus contribution activity.",
+      "/projects",
     ),
   loader: async () => getProjectsServerFn(),
   pendingMs: 0,

@@ -23,7 +23,7 @@ type GameId = (typeof GAMES)[number]["id"];
 
 export const Route = createFileRoute("/playground/games")({
   head: () =>
-    pageHead("Games", "Snake, Flappy Bird, and Tetris in the browser."),
+    pageHead("Games", "Snake, Flappy Bird, and Tetris in the browser.", "/playground/games"),
   component: GamesPage,
 });
 

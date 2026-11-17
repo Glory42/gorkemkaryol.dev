@@ -21,6 +21,7 @@ export const Route = createFileRoute("/playground/space")({
     pageHead(
       "Space",
       "NASA's picture of the day and today's near-Earth asteroids.",
+      "/playground/space",
     ),
   loader: () => ({
     apod: defer(apodFn()),

@@ -37,6 +37,7 @@ export const Route = createFileRoute("/interests/watching")({
     pageHead(
       "Watching",
       "Currently watching, watched series, and watched films from Interis.",
+      "/interests/watching",
     ),
   loader: async () => getWatchingPageDataServerFn(),
   pendingMs: 0,

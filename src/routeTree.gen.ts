@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ExperienceRouteImport } from './routes/experience'
 import { Route as ProjectsRouteRouteImport } from './routes/projects/route'
 import { Route as PlaygroundRouteRouteImport } from './routes/playground/route'
@@ -26,6 +27,11 @@ import { Route as PlaygroundGamesRouteImport } from './routes/playground/games'
 import { Route as InterestsWatchingRouteImport } from './routes/interests/watching'
 import { Route as InterestsReadingRouteImport } from './routes/interests/reading'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExperienceRoute = ExperienceRouteImport.update({
   id: '/experience',
   path: '/experience',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/playground': typeof PlaygroundRouteRouteWithChildren
   '/projects': typeof ProjectsRouteRouteWithChildren
   '/experience': typeof ExperienceRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/interests/reading': typeof InterestsReadingRoute
   '/interests/watching': typeof InterestsWatchingRoute
   '/playground/games': typeof PlaygroundGamesRoute
@@ -128,6 +135,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/experience': typeof ExperienceRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/interests/reading': typeof InterestsReadingRoute
   '/interests/watching': typeof InterestsWatchingRoute
   '/playground/games': typeof PlaygroundGamesRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/playground': typeof PlaygroundRouteRouteWithChildren
   '/projects': typeof ProjectsRouteRouteWithChildren
   '/experience': typeof ExperienceRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/interests/reading': typeof InterestsReadingRoute
   '/interests/watching': typeof InterestsWatchingRoute
   '/playground/games': typeof PlaygroundGamesRoute
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/playground'
     | '/projects'
     | '/experience'
+    | '/sitemap.xml'
     | '/interests/reading'
     | '/interests/watching'
     | '/playground/games'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/experience'
+    | '/sitemap.xml'
     | '/interests/reading'
     | '/interests/watching'
     | '/playground/games'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/playground'
     | '/projects'
     | '/experience'
+    | '/sitemap.xml'
     | '/interests/reading'
     | '/interests/watching'
     | '/playground/games'
@@ -219,10 +231,18 @@ export interface RootRouteChildren {
   PlaygroundRouteRoute: typeof PlaygroundRouteRouteWithChildren
   ProjectsRouteRoute: typeof ProjectsRouteRouteWithChildren
   ExperienceRoute: typeof ExperienceRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/experience': {
       id: '/experience'
       path: '/experience'
@@ -396,6 +416,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlaygroundRouteRoute: PlaygroundRouteRouteWithChildren,
   ProjectsRouteRoute: ProjectsRouteRouteWithChildren,
   ExperienceRoute: ExperienceRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

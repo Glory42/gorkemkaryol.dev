@@ -16,7 +16,7 @@ const LINES = [
 ];
 
 export const Route = createFileRoute("/playground/sysinfo")({
-  head: () => pageHead("sysinfo", "System diagnostics."),
+  head: () => pageHead("sysinfo", "System diagnostics.", "/playground/sysinfo"),
   component: SysinfoPage,
 });
 

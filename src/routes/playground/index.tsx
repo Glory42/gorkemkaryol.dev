@@ -4,7 +4,7 @@ import { playgroundEntries } from "@/features/playground/registry";
 
 export const Route = createFileRoute("/playground/")({
   head: () =>
-    pageHead("Playground", "Games, a NASA data page, and other small web toys."),
+    pageHead("Playground", "Games, a NASA data page, and other small web toys.", "/playground"),
   component: PlaygroundHub,
 });
 

@@ -6,7 +6,7 @@ import { volunteeringExperiences, workExperiences } from "@/features/experience/
 
 export const Route = createFileRoute("/experience")({
   head: () =>
-    pageHead("Experience", "Work and community timeline of Gorkem Karyol."),
+    pageHead("Experience", "Work and community timeline of Gorkem Karyol.", "/experience"),
   component: ExperiencePage,
 });
 

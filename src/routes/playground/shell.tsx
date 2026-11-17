@@ -5,7 +5,7 @@ import { runShellCommand } from "@/features/playground/shell-commands";
 import type { ShellSegment } from "@/features/playground/shell-commands";
 
 export const Route = createFileRoute("/playground/shell")({
-  head: () => pageHead("shell", "A real prompt, unlike the rest of the site."),
+  head: () => pageHead("shell", "A real prompt, unlike the rest of the site.", "/playground/shell"),
   component: ShellPage,
 });
 

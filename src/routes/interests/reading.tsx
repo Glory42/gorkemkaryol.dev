@@ -14,7 +14,7 @@ const getAllBooksServerFn = createServerFn({ method: "GET" }).handler(() =>
 
 export const Route = createFileRoute("/interests/reading")({
   head: () =>
-    pageHead("Reading", "Currently reading and finished books from Literal."),
+    pageHead("Reading", "Currently reading and finished books from Literal.", "/interests/reading"),
   loader: async () => getAllBooksServerFn(),
   pendingMs: 0,
   pendingComponent: ReadingPageSkeleton,

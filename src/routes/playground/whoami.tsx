@@ -14,6 +14,7 @@ export const Route = createFileRoute("/playground/whoami")({
     pageHead(
       "whoami",
       "What the Cloudflare edge sees about your connection.",
+      "/playground/whoami",
     ),
   loader: () => edgeFn(),
   component: WhoamiPage,

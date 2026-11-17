@@ -38,7 +38,7 @@ const getWatchingServerFn = createServerFn({ method: "GET" }).handler(() =>
 
 export const Route = createFileRoute("/interests/")({
   head: () =>
-    pageHead("Interests", "Favorites and currently reading shelf from Literal."),
+    pageHead("Interests", "Favorites and currently reading shelf from Literal.", "/interests"),
   loader: () => ({
     literal: defer(getLiteralDataServerFn()),
     interis: defer(getInterisDataServerFn()),
