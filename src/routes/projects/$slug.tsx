@@ -5,7 +5,7 @@ import { GithubIcon } from "@/components/ui/icons";
 import { pageHead } from "@/components/layout/page";
 import { DataPage } from "@/components/ui/DataPage";
 import { SkeletonBlock } from "@/components/ui/Skeleton";
-import { StatusPage } from "@/components/ui/StatusPage";
+import { NotFoundPage } from "@/features/not-found/NotFoundPage";
 import { ReadmeArticle } from "@/features/projects/components/ReadmeArticle";
 import {
   getProjectReadme,
@@ -38,12 +38,11 @@ export const Route = createFileRoute("/projects/$slug")({
   pendingMs: 0,
   pendingComponent: ProjectReadmeSkeleton,
   notFoundComponent: () => (
-    <StatusPage
-      variant="not-found"
-      title="Project not found"
-      message="No project matches that name."
+    <NotFoundPage
+      title="No project by that name."
+      message="It might have been renamed or made private. Play a round, or head back to the list."
       backTo="/projects"
-      backLabel="back to projects"
+      backLabel="cd ~/projects"
     />
   ),
   component: ProjectReadmePage,

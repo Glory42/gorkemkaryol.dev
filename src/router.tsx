@@ -1,5 +1,6 @@
 import { createRouter } from "@tanstack/react-router";
 import { StatusPage } from "@/components/ui/StatusPage";
+import { NotFoundPage } from "@/features/not-found/NotFoundPage";
 import { routeTree } from "./routeTree.gen";
 
 export function getRouter() {
@@ -7,9 +8,9 @@ export function getRouter() {
     routeTree,
     defaultPreload: "intent",
     defaultErrorComponent: ({ error }) => (
-      <StatusPage variant="error" message={error.message || undefined} />
+      <StatusPage message={error.message || undefined} />
     ),
-    defaultNotFoundComponent: () => <StatusPage variant="not-found" />,
+    defaultNotFoundComponent: () => <NotFoundPage />,
     scrollRestoration: true,
   });
 }
