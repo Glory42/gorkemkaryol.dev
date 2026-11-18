@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { getApod, getNeoFeed } from "@/server/nasa/nasa";
+import {
+  apodDisplayUrl,
+  apodVideoSrc,
+  cleanApodExplanation,
+  getApod,
+  getNeoFeed,
+} from "@/server/nasa/nasa";
 import { createInMemoryRuntime, type CannedResponse } from "@/server/common/runtime";
 import { sourceCtx } from "@/server/common/source";
 import type { RuntimeEnv } from "@/lib/env";
@@ -20,21 +26,26 @@ function ctxFor(responses: CannedResponse[], calls: string[] = []) {
 }
 
 describe("nasa — mapping through the transport seam", () => {
-  it("maps APOD and passes DEMO_KEY when NASA_API_KEY is unset", async () => {
+  it("maps today's APOD post from science.nasa.gov, no api key", async () => {
     const calls: string[] = [];
     const ctx = ctxFor(
       [
         {
-          url: "planetary/apod",
-          body: {
-            title: "Pillars of Creation",
-            date: today,
-            explanation: "Dust and gas.",
-            media_type: "image",
-            url: "https://apod.nasa.gov/img.jpg",
-            hdurl: "https://apod.nasa.gov/hd.jpg",
-            copyright: " Someone ",
-          },
+          url: "wp-json/wp/v2/apod-basic",
+          body: [
+            {
+              title: "Rosetta&#039;s Selfie",
+              date: today,
+              permalink: "https://science.nasa.gov/image-article/apod-x/",
+              media_type: "image",
+              explanation:
+                "<strong>Explanation:</strong> Dust &amp; <a href=\"x\">gas</a>.<br><br><strong>Tomorrow's picture: </strong>dark matters<br>",
+              credit: "Someone",
+              copyright: '<a href="https://x">Someone</a> (Club)',
+              hdurl:
+                "https://assets.science.nasa.gov/dynamicimage/assets/a.jpg?w=3000&#038;h=2000&#038;fit=clip",
+            },
+          ],
         },
       ],
       calls,
@@ -42,10 +53,45 @@ describe("nasa — mapping through the transport seam", () => {
 
     const result = await getApod(ENV, ctx);
     if (!result.ok) throw new Error("expected ok");
-    expect(result.data.title).toBe("Pillars of Creation");
-    expect(result.data.mediaType).toBe("image");
-    expect(result.data.copyright).toBe("Someone");
-    expect(calls[0]).toContain("api_key=DEMO_KEY");
+    expect(result.data).toMatchObject({
+      title: "Rosetta's Selfie",
+      explanation: "Dust & gas.",
+      mediaType: "image",
+      url: "https://assets.science.nasa.gov/dynamicimage/assets/a.jpg?w=1600&fit=clip",
+      hdUrl: "https://assets.science.nasa.gov/dynamicimage/assets/a.jpg?w=3000&h=2000&fit=clip",
+      copyright: "Someone (Club)",
+      pageUrl: "https://science.nasa.gov/image-article/apod-x/",
+    });
+    expect(calls[0]).not.toContain("api_key");
+  });
+
+  it("maps a video day to its player and uses the hdurl as poster", async () => {
+    const ctx = ctxFor([
+      {
+        url: "wp-json/wp/v2/apod-basic",
+        body: [
+          {
+            title: "Moons",
+            date: today,
+            permalink: "https://science.nasa.gov/image-article/apod-moons/",
+            media_type: "video",
+            explanation: "<strong>Explanation:</strong> Ganymede and Io.",
+            basic_html:
+              '<video controls><source src="https://assets.science.nasa.gov/occ.mp4" type="video/mp4"></video>',
+            hdurl: "https://assets.science.nasa.gov/content/dam/occ.jpeg",
+          },
+        ],
+      },
+    ]);
+
+    const result = await getApod(ENV, ctx);
+    if (!result.ok) throw new Error("expected ok");
+    expect(result.data).toMatchObject({
+      mediaType: "video",
+      url: "https://assets.science.nasa.gov/occ.mp4",
+      hdUrl: null,
+      thumbnailUrl: "https://assets.science.nasa.gov/content/dam/occ.jpeg",
+    });
   });
 
   it("reads today's NEO bucket and sorts by miss distance", async () => {
@@ -102,7 +148,7 @@ describe("nasa — mapping through the transport seam", () => {
   it("does not cache a failed fetch", async () => {
     const calls: string[] = [];
     const ctx = ctxFor(
-      [{ url: "planetary/apod", status: 503, body: { error: "down" } }],
+      [{ url: "apod-basic", status: 503, body: { error: "down" } }],
       calls,
     );
     const first = await getApod(ENV, ctx);
@@ -116,7 +162,7 @@ describe("nasa — mapping through the transport seam", () => {
   it("serves a successful second call from cache — one round-trip", async () => {
     const calls: string[] = [];
     const ctx = ctxFor(
-      [{ url: "planetary/apod", body: { title: "x", date: today, media_type: "image" } }],
+      [{ url: "apod-basic", body: [{ title: "x", date: today, media_type: "image" }] }],
       calls,
     );
     await getApod(ENV, ctx);
@@ -124,26 +170,26 @@ describe("nasa — mapping through the transport seam", () => {
     expect(calls).toHaveLength(1);
   });
 
-  it("repairs a clipped explanation by scraping the APOD page", async () => {
-    const ctx = ctxFor([
-      {
-        url: "planetary/apod",
-        body: {
-          title: "Eclipse Season",
-          date: today,
-          explanation: "clipses tend to come in pairs.",
-          media_type: "image",
-          url: "https://apod.nasa.gov/img.jpg",
-        },
-      },
-      {
-        url: "apod.nasa.gov/apod/ap",
-        body: '<b>Explanation:</b> <a href="x">E</a>clipses tend to come in pairs. <p> Bob',
-      },
-    ]);
+});
 
-    const result = await getApod(ENV, ctx);
-    if (!result.ok) throw new Error("expected ok");
-    expect(result.data.explanation).toBe("Eclipses tend to come in pairs.");
+describe("apod helpers", () => {
+  it("strips the label and the tomorrow teaser from an explanation", () => {
+    expect(
+      cleanApodExplanation(
+        "<strong>Explanation:</strong> What a <a>flare</a>!<br><br><strong>Tomorrow’s picture:</strong> a horse",
+      ),
+    ).toBe("What a flare!");
+  });
+
+  it("finds a YouTube iframe on a video day", () => {
+    expect(
+      apodVideoSrc('<iframe width="960" src="https://www.youtube.com/embed/abc?rel=0&amp;x=1"></iframe>'),
+    ).toBe("https://www.youtube.com/embed/abc?rel=0&x=1");
+    expect(apodVideoSrc("<img src=x>")).toBeNull();
+  });
+
+  it("only resizes dynamicimage URLs", () => {
+    const dam = "https://assets.science.nasa.gov/content/dam/a.jpg/jcr:content/renditions/x.jpeg";
+    expect(apodDisplayUrl(dam)).toBe(dam);
   });
 });

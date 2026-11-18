@@ -6,13 +6,8 @@ export interface ApodMedia {
   kind: ApodMediaKind;
   /** What to render for `kind`: image / iframe / video / thumbnail src, or a raw link. */
   src: string;
-  /** The apod.nasa.gov permalink for the day. */
+  /** The day's science.nasa.gov article. */
   pageUrl: string;
-}
-
-// The apod.nasa.gov permalink for a YYYY-MM-DD, e.g. 2026-08-29 -> ap260829.html
-export function apodPageUrl(date: string): string {
-  return `https://apod.nasa.gov/apod/ap${date.slice(2).replace(/-/g, "")}.html`;
 }
 
 // Rewrite YouTube URLs to the nocookie host our CSP allows; null for unframeable players.
@@ -36,14 +31,14 @@ function youtubeEmbedUrl(raw: string): string | null {
   }
 }
 
-// Some APOD "video" days are a bare file (…/RomanLaunch_NASA.mp4), not a player.
+// Some APOD "video" days are a bare file (…/occultation.mp4), not a player.
 function isDirectVideo(url: string): boolean {
   return /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|$)/i.test(url);
 }
 
 // One render decision: image, then framed YouTube, video file, thumbnail, finally a link.
 export function resolveApodMedia(apod: Apod): ApodMedia {
-  const pageUrl = apodPageUrl(apod.date);
+  const { pageUrl } = apod;
 
   if (apod.mediaType === "image") {
     return { kind: "image", src: apod.url, pageUrl };

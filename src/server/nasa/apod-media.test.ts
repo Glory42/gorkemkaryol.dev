@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { apodPageUrl, resolveApodMedia } from "@/server/nasa/apod-media";
+import { resolveApodMedia } from "@/server/nasa/apod-media";
 import type { Apod } from "@/server/nasa/nasa";
 
 function apod(overrides: Partial<Apod>): Apod {
@@ -12,17 +12,10 @@ function apod(overrides: Partial<Apod>): Apod {
     hdUrl: null,
     thumbnailUrl: null,
     copyright: null,
+    pageUrl: "https://science.nasa.gov/image-article/apod-2026-august-29-t/",
     ...overrides,
   };
 }
-
-describe("apodPageUrl", () => {
-  it("builds the apYYMMDD permalink", () => {
-    expect(apodPageUrl("2026-08-29")).toBe(
-      "https://apod.nasa.gov/apod/ap260829.html",
-    );
-  });
-});
 
 describe("resolveApodMedia", () => {
   it("keeps an image day an image", () => {
@@ -32,7 +25,7 @@ describe("resolveApodMedia", () => {
     expect(media).toEqual({
       kind: "image",
       src: "https://x/pic.jpg",
-      pageUrl: "https://apod.nasa.gov/apod/ap260829.html",
+      pageUrl: "https://science.nasa.gov/image-article/apod-2026-august-29-t/",
     });
   });
 

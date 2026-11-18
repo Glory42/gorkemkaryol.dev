@@ -6,7 +6,7 @@ import { DataSection } from "@/components/ui/DataSection";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { getApod, getNeoFeed, type Apod, type NeoFeed } from "@/server/nasa/nasa";
-import { apodPageUrl, resolveApodMedia } from "@/server/nasa/apod-media";
+import { resolveApodMedia } from "@/server/nasa/apod-media";
 import { runSource } from "@/server/common/page-data";
 
 const apodFn = createServerFn({ method: "GET" }).handler(() =>
@@ -67,7 +67,7 @@ function ApodLightbox({ apod, onClose }: { apod: Apod; onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
       >
         <a
-          href={apodPageUrl(apod.date)}
+          href={apod.pageUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="mono text-[12px] text-accent/[0.8] no-underline transition-colors hover:text-accent"
