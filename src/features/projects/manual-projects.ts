@@ -18,7 +18,7 @@ export const manualProjects: ManualProject[] = [
   {
     name: "Gathin",
     description:
-      "Event and community management platform built at Lodos; discovery, ticketing and payments, and a full organizer panel.",
+      "Event and community management platform built at Lodos; event and community pages, ticketing and payments, and a full organizer panel.",
     live: "https://gathin.com",
     language: "TypeScript",
     tags: ["Next.js", "React", "SSR"],
@@ -27,7 +27,7 @@ export const manualProjects: ManualProject[] = [
       where: "at Lodos",
       role: "frontend contributor",
       summary:
-        "Event and community platform. I work on the attendee site and organizer panel: messaging, schedules, sponsors, gallery.",
+        "Event and community platform. 70 merged PRs: the community wall, support events, DMs, sponsors, and the design system.",
     },
   },
   {
