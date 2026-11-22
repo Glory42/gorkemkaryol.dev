@@ -10,7 +10,7 @@ import type { ServiceResult } from "@/server/common/http";
 
 const ICONS: Record<NowItem["label"] | "reading" | "watching", LucideIcon> = {
   building: Hammer,
-  "at work": Briefcase,
+  looking: Briefcase,
   shipped: Package,
   reading: BookOpen,
   watching: Tv,
@@ -71,7 +71,13 @@ export function NowList({ live }: { live: Promise<ServiceResult<Currently>> }) {
       <dl className="mono grid grid-cols-[92px_1fr] gap-x-3 gap-y-[var(--home-gap-row,10px)] text-[13px]">
         {nowItems.map((item) => (
           <Row key={item.label} label={item.label}>
-            <a href={item.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
+            <a
+              href={item.href}
+              {...(item.href.startsWith("http")
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
+              className={linkClass}
+            >
               {item.text}
             </a>
           </Row>

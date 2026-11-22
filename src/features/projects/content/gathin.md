@@ -11,7 +11,7 @@ together.
 
 ## What I built
 
-On the frontend team since April 2026: 70 merged PRs and 300+ commits across
+On the frontend team from April to November 2026: 70 merged PRs and 300+ commits across
 the attendee site, the organizer panel, and the design system under both.
 
 **Community features**

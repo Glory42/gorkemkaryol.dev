@@ -1,7 +1,6 @@
 export interface ExperienceItem {
   role: string;
   company: string;
-  /** Company website; the name links to it on the home page and /experience. */
   url?: string;
   date: string;
   type?: string;
@@ -14,15 +13,21 @@ export const workExperiences: ExperienceItem[] = [
     role: "Frontend Developer Intern",
     company: "Lodos",
     url: "https://lodos.io/",
-    date: "April 2026 – Present",
+    date: "April 2026 – November 2026",
     type: "internship",
     description: [
-      "Frontend engineer on Gathin (an event/community platform) and Huddin (a Discord-style community app), which share one backend and reached 5,000+ active users within 8 months.",
+      "Worked as a frontend engineer on Gathin (an event/community platform) and Huddin (a Discord-style community app), which shared one backend and reached 5,000+ active users within 8 months.",
       "On Gathin: rebuilt profile and community pages around a shared events timeline, redesigned the event gallery and blog, and shipped attendee–organizer direct messaging.",
       "Delivered organizer-panel features: event schedules, sponsor management, speaker drag-and-drop ordering, Excel export for ticket holders, and client-side ticket poster sharing.",
       "On Huddin: built the cross-app DM bridge that renders sibling-app messages as context cards with no chat-renderer changes, and gated channel visibility behind three-way public/shared/private semantics in the Next.js BFF.",
     ],
-    tags: ["React", "Next.js", "TypeScript", "Real-Time Systems", "Socket.IO"],
+    tags: [
+      "React",
+      "Next.js",
+      "TypeScript",
+      "Real-Time Systems",
+      "Socket.IO"
+    ],
   },
   {
     role: "Full Stack Intern",
@@ -36,7 +41,16 @@ export const workExperiences: ExperienceItem[] = [
       "Implemented auth from first principles: JWT guards, bcrypt, RBAC, algorithm-confusion protection, and server-side httpOnly cookie proxying.",
       "Modeled core logic as pure, unit-tested functions: tier pricing, Haversine distance, and a deterministic job-lifecycle state machine.",
     ],
-    tags: ["Nest.js", "TypeScript", "Next.js", "Astro", "Go", "PostgreSQL", "Prisma", "Docker"],
+    tags: [
+      "Go",
+      "Prisma",
+      "Nest.js",
+      "PostgreSQL",
+      "Docker",
+      "TypeScript",
+      "Next.js",
+      "Astro"
+    ],
   },
   {
     role: "Full Stack Engineer",
@@ -69,8 +83,14 @@ export const workExperiences: ExperienceItem[] = [
       "Conducted vulnerability assessments using tools such as Kali Linux and categorized findings by severity.",
       "Developed custom security tools in Go, including a port scanner with service detection and a hash-cracking utility.",
       "Analyzed and compared vulnerability reports from multiple external vendors to identify overlaps and gaps in findings.",
+      "Documented findings with severity, evidence, and remediation steps for the teams that owned each system.",
     ],
-    tags: ["Cyber Security", "Network Security", "Kali Linux", "Go"],
+    tags: [
+      "Cyber Security",
+      "Network Security",
+      "Kali Linux",
+      "Go"
+    ],
   },
 ];
 
@@ -79,7 +99,7 @@ export const volunteeringExperiences: ExperienceItem[] = [
     role: "Core Member, Project Team Member",
     company: "Google Developer Groups on Campus Halic",
     url: "https://www.instagram.com/gdgoncampushalic/",
-    date: "Sep 2024 – Present",
+    date: "Sep 2024 – August 2026",
     type: "community",
     description: [
       "Collaborating with my team to design and build applications that offer practical solutions to real-world challenges.",
@@ -87,6 +107,11 @@ export const volunteeringExperiences: ExperienceItem[] = [
       "Working with the social media team to create fun and engaging social media content to promote our events and showcase what we're doing.",
       "Actively participating in both community-focused initiatives and internal project development to support our team's mission and outreach.",
     ],
-    tags: ["Teamwork", "Community Building", "Project Management"],
+    tags: [
+      "Teamwork",
+      "Community Building",
+      "Project Management",
+      "Community Management"
+    ],
   },
 ];

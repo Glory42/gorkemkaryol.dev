@@ -18,10 +18,10 @@ export const hero = {
 };
 
 export const introText =
-  "I build web apps end to end, all in TypeScript: React and Next.js on the front, NestJS or Bun with Postgres behind it. At Lodos I work on Gathin; on my own I build and run Interis.";
+  "I build web apps end to end, all in TypeScript: React and Next.js on the front, NestJS or Bun with Postgres behind it. On my own I build and run Interis, and I'm now looking for a full-stack role.";
 
 export interface NowItem {
-  label: "building" | "at work" | "shipped";
+  label: "building" | "looking" | "shipped";
   text: string;
   href: string;
 }
@@ -29,7 +29,7 @@ export interface NowItem {
 /** Hand-written `now.txt` lines; reading and watching are appended live. Keep each to one short line. */
 export const nowItems: NowItem[] = [
   { label: "building", text: "Interis film & TV diary", href: "https://interis.gorkemkaryol.dev" },
-  { label: "at work", text: "Gathin at Lodos", href: "https://gathin.com" },
+  { label: "looking", text: "open to full-stack roles", href: "mailto:me@gorkemkaryol.dev" },
   { label: "shipped", text: "RigCheck for Linux", href: "https://rigcheck.gorkemkaryol.dev" },
 ];
 
