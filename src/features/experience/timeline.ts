@@ -77,7 +77,7 @@ export const workExperiences: ExperienceItem[] = [
     role: "Cyber Security Intern",
     company: "Opet",
     url: "https://www.opet.com.tr/",
-    date: "Jul 2024 – Aug 2025",
+    date: "Jul 2025 – Aug 2025",
     type: "internship",
     description: [
       "Conducted vulnerability assessments using tools such as Kali Linux and categorized findings by severity.",
