@@ -1,5 +1,4 @@
-import { Suspense } from "react";
-import { Await, Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Globe } from "lucide-react";
 import { GithubIcon } from "@/components/ui/icons";
 import { SkeletonBlock, SkeletonLine } from "@/components/ui/Skeleton";
@@ -57,10 +56,11 @@ function Projects({ result }: { result: ShowcaseResult }) {
   );
 }
 
-// Same box as a loaded project (title row, three description lines, tags), so nothing jumps when it lands.
+// Same box as a loaded project (title row, three description lines, tags), so
+// a cold cache reserves the list's height and the real rows don't shift the page.
 function ProjectsSkeleton() {
   return (
-    <div className="flex animate-pulse flex-col">
+    <div className="flex animate-pulse flex-col" aria-hidden="true">
       {[0, 1, 2].map((i) => (
         <div key={i} className="border-b border-[rgba(255,255,255,0.05)] py-6 first:pt-1">
           <div className="flex h-[17px] items-center gap-4">
@@ -87,12 +87,20 @@ function ProjectsSkeleton() {
 }
 
 // Repos tagged `showcase` on GitHub, newest push first; "live" comes from each repo's Website field.
-export function ShowcaseList({ showcase }: { showcase: Promise<ShowcaseResult> }) {
+// A cold cache has no snapshot to paint, so it holds the list's space with a
+// skeleton while the client revalidation fills the cache.
+export function ShowcaseList({
+  showcase,
+  pending = false,
+}: {
+  showcase: ShowcaseResult;
+  pending?: boolean;
+}) {
   return (
     <HomeSection cmd="ls ~/projects --mine" more="/projects">
-      <Suspense fallback={<ProjectsSkeleton />}>
-        <Await promise={showcase}>{(result) => <Projects result={result} />}</Await>
-      </Suspense>
+      <div aria-live="polite">
+        {pending ? <ProjectsSkeleton /> : <Projects result={showcase} />}
+      </div>
     </HomeSection>
   );
 }

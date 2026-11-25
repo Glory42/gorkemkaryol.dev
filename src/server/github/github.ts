@@ -269,6 +269,36 @@ function buildRepoQuery(username: string, topic: string): string {
   return `user:${username} topic:${topic} sort:updated-desc`;
 }
 
+// Home's showcase strip only needs this one list. The overview query also pays
+// for the contribution calendar and every other repo, which makes a cold cache
+// slow, so this lighter call fills the strip in about a second.
+const SHOWCASE_QUERY = `
+  query HomeShowcase($query: String!) {
+    list_showcase: search(query: $query, type: REPOSITORY, first: 12) {
+      nodes {
+        ... on Repository {
+          ${REPO_FRAGMENT}
+        }
+      }
+    }
+  }
+`;
+
+export async function getGithubShowcase(
+  env: RuntimeEnv,
+  ctx: SourceCtx,
+): Promise<ServiceResult<GithubProject[]>> {
+  const result = await githubClient(env, ctx).gql<{
+    list_showcase?: SearchResult;
+  }>(SHOWCASE_QUERY, {
+    variables: { query: buildRepoQuery(env.PUBLIC_GITHUB_USERNAME, "showcase") },
+    label: "GitHub",
+  });
+
+  if (!result.ok) return result;
+  return ok(toProjects(result.data.list_showcase?.nodes ?? []));
+}
+
 export async function getGithubProjects(
   env: RuntimeEnv,
   ctx: SourceCtx,

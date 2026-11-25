@@ -9,6 +9,7 @@ import {
 import type { SourceCtx } from "@/server/common/source";
 import {
   getGithubProjects,
+  getGithubShowcase,
   META_TOPICS,
   type GithubContributionCalendar,
   type GithubProject,
@@ -122,6 +123,16 @@ export async function getProjects(
       githubError: null,
     }),
   );
+}
+
+// The home strip only needs the showcase list; skipping the overview query's
+// calendar and other lists keeps a cold first paint fast.
+export async function getShowcaseProjects(
+  env: RuntimeEnv,
+  ctx: SourceCtx,
+): Promise<ServiceResult<ProjectCard[]>> {
+  const result = await getGithubShowcase(env, ctx);
+  return result.ok ? ok(result.data.map(githubCard)) : result;
 }
 
 export interface ProjectReadme {

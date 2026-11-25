@@ -1,8 +1,5 @@
 import type { ReactNode } from "react";
-import { Suspense } from "react";
-import { Await } from "@tanstack/react-router";
 import { BookOpen, Briefcase, Hammer, Package, Tv, type LucideIcon } from "lucide-react";
-import { SkeletonLine } from "@/components/ui/Skeleton";
 import { HomeSection } from "@/features/home/components/HomeSection";
 import { nowItems, type NowItem } from "@/features/home/content";
 import type { Currently } from "@/features/interests/currently";
@@ -36,10 +33,9 @@ const linkClass = "text-fg-1 no-underline hover:text-accent";
 
 const NOTHING: Currently = { reading: null, watching: null };
 
-function LiveRows({ now }: { now: Currently | null }) {
-  const { reading, watching } = now ?? NOTHING;
-  const empty =
-    now === null ? <SkeletonLine className="inline-block h-3 w-28 animate-pulse align-middle" /> : "nothing right now";
+function LiveRows({ now }: { now: Currently }) {
+  const { reading, watching } = now;
+  const empty = "nothing right now";
   return (
     <>
       <Row label="reading" title={reading ? [reading.title, reading.subtitle].filter(Boolean).join(" · ") : undefined}>
@@ -65,7 +61,7 @@ function LiveRows({ now }: { now: Currently | null }) {
   );
 }
 
-export function NowList({ live }: { live: Promise<ServiceResult<Currently>> }) {
+export function NowList({ live }: { live: ServiceResult<Currently> }) {
   return (
     <HomeSection cmd="cat now.txt">
       <dl className="mono grid grid-cols-[92px_1fr] gap-x-3 gap-y-[var(--home-gap-row,10px)] text-[13px]">
@@ -82,9 +78,7 @@ export function NowList({ live }: { live: Promise<ServiceResult<Currently>> }) {
             </a>
           </Row>
         ))}
-        <Suspense fallback={<LiveRows now={null} />}>
-          <Await promise={live}>{(result) => <LiveRows now={result.ok ? result.data : NOTHING} />}</Await>
-        </Suspense>
+        <LiveRows now={live.ok ? live.data : NOTHING} />
       </dl>
     </HomeSection>
   );

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getGithubProjects, TOPIC_LISTS } from "@/server/github/github";
+import { getGithubProjects, getGithubShowcase, TOPIC_LISTS } from "@/server/github/github";
 import { createInMemoryRuntime, type CannedResponse } from "@/server/common/runtime";
 import { sourceCtx } from "@/server/common/source";
 import type { RuntimeEnv } from "@/lib/env";
@@ -148,6 +148,30 @@ describe("getGithubProjects — mapping through the interface", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("MISSING_ENV");
     expect(calls).toHaveLength(0);
+  });
+});
+
+describe("getGithubShowcase — the home strip alone", () => {
+  it("maps just the showcase list, so a cold home load skips the overview query", async () => {
+    const calls: string[] = [];
+    const body = {
+      data: {
+        list_showcase: {
+          nodes: [
+            repoNode({ name: "shown", homepageUrl: "https://shown.example" }),
+            repoNode({ name: "a-fork", isFork: true }),
+          ],
+        },
+      },
+    };
+
+    const result = await getGithubShowcase(ENV, ctxFor(body, calls));
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.map((project) => project.name)).toEqual(["shown"]);
+    expect(result.data[0].homepageUrl).toBe("https://shown.example");
+    expect(calls).toHaveLength(1);
   });
 });
 

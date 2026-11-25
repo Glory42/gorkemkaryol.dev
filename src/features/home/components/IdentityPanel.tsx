@@ -21,7 +21,7 @@ function StatusBadge() {
 }
 
 // Pinned via `home-panel`, so keep it short; margins subtract each line's leading so visible gaps equal --home-gap(-sm).
-export function IdentityPanel({ live }: { live: Promise<ServiceResult<Currently>> }) {
+export function IdentityPanel({ live }: { live: ServiceResult<Currently> }) {
   return (
     <aside className="home-panel md:self-start">
       <div className="animate-fade-in">
