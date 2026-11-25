@@ -4,3 +4,4 @@ dist
 .wrangler
 bun.lock
 worker-configuration.d.ts
+src/routeTree.gen.ts
