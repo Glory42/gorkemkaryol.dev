@@ -129,11 +129,11 @@ export function Navbar() {
       {/* Outside <nav>: its backdrop blur and transform would trap these fixed layers inside the bar. */}
       {isOpen && (
         <>
-          <div aria-hidden="true" className="fixed inset-x-0 bottom-0 top-[var(--nav-h)] z-40 bg-black/60 animate-fade-in md:hidden" />
+          <div aria-hidden="true" className="fixed inset-x-0 bottom-0 top-[var(--nav-h)] z-40 bg-black/60 animate-overlay-in md:hidden" />
           <div
             ref={menuRef}
             id="phone-menu"
-            className="fixed inset-x-0 top-[var(--nav-h)] z-50 border-b border-[rgba(255,255,255,0.06)] bg-black animate-fade-in-down md:hidden"
+            className="fixed inset-x-0 top-[var(--nav-h)] z-50 border-b border-[rgba(255,255,255,0.06)] bg-black animate-overlay-in-down md:hidden"
           >
             <ul className="m-0 list-none p-0 py-2">
               {SECTION_LIST.map((item) => {

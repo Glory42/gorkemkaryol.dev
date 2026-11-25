@@ -20,7 +20,8 @@ export function RotatingPrompt({ className, words = DEFAULT_WORDS }: Props) {
   phrasesRef.current = phrases;
 
   const [wordIndex, setWordIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
+  // Start with the first role fully typed, so first paint isn't an empty cursor.
+  const [charIndex, setCharIndex] = useState(() => (phrases[0] ?? "").length);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {

@@ -167,7 +167,7 @@ export function CommandPalette() {
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-start justify-center bg-black/70 px-4 pt-[14vh] backdrop-blur-[2px] animate-fade-in"
+      className="fixed inset-0 z-[70] flex items-start justify-center bg-black/70 px-4 pt-[14vh] backdrop-blur-[2px] animate-overlay-in"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) close();
       }}
@@ -176,7 +176,7 @@ export function CommandPalette() {
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"
-        className="mono w-full max-w-[560px] border border-accent/[0.35] bg-black text-[13px] shadow-[0_0_60px_-10px_rgb(var(--accent-rgb)/0.35)] animate-scale-in"
+        className="mono w-full max-w-[560px] border border-accent/[0.35] bg-black text-[13px] shadow-[0_0_60px_-10px_rgb(var(--accent-rgb)/0.35)] animate-overlay-scale-in"
       >
         <div className="flex items-center gap-2 px-3 pt-3">
           <span className="text-accent">&gt;</span>

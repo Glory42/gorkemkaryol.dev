@@ -31,6 +31,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "color-scheme", content: "dark" },
       { name: "theme-color", content: "#000000" },
       { title: SITE_NAME },
       { name: "description", content: SITE_DESCRIPTION },
@@ -92,9 +93,13 @@ function RootDocument({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        {/* Paint the dark canvas before any stylesheet loads, so the first frame is never white. */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `html,body{background:#000;color-scheme:dark}${sectionAccentCss()}`,
+          }}
+        />
         <HeadContent />
-        {/* Section accent custom-properties, generated from one registry. */}
-        <style dangerouslySetInnerHTML={{ __html: sectionAccentCss() }} />
       </head>
       <body>
         {children}
