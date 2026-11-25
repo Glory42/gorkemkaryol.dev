@@ -109,30 +109,19 @@ describe("getGithubProjects — mapping through the interface", () => {
     expect(byName).toEqual({ shown: "https://shown.example", "no-site": null });
   });
 
-  it.each(TOPIC_LISTS)(
-    "orders the %s list by last code push, not by metadata edits",
-    async (list) => {
-      const body = overviewBody({
-        [`list_${list}`]: {
-          nodes: [
-            repoNode({
-              name: "retagged",
-              updatedAt: "2026-09-01T00:00:00Z",
-              pushedAt: "2026-01-01T00:00:00Z",
-            }),
-            repoNode({
-              name: "active",
-              updatedAt: "2026-03-01T00:00:00Z",
-              pushedAt: "2026-08-01T00:00:00Z",
-            }),
-          ],
-        },
-      });
-      const result = await getGithubProjects(ENV, ctxFor(body));
-      if (!result.ok) throw new Error("expected ok");
-      expect(result.data[list].map((p) => p.name)).toEqual(["active", "retagged"]);
-    },
-  );
+  it.each(TOPIC_LISTS)("orders the %s list by GitHub update time", async (list) => {
+    const body = overviewBody({
+      [`list_${list}`]: {
+        nodes: [
+          repoNode({ name: "older", updatedAt: "2026-03-01T00:00:00Z" }),
+          repoNode({ name: "newer", updatedAt: "2026-09-01T00:00:00Z" }),
+        ],
+      },
+    });
+    const result = await getGithubProjects(ENV, ctxFor(body));
+    if (!result.ok) throw new Error("expected ok");
+    expect(result.data[list].map((p) => p.name)).toEqual(["newer", "older"]);
+  });
 
   it("maps GitHub contribution levels to the 0-4 ramp", async () => {
     const result = await getGithubProjects(ENV, ctxFor(overviewBody()));
