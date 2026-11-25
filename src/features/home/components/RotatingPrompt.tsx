@@ -5,12 +5,7 @@ interface Props {
   words?: string[];
 }
 
-const DEFAULT_WORDS = [
-  "linux enjoyer",
-  "web developer",
-  "jedi master",
-  "muad'dib",
-];
+const DEFAULT_WORDS = ["linux enjoyer", "web developer", "jedi master", "muad'dib"];
 
 export function RotatingPrompt({ className, words = DEFAULT_WORDS }: Props) {
   const phrases = words.length > 0 ? words : DEFAULT_WORDS;

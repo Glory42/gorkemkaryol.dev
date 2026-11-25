@@ -50,7 +50,8 @@ export function Navbar() {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setIsOpen(false);
     const onPointer = (e: PointerEvent) => {
       const target = e.target as Node;
-      if (!menuRef.current?.contains(target) && !toggleRef.current?.contains(target)) setIsOpen(false);
+      if (!menuRef.current?.contains(target) && !toggleRef.current?.contains(target))
+        setIsOpen(false);
     };
     window.addEventListener("keydown", onKey);
     window.addEventListener("pointerdown", onPointer);
@@ -88,7 +89,7 @@ export function Navbar() {
               <Link
                 key={item.href}
                 to={item.href}
-                className={`focus-ring mono inline-flex items-center gap-1.5 text-[11px] tracking-[0.12em] uppercase no-underline transition-colors duration-150 ${
+                className={`focus-ring mono inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.12em] no-underline transition-colors duration-150 ${
                   isActive ? "text-accent" : "text-fg-3 hover:text-fg-1"
                 }`}
               >
@@ -109,7 +110,12 @@ export function Navbar() {
         </button>
 
         <div className="absolute right-3 flex items-center md:hidden">
-          <button type="button" onClick={openCommandPalette} aria-label="Search pages and projects" className={phoneButton}>
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            aria-label="Search pages and projects"
+            className={phoneButton}
+          >
             <Search size={17} />
           </button>
           <button
@@ -129,11 +135,14 @@ export function Navbar() {
       {/* Outside <nav>: its backdrop blur and transform would trap these fixed layers inside the bar. */}
       {isOpen && (
         <>
-          <div aria-hidden="true" className="fixed inset-x-0 bottom-0 top-[var(--nav-h)] z-40 bg-black/60 animate-overlay-in md:hidden" />
+          <div
+            aria-hidden="true"
+            className="animate-overlay-in fixed inset-x-0 bottom-0 top-[var(--nav-h)] z-40 bg-black/60 md:hidden"
+          />
           <div
             ref={menuRef}
             id="phone-menu"
-            className="fixed inset-x-0 top-[var(--nav-h)] z-50 border-b border-[rgba(255,255,255,0.06)] bg-black animate-overlay-in-down md:hidden"
+            className="animate-overlay-in-down fixed inset-x-0 top-[var(--nav-h)] z-50 border-b border-[rgba(255,255,255,0.06)] bg-black md:hidden"
           >
             <ul className="m-0 list-none p-0 py-2">
               {SECTION_LIST.map((item) => {
@@ -144,7 +153,7 @@ export function Navbar() {
                     <Link
                       to={item.href}
                       aria-current={isActive ? "page" : undefined}
-                      className={`focus-ring mono flex items-center gap-3 border-l-2 px-5 py-3.5 text-[12px] tracking-[0.12em] uppercase no-underline transition-colors ${
+                      className={`focus-ring mono flex items-center gap-3 border-l-2 px-5 py-3.5 text-[12px] uppercase tracking-[0.12em] no-underline transition-colors ${
                         isActive
                           ? "border-accent bg-accent/[0.06] text-accent"
                           : "border-transparent text-fg-2 hover:text-white"
