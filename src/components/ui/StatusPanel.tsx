@@ -9,16 +9,13 @@ interface Props {
   error?: ServiceError;
 }
 
-const DEGRADED_MESSAGE =
-  "Markdown rendering encountered an issue — showing plain text fallback.";
+const DEGRADED_MESSAGE = "Markdown rendering encountered an issue — showing plain text fallback.";
 
 export function StatusPanel({ tone, title, description, error }: Props) {
   if (tone === "empty") {
     return (
       <div className="panel p-6 text-center">
-        <p className="mono text-xs uppercase tracking-[0.14em] text-fg-2">
-          {title}
-        </p>
+        <p className="mono text-xs uppercase tracking-[0.14em] text-fg-2">{title}</p>
         <p className="mt-2 text-sm text-fg-3">{description}</p>
       </div>
     );

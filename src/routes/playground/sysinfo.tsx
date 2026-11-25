@@ -80,9 +80,7 @@ function SysinfoPage() {
         )}
       </div>
       {playing && (
-        <p className="mono mt-3 text-[11px] text-fg-3">
-          you have been rickrolled. carry on.
-        </p>
+        <p className="mono mt-3 text-[11px] text-fg-3">you have been rickrolled. carry on.</p>
       )}
     </div>
   );

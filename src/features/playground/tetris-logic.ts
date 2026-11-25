@@ -5,9 +5,7 @@ export const BOARD_W = 10;
 export const BOARD_H = 20;
 
 export function mkBoard(): Board {
-  return Array.from({ length: BOARD_H }, () =>
-    Array<string | null>(BOARD_W).fill(null),
-  );
+  return Array.from({ length: BOARD_H }, () => Array<string | null>(BOARD_W).fill(null));
 }
 
 export function rotate(shape: Shape): Shape {
@@ -15,12 +13,7 @@ export function rotate(shape: Shape): Shape {
 }
 
 // Does `shape` fit at (px, py)? Cells above the top edge are allowed while spawning.
-export function fits(
-  board: Board,
-  shape: Shape,
-  px: number,
-  py: number,
-): boolean {
+export function fits(board: Board, shape: Shape, px: number, py: number): boolean {
   for (let y = 0; y < shape.length; y++) {
     for (let x = 0; x < shape[y].length; x++) {
       if (!shape[y][x]) continue;
@@ -37,9 +30,7 @@ export function fits(
 export function clearLines(board: Board): { board: Board; cleared: number } {
   const kept = board.filter((row) => row.some((cell) => cell === null));
   const cleared = BOARD_H - kept.length;
-  const empty = Array.from({ length: cleared }, () =>
-    Array<string | null>(BOARD_W).fill(null),
-  );
+  const empty = Array.from({ length: cleared }, () => Array<string | null>(BOARD_W).fill(null));
   return { board: [...empty, ...kept], cleared };
 }
 
@@ -51,10 +42,7 @@ export interface Piece {
 }
 
 // Write `piece` into a copy of `board`, then clear any rows it completed.
-export function lockPiece(
-  board: Board,
-  piece: Piece,
-): { board: Board; cleared: number } {
+export function lockPiece(board: Board, piece: Piece): { board: Board; cleared: number } {
   const next = board.map((row) => [...row]);
   piece.shape.forEach((row, dy) =>
     row.forEach((v, dx) => {

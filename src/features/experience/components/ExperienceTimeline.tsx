@@ -7,7 +7,7 @@ interface Props {
 
 export function ExperienceTimeline({ items }: Props) {
   return (
-    <ol className="m-0 flex list-none flex-col p-0 stagger">
+    <ol className="stagger m-0 flex list-none flex-col p-0">
       {items.map((item) => (
         <li
           key={`${item.role}-${item.company}`}

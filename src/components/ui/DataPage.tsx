@@ -36,10 +36,7 @@ function Frame({
 }: FrameProps) {
   return (
     <PageShell>
-      <div
-        className={`mx-auto min-w-0 ${wrapClassName}`}
-        style={{ maxWidth: `${maxWidth}px` }}
-      >
+      <div className={`mx-auto min-w-0 ${wrapClassName}`} style={{ maxWidth: `${maxWidth}px` }}>
         {promptAside ? (
           <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
             <TerminalPrompt cmd={cmd} />

@@ -14,7 +14,15 @@ const ICONS: Record<NowItem["label"] | "reading" | "watching", LucideIcon> = {
 };
 
 // Rows stay one line so live titles can't grow the pinned panel; the full text shows on hover.
-function Row({ label, title, children }: { label: keyof typeof ICONS; title?: string; children: ReactNode }) {
+function Row({
+  label,
+  title,
+  children,
+}: {
+  label: keyof typeof ICONS;
+  title?: string;
+  children: ReactNode;
+}) {
   const Icon = ICONS[label];
   return (
     <>
@@ -38,7 +46,10 @@ function LiveRows({ now }: { now: Currently }) {
   const empty = "nothing right now";
   return (
     <>
-      <Row label="reading" title={reading ? [reading.title, reading.subtitle].filter(Boolean).join(" · ") : undefined}>
+      <Row
+        label="reading"
+        title={reading ? [reading.title, reading.subtitle].filter(Boolean).join(" · ") : undefined}
+      >
         {reading?.href ? (
           <a href={reading.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
             {reading.title}
@@ -47,7 +58,12 @@ function LiveRows({ now }: { now: Currently }) {
           empty
         )}
       </Row>
-      <Row label="watching" title={watching ? [watching.title, watching.subtitle].filter(Boolean).join(" · ") : undefined}>
+      <Row
+        label="watching"
+        title={
+          watching ? [watching.title, watching.subtitle].filter(Boolean).join(" · ") : undefined
+        }
+      >
         {watching?.href ? (
           <a href={watching.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
             {watching.title}

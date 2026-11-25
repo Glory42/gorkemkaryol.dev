@@ -21,13 +21,7 @@ export const workExperiences: ExperienceItem[] = [
       "Delivered organizer-panel features: event schedules, sponsor management, speaker drag-and-drop ordering, Excel export for ticket holders, and client-side ticket poster sharing.",
       "On Huddin: built the cross-app DM bridge that renders sibling-app messages as context cards with no chat-renderer changes, and gated channel visibility behind three-way public/shared/private semantics in the Next.js BFF.",
     ],
-    tags: [
-      "React",
-      "Next.js",
-      "TypeScript",
-      "Real-Time Systems",
-      "Socket.IO"
-    ],
+    tags: ["React", "Next.js", "TypeScript", "Real-Time Systems", "Socket.IO"],
   },
   {
     role: "Full Stack Intern",
@@ -41,16 +35,7 @@ export const workExperiences: ExperienceItem[] = [
       "Implemented auth from first principles: JWT guards, bcrypt, RBAC, algorithm-confusion protection, and server-side httpOnly cookie proxying.",
       "Modeled core logic as pure, unit-tested functions: tier pricing, Haversine distance, and a deterministic job-lifecycle state machine.",
     ],
-    tags: [
-      "Go",
-      "Prisma",
-      "Nest.js",
-      "PostgreSQL",
-      "Docker",
-      "TypeScript",
-      "Next.js",
-      "Astro"
-    ],
+    tags: ["Go", "Prisma", "Nest.js", "PostgreSQL", "Docker", "TypeScript", "Next.js", "Astro"],
   },
   {
     role: "Full Stack Engineer",
@@ -64,14 +49,7 @@ export const workExperiences: ExperienceItem[] = [
       "Reduced AI payload sizes by 90% by implementing Cloudflare Images for on-the-fly compression of R2 storage assets.",
       "Designed a strict, type-safe Turborepo monorepo with Drizzle ORM and optimized frontend rendering state with TanStack Query, eliminating race conditions during real-time image generation.",
     ],
-    tags: [
-      "Bun.js",
-      "React",
-      "TypeScript",
-      "Drizzle ORM",
-      "TanStack Query",
-      "Cloudflare",
-    ],
+    tags: ["Bun.js", "React", "TypeScript", "Drizzle ORM", "TanStack Query", "Cloudflare"],
   },
   {
     role: "Cyber Security Intern",
@@ -85,12 +63,7 @@ export const workExperiences: ExperienceItem[] = [
       "Analyzed and compared vulnerability reports from multiple external vendors to identify overlaps and gaps in findings.",
       "Documented findings with severity, evidence, and remediation steps for the teams that owned each system.",
     ],
-    tags: [
-      "Cyber Security",
-      "Network Security",
-      "Kali Linux",
-      "Go"
-    ],
+    tags: ["Cyber Security", "Network Security", "Kali Linux", "Go"],
   },
 ];
 
@@ -107,11 +80,6 @@ export const volunteeringExperiences: ExperienceItem[] = [
       "Working with the social media team to create fun and engaging social media content to promote our events and showcase what we're doing.",
       "Actively participating in both community-focused initiatives and internal project development to support our team's mission and outreach.",
     ],
-    tags: [
-      "Teamwork",
-      "Community Building",
-      "Project Management",
-      "Community Management"
-    ],
+    tags: ["Teamwork", "Community Building", "Project Management", "Community Management"],
   },
 ];

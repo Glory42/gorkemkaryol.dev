@@ -42,17 +42,11 @@ describe("requireEnv", () => {
   });
 
   it("lists only the missing bindings, in requested order", () => {
-    const result = requireEnv(readRuntimeEnv(null), [
-      "PUBLIC_GITHUB_USERNAME",
-      "GITHUB_TOKEN",
-    ]);
+    const result = requireEnv(readRuntimeEnv(null), ["PUBLIC_GITHUB_USERNAME", "GITHUB_TOKEN"]);
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.error.code).toBe("MISSING_ENV");
-    expect(result.error.fields).toEqual([
-      "PUBLIC_GITHUB_USERNAME",
-      "GITHUB_TOKEN",
-    ]);
+    expect(result.error.fields).toEqual(["PUBLIC_GITHUB_USERNAME", "GITHUB_TOKEN"]);
     expect(result.error.message).toBe(
       "Missing required environment binding(s): PUBLIC_GITHUB_USERNAME, GITHUB_TOKEN",
     );

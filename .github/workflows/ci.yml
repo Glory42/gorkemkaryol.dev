@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      # Hooks are per-clone; CI doesn't need them.
+      HUSKY: "0"
+    steps:
+      - uses: actions/checkout@v4
+      # No version input: setup-bun reads `packageManager` from package.json.
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run format:check
+      - run: bun run lint
+      - run: bunx tsc --noEmit
+      - run: bun run test
+      - run: bun run build

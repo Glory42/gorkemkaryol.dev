@@ -18,9 +18,7 @@ export interface ServiceError {
   details?: string;
 }
 
-export type ServiceResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: ServiceError };
+export type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: ServiceError };
 
 export interface JsonResponse<T> {
   status: number;
@@ -57,8 +55,7 @@ function isAbortError(error: unknown): boolean {
 }
 
 function isClientDisconnect(error: unknown): boolean {
-  return error instanceof TypeError &&
-    error.message.includes("client disconnected");
+  return error instanceof TypeError && error.message.includes("client disconnected");
 }
 
 export function fail<T>(error: ServiceError): ServiceResult<T> {
@@ -74,9 +71,9 @@ type Unwrapped<T> = {
 };
 
 // Await several results at once; the first failure in key order wins.
-export async function allOk<
-  T extends Record<string, Promise<ServiceResult<unknown>>>,
->(pending: T): Promise<ServiceResult<Unwrapped<T>>> {
+export async function allOk<T extends Record<string, Promise<ServiceResult<unknown>>>>(
+  pending: T,
+): Promise<ServiceResult<Unwrapped<T>>> {
   const settled = await Promise.all(
     Object.entries(pending).map(async ([key, result]) => [key, await result] as const),
   );
@@ -132,17 +129,15 @@ export async function requestJsonWithRetry<T>(
           "Content-Type": "application/json",
           ...(options.headers ?? {}),
         },
-        body:
-          options.body === undefined ? undefined : JSON.stringify(options.body),
+        body: options.body === undefined ? undefined : JSON.stringify(options.body),
         signal: controller.signal,
       });
 
       const text = await response.text();
-      const shouldRetry =
-        RETRYABLE_STATUS.has(response.status) && attempt < attempts - 1;
+      const shouldRetry = RETRYABLE_STATUS.has(response.status) && attempt < attempts - 1;
 
       if (!response.ok && shouldRetry) {
-        const backoff = 150 * (2 ** attempt);
+        const backoff = 150 * 2 ** attempt;
         const jitter = Math.random() * 50;
         await delay(backoff + jitter);
         continue;
@@ -200,7 +195,7 @@ export async function requestJsonWithRetry<T>(
       const retryable = attempt < attempts - 1;
 
       if (retryable) {
-        const backoff = 150 * (2 ** attempt);
+        const backoff = 150 * 2 ** attempt;
         const jitter = Math.random() * 50;
         await delay(backoff + jitter);
         continue;

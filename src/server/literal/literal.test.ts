@@ -130,7 +130,11 @@ function literalRuntime(over: Record<string, unknown> = {}) {
 
 describe("getCurrentlyReading / getFavoriteBooks", () => {
   it("returns the in-progress books", async () => {
-    const res = await getCurrentlyReading(fakeEnv(CREDS), sourceCtx({ runtime: literalRuntime() }), 3);
+    const res = await getCurrentlyReading(
+      fakeEnv(CREDS),
+      sourceCtx({ runtime: literalRuntime() }),
+      3,
+    );
     if (!res.ok) throw new Error("expected ok");
     expect(res.data.map((b) => b.id)).toEqual(["a", "b", "c"]);
   });

@@ -10,8 +10,7 @@ export function ContactLinks({ items }: Props) {
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
       {items.map((item) => {
-        const external =
-          item.href.startsWith("http") || item.href.startsWith("mailto:");
+        const external = item.href.startsWith("http") || item.href.startsWith("mailto:");
 
         return (
           <a

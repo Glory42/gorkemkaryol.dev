@@ -1,5 +1,6 @@
 # [gorkemkaryol.dev](https://gorkemkaryol.dev)
 
+[![CI](https://github.com/Glory42/gorkemkaryol.dev/actions/workflows/ci.yml/badge.svg)](https://github.com/Glory42/gorkemkaryol.dev/actions/workflows/ci.yml)
 [![live](https://img.shields.io/badge/live-gorkemkaryol.dev-4C9AFF?style=flat-square)](https://gorkemkaryol.dev)
 [![TanStack Start](https://img.shields.io/badge/TanStack_Start-React_19-FF4154?style=flat-square&logo=react&logoColor=white)](https://tanstack.com/start)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare_Workers-F38020?style=flat-square&logo=cloudflare&logoColor=white)](https://workers.cloudflare.com)
@@ -14,11 +15,11 @@ This is the source for my personal site. It's where I keep my projects, a runnin
 ## Pages
 
 - **Home** - a pinned `whoami` panel (role, status, links and a `now.txt` with what I'm building, reading and watching), the repos I've tagged `showcase` on GitHub, work I've contributed to, a one-line-per-job experience log and my setup
-- **Projects** - two columns: *featured* is my own repos (anything I've tagged with the `featured` topic on GitHub), *contributed* is a few manual entries plus my GitHub contribution activity. Opening a project renders its live GitHub README server-side, or a hand-written write-up for private work like Gathin.
+- **Projects** - two columns: _featured_ is my own repos (anything I've tagged with the `featured` topic on GitHub), _contributed_ is a few manual entries plus my GitHub contribution activity. Opening a project renders its live GitHub README server-side, or a hand-written write-up for private work like Gathin.
 - **Experience** - my work and community history, each company linked to its site
 - **Interests** - what I'm reading and have finished (from [Literal](https://literal.club)), and the films and series I'm watching or have watched (from Interis, below)
 - **Playground** - Snake, Flappy Bird and Tetris in the browser; a NASA page (astronomy picture of the day + near-Earth asteroids); `whoami`, which shows what the Cloudflare edge sees about your connection; `sysinfo`; and `shell`, a small working prompt
-- **404** - an offline-style runner game (*Lost Packet*) to play while you find your way back
+- **404** - an offline-style runner game (_Lost Packet_) to play while you find your way back
 
 ## Stack
 

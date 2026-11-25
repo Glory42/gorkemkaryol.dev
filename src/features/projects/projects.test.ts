@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  getProjects,
-  getProjectReadme,
-} from "@/features/projects/projects";
+import { getProjects, getProjectReadme } from "@/features/projects/projects";
 import { manualProjects } from "@/features/projects/manual-projects";
 import { createInMemoryRuntime } from "@/server/common/runtime";
 import { sourceCtx } from "@/server/common/source";

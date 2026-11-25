@@ -1,25 +1,9 @@
-import {
-  Briefcase,
-  FolderGit2,
-  GamepadDirectional,
-  Heart,
-  User,
-} from "lucide-react";
+import { Briefcase, FolderGit2, GamepadDirectional, Heart, User } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-export type SectionSlug =
-  | "me"
-  | "projects"
-  | "experience"
-  | "interests"
-  | "playground";
+export type SectionSlug = "me" | "projects" | "experience" | "interests" | "playground";
 
-export type SectionHref =
-  | "/"
-  | "/projects"
-  | "/experience"
-  | "/interests"
-  | "/playground";
+export type SectionHref = "/" | "/projects" | "/experience" | "/interests" | "/playground";
 
 /** Fixed pages under a section, beyond its index. */
 export type SubPageHref = "/interests/reading" | "/interests/watching";
@@ -100,9 +84,7 @@ export const FALLBACK_SECTION: SectionSlug = "me";
 // The section owning `pathname` or its sub-routes; `/` and unknown paths are undefined.
 function matchSection(pathname: string): Section | undefined {
   return SECTION_LIST.find(
-    (s) =>
-      s.href !== "/" &&
-      (pathname === s.href || pathname.startsWith(`${s.href}/`)),
+    (s) => s.href !== "/" && (pathname === s.href || pathname.startsWith(`${s.href}/`)),
   );
 }
 

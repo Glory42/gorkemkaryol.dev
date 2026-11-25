@@ -1,9 +1,4 @@
-import {
-  fail,
-  ok,
-  requestJsonWithRetry,
-  type ServiceResult,
-} from "@/server/common/http";
+import { fail, ok, requestJsonWithRetry, type ServiceResult } from "@/server/common/http";
 import type { HttpPort } from "@/server/common/runtime";
 
 // GraphQL transport: maps errors[] in a 200 body to a ServiceError once.
@@ -38,9 +33,7 @@ function isRateLimitMessage(message: string): boolean {
   return message.toLowerCase().includes("rate limit");
 }
 
-export async function graphqlRequest<T>(
-  options: GraphqlRequestOptions,
-): Promise<ServiceResult<T>> {
+export async function graphqlRequest<T>(options: GraphqlRequestOptions): Promise<ServiceResult<T>> {
   const label = options.label ?? "GraphQL";
 
   const result = await requestJsonWithRetry<GraphQLEnvelope<T>>({

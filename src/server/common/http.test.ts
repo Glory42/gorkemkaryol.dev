@@ -29,11 +29,13 @@ function scriptedHttp(steps: Step[]): { http: HttpPort; calls: () => number } {
   };
 }
 
-const json = (body: unknown, status = 200): Step => () =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
+const json =
+  (body: unknown, status = 200): Step =>
+  () =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
 
 describe("requestJsonWithRetry — success shape", () => {
   it("returns status, headers and the parsed payload", async () => {
@@ -65,9 +67,7 @@ describe("requestJsonWithRetry — success shape", () => {
   });
 
   it("fails INVALID_JSON on an unparseable body without retrying", async () => {
-    const { http, calls } = scriptedHttp([
-      () => new Response("not json", { status: 200 }),
-    ]);
+    const { http, calls } = scriptedHttp([() => new Response("not json", { status: 200 })]);
     const res = await requestJsonWithRetry({ url: "https://x.dev", retries: 3, http });
     expect(res.ok).toBe(false);
     if (!res.ok) {
@@ -201,9 +201,7 @@ describe("publicResult", () => {
   });
 
   it("omits status when the internal error had none", () => {
-    const result = publicResult(
-      fail({ code: "TIMEOUT", message: "timed out", retryable: true }),
-    );
+    const result = publicResult(fail({ code: "TIMEOUT", message: "timed out", retryable: true }));
     expect(result.ok).toBe(false);
     if (!result.ok) expect("status" in result.error).toBe(false);
   });

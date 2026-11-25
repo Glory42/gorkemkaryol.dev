@@ -4,13 +4,19 @@ import { pageHead } from "@/components/layout/page";
 import { TerminalTabs } from "@/components/ui/TerminalTabs";
 
 const SnakeGame = lazy(() =>
-  import("@/features/playground/components/games/SnakeGame").then((m) => ({ default: m.SnakeGame })),
+  import("@/features/playground/components/games/SnakeGame").then((m) => ({
+    default: m.SnakeGame,
+  })),
 );
 const FlappyGame = lazy(() =>
-  import("@/features/playground/components/games/FlappyGame").then((m) => ({ default: m.FlappyGame })),
+  import("@/features/playground/components/games/FlappyGame").then((m) => ({
+    default: m.FlappyGame,
+  })),
 );
 const TetrisGame = lazy(() =>
-  import("@/features/playground/components/games/TetrisGame").then((m) => ({ default: m.TetrisGame })),
+  import("@/features/playground/components/games/TetrisGame").then((m) => ({
+    default: m.TetrisGame,
+  })),
 );
 
 const GAMES = [
@@ -32,12 +38,7 @@ function GamesPage() {
 
   return (
     <>
-      <TerminalTabs
-        options={GAMES}
-        value={active}
-        onChange={setActive}
-        className="mb-8"
-      />
+      <TerminalTabs options={GAMES} value={active} onChange={setActive} className="mb-8" />
 
       <div className="flex min-h-[480px] items-center justify-center">
         <Suspense fallback={<p className="mono text-[12px] text-fg-4">loading...</p>}>

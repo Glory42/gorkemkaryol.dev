@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  findManualProject,
-  manualProjects,
-} from "@/features/projects/manual-projects";
+import { findManualProject, manualProjects } from "@/features/projects/manual-projects";
 
 describe("findManualProject", () => {
   it("resolves a slug by exact match", () => {

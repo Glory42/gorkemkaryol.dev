@@ -3,10 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { pageHead } from "@/components/layout/page";
 import { DataPage } from "@/components/ui/DataPage";
 import { ContributionGrid } from "@/features/projects/components/ContributionGrid";
-import {
-  CONTRIBUTION_WEEKS,
-  DAYS_PER_WEEK,
-} from "@/features/projects/contribution-weeks";
+import { CONTRIBUTION_WEEKS, DAYS_PER_WEEK } from "@/features/projects/contribution-weeks";
 import { SkeletonBlock, SkeletonLine } from "@/components/ui/Skeleton";
 import { StatusPanel } from "@/components/ui/StatusPanel";
 import { ProjectsGrid } from "@/features/projects/components/ProjectsGrid";
@@ -14,9 +11,7 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { getProjects, type ProjectsView } from "@/features/projects/projects";
 import { runSource } from "@/server/common/page-data";
 
-const getProjectsServerFn = createServerFn({ method: "GET" }).handler(() =>
-  runSource(getProjects),
-);
+const getProjectsServerFn = createServerFn({ method: "GET" }).handler(() => runSource(getProjects));
 
 export const Route = createFileRoute("/projects/")({
   head: () =>
@@ -123,11 +118,7 @@ function ProjectsBody({
     <>
       {githubError ? (
         <div className="mb-8">
-          <StatusPanel
-            tone="error"
-            title="GitHub API Unavailable"
-            error={githubError}
-          />
+          <StatusPanel tone="error" title="GitHub API Unavailable" error={githubError} />
         </div>
       ) : (
         <section className="mb-8">

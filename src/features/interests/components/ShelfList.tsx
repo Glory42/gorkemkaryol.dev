@@ -30,9 +30,7 @@ function ShelfRow({ item, isFirst }: { item: DisplayItem; isFirst: boolean }) {
         <p className="text-[13px] font-medium leading-[1.3] text-[rgba(255,255,255,0.8)] transition-colors group-hover:text-accent">
           {item.title}
         </p>
-        {item.subtitle && (
-          <p className="mt-0.5 text-[11px] text-fg-3">{item.subtitle}</p>
-        )}
+        {item.subtitle && <p className="mt-0.5 text-[11px] text-fg-3">{item.subtitle}</p>}
         {item.progressPercent != null && (
           <div className="mt-1.5 h-[2px] w-full overflow-hidden rounded-full bg-[rgba(255,255,255,0.05)]">
             <div
@@ -67,13 +65,11 @@ export function ShelfList({ items, emptyTitle, emptyDescription }: Props) {
   }
 
   return (
-    <div className="flex flex-col stagger">
+    <div className="stagger flex flex-col">
       {items.map((item, i) => (
         <div key={item.id}>
           <ShelfRow item={item} isFirst={i === 0} />
-          {i < items.length - 1 && (
-            <div className="h-px bg-[rgba(255,255,255,0.04)]" />
-          )}
+          {i < items.length - 1 && <div className="h-px bg-[rgba(255,255,255,0.04)]" />}
         </div>
       ))}
     </div>

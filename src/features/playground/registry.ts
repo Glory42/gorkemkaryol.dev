@@ -1,11 +1,4 @@
-import {
-  Fingerprint,
-  Gamepad2,
-  Keyboard,
-  Music2,
-  Rocket,
-  SquareTerminal,
-} from "lucide-react";
+import { Fingerprint, Gamepad2, Keyboard, Music2, Rocket, SquareTerminal } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 // One entry per /playground toy, read by the hub grid and the site map.
@@ -37,8 +30,7 @@ export const playgroundEntries: PlaygroundEntry[] = [
     slug: "space",
     href: "/playground/space",
     title: "space",
-    blurb:
-      "NASA's picture of the day and the asteroids passing close to Earth today.",
+    blurb: "NASA's picture of the day and the asteroids passing close to Earth today.",
     icon: Rocket,
     status: "live",
   },

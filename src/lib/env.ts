@@ -17,9 +17,7 @@ export interface ValidationError {
   fields: RuntimeEnvKey[];
 }
 
-export type ValidationResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: ValidationError };
+export type ValidationResult<T> = { ok: true; data: T } | { ok: false; error: ValidationError };
 
 function asString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
@@ -27,9 +25,7 @@ function asString(value: unknown): string {
 
 export function readRuntimeEnv(source: unknown): RuntimeEnv {
   const env =
-    source && typeof source === "object"
-      ? (source as RuntimeEnvSource)
-      : ({} as RuntimeEnvSource);
+    source && typeof source === "object" ? (source as RuntimeEnvSource) : ({} as RuntimeEnvSource);
 
   return {
     GITHUB_TOKEN: asString(env.GITHUB_TOKEN),

@@ -1,7 +1,13 @@
 import { ArrowUpRight } from "lucide-react";
 import type { ExperienceItem } from "@/features/experience/timeline";
 
-export function CompanyLink({ item, className = "" }: { item: ExperienceItem; className?: string }) {
+export function CompanyLink({
+  item,
+  className = "",
+}: {
+  item: ExperienceItem;
+  className?: string;
+}) {
   if (!item.url) return <span className={className}>{item.company}</span>;
   return (
     <a

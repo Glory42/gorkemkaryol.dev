@@ -1,10 +1,6 @@
 import type { RuntimeEnv } from "@/lib/env";
 import { allOk, fail, ok, type ServiceResult } from "@/server/common/http";
-import {
-  defineSource,
-  type GqlOptions,
-  type SourceCtx,
-} from "@/server/common/source";
+import { defineSource, type GqlOptions, type SourceCtx } from "@/server/common/source";
 
 export interface LiteralBook {
   id: string;
@@ -107,7 +103,7 @@ interface LiteralSession {
 export async function withLiteralSession<T>(
   env: RuntimeEnv,
   ctx: SourceCtx,
-  use: (session: LiteralSession) => Promise<ServiceResult<T>>,
+  run: (session: LiteralSession) => Promise<ServiceResult<T>>,
 ): Promise<ServiceResult<T>> {
   const client = literalClient(env, ctx);
   const login = await client.gql<LoginMutationData>(LOGIN_MUTATION, {
@@ -128,7 +124,7 @@ export async function withLiteralSession<T>(
   }
 
   const auth = { Authorization: `Bearer ${token}` };
-  return use({
+  return run({
     profileId,
     gql: (query, options = {}) =>
       client.gql(query, { ...options, headers: { ...options.headers, ...auth } }),
@@ -175,9 +171,7 @@ export async function getAllBooksData(
   env: RuntimeEnv,
   ctx: SourceCtx,
   finishedLimit = 1000,
-): Promise<
-  ServiceResult<{ currentlyReading: LiteralBook[]; finishedBooks: LiteralBook[] }>
-> {
+): Promise<ServiceResult<{ currentlyReading: LiteralBook[]; finishedBooks: LiteralBook[] }>> {
   return withLiteralSession(env, ctx, async ({ gql, profileId }) => {
     const result = await allOk({
       reading: gql<ReadingQueryData>(CURRENTLY_READING_QUERY, {

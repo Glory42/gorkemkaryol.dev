@@ -3,8 +3,7 @@ import { renderMarkdownToHTML } from "@/server/markdown/markdown";
 
 describe("renderMarkdownToHTML", () => {
   it("renders a badge row as anchors wrapping images", () => {
-    const md =
-      "[![live](https://img.shields.io/badge/live-x.dev-blue)](https://x.dev)";
+    const md = "[![live](https://img.shields.io/badge/live-x.dev-blue)](https://x.dev)";
     const { html, hadError } = renderMarkdownToHTML(md);
     expect(hadError).toBe(false);
     expect(html).toContain('<a href="https://x.dev"');
@@ -26,9 +25,7 @@ describe("renderMarkdownToHTML", () => {
       branch: "main",
       repoUrl: "https://github.com/gk/proj",
     });
-    expect(html).toContain(
-      'src="https://raw.githubusercontent.com/gk/proj/main/docs/x.png"',
-    );
+    expect(html).toContain('src="https://raw.githubusercontent.com/gk/proj/main/docs/x.png"');
   });
 
   it("leaves a relative link untouched with no repo context", () => {
@@ -54,9 +51,12 @@ describe("renderMarkdownToHTML", () => {
   });
 
   it("keeps a raw-HTML screenshot table", () => {
-    const md = '<table>\n  <tr>\n    <td align="center"><img src="shots/a.webp"></td>\n  </tr>\n</table>';
+    const md =
+      '<table>\n  <tr>\n    <td align="center"><img src="shots/a.webp"></td>\n  </tr>\n</table>';
     const { html } = renderMarkdownToHTML(md, repoCtx);
-    expect(html).toContain('<td align="center"><img src="https://raw.githubusercontent.com/gk/proj/main/shots/a.webp"');
+    expect(html).toContain(
+      '<td align="center"><img src="https://raw.githubusercontent.com/gk/proj/main/shots/a.webp"',
+    );
     expect(html).toContain("</table>");
   });
 
@@ -79,7 +79,9 @@ describe("renderMarkdownToHTML", () => {
   it("renders a GitHub alert as a titled callout", () => {
     const { html } = renderMarkdownToHTML("> [!NOTE]\n> **Early** days.");
     expect(html).toContain('<div class="readme-alert readme-alert-note">');
-    expect(html).toContain('<p class="readme-alert-title">Note</p><p><strong>Early</strong> days.</p>');
+    expect(html).toContain(
+      '<p class="readme-alert-title">Note</p><p><strong>Early</strong> days.</p>',
+    );
     expect(html).not.toContain("[!NOTE]");
   });
 
@@ -88,7 +90,9 @@ describe("renderMarkdownToHTML", () => {
     const { html } = renderMarkdownToHTML("![A](/a.webp) ![B](/b.webp)", {
       imageSize: (src) => sizes[src as keyof typeof sizes],
     });
-    expect(html).toContain('<img src="/a.webp" alt="A" width="1600" height="1000" loading="lazy" />');
+    expect(html).toContain(
+      '<img src="/a.webp" alt="A" width="1600" height="1000" loading="lazy" />',
+    );
     expect(html).toContain('<img src="/b.webp" alt="B" loading="lazy" />');
   });
 });

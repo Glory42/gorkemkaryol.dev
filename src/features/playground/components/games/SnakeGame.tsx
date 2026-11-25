@@ -1,10 +1,6 @@
 import { useRef, useState } from "react";
 import { TerminalButton } from "@/components/ui/TerminalTabs";
-import {
-  GameOverlay,
-  GameShell,
-  ScoreLine,
-} from "@/features/playground/components/GameShell";
+import { GameOverlay, GameShell, ScoreLine } from "@/features/playground/components/GameShell";
 import {
   COLS,
   newSnake,
@@ -17,12 +13,19 @@ import {
 import { useCanvasGame } from "@/features/playground/useCanvasGame";
 
 const CELL = 15;
-const W = COLS * CELL, H = ROWS * CELL;
+const W = COLS * CELL,
+  H = ROWS * CELL;
 const TICK_MS = 110;
 
 const KEY_DIRS: Record<string, Dir> = {
-  ArrowUp: "U", ArrowDown: "D", ArrowLeft: "L", ArrowRight: "R",
-  w: "U", s: "D", a: "L", d: "R",
+  ArrowUp: "U",
+  ArrowDown: "D",
+  ArrowLeft: "L",
+  ArrowRight: "R",
+  w: "U",
+  s: "D",
+  a: "L",
+  d: "R",
 };
 
 export function SnakeGame() {
@@ -66,7 +69,10 @@ export function SnakeGame() {
 
   function onKey(e: React.KeyboardEvent) {
     const d = KEY_DIRS[e.key];
-    if (d) { e.preventDefault(); game.current = turn(game.current, d); }
+    if (d) {
+      e.preventDefault();
+      game.current = turn(game.current, d);
+    }
   }
 
   function onTouchStart(e: React.TouchEvent) {
@@ -82,17 +88,12 @@ export function SnakeGame() {
     const dx = e.changedTouches[0].clientX - t.x;
     const dy = e.changedTouches[0].clientY - t.y;
     if (Math.max(Math.abs(dx), Math.abs(dy)) < 12) return;
-    const d: Dir = Math.abs(dx) > Math.abs(dy)
-      ? (dx > 0 ? "R" : "L")
-      : (dy > 0 ? "D" : "U");
+    const d: Dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "R" : "L") : dy > 0 ? "D" : "U";
     game.current = turn(game.current, d);
   }
 
   const ModeBtn = ({ m, label }: { m: Mode; label: string }) => (
-    <TerminalButton
-      onClick={() => play(m)}
-      selected={mode === m && phase !== "idle"}
-    >
+    <TerminalButton onClick={() => play(m)} selected={mode === m && phase !== "idle"}>
       {label}
     </TerminalButton>
   );
@@ -102,12 +103,7 @@ export function SnakeGame() {
       <GameShell
         phase={phase}
         overlay={
-          <GameOverlay
-            phase={phase}
-            title="SNAKE"
-            score={hud.score}
-            hint="arrow keys or wasd"
-          >
+          <GameOverlay phase={phase} title="SNAKE" score={hud.score} hint="arrow keys or wasd">
             <div className="flex flex-col items-center gap-3">
               <p className="mono text-[11px] text-fg-3">
                 {phase === "over" ? "play again:" : "choose border mode:"}
@@ -121,8 +117,13 @@ export function SnakeGame() {
         }
       >
         <canvas
-          ref={canvasRef} width={W} height={H} tabIndex={0}
-          onKeyDown={onKey} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
+          ref={canvasRef}
+          width={W}
+          height={H}
+          tabIndex={0}
+          onKeyDown={onKey}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
           className="block cursor-pointer border border-[rgba(255,255,255,0.06)] outline-none focus:border-accent/[0.25]"
           style={{ touchAction: "none" }}
         />

@@ -1,10 +1,7 @@
 import { useRef } from "react";
 import { accentMix } from "@/lib/accent";
 import { sectionAccentRgb } from "@/lib/sections";
-import {
-  GameOverlay,
-  GameShell,
-} from "@/features/playground/components/GameShell";
+import { GameOverlay, GameShell } from "@/features/playground/components/GameShell";
 import {
   BOARD_H as BH,
   BOARD_W as BW,
@@ -21,22 +18,60 @@ import {
 import { useCanvasGame } from "@/features/playground/useCanvasGame";
 
 const CELL = 22;
-const W = BW * CELL, H = BH * CELL;
-const NCELL = 18, NW = 4 * NCELL, NH = 4 * NCELL;
+const W = BW * CELL,
+  H = BH * CELL;
+const NCELL = 18,
+  NW = 4 * NCELL,
+  NH = 4 * NCELL;
 
 // Each piece tints the section accent toward white or black so all seven stay distinct.
 const PIECE_DEFS: { shape: Shape; tint: number }[] = [
   { shape: [[1, 1, 1, 1]], tint: 0.35 },
-  { shape: [[1, 1], [1, 1]], tint: 0 },
-  { shape: [[0, 1, 0], [1, 1, 1]], tint: -0.15 },
-  { shape: [[0, 1, 1], [1, 1, 0]], tint: -0.28 },
-  { shape: [[1, 1, 0], [0, 1, 1]], tint: -0.4 },
-  { shape: [[1, 0, 0], [1, 1, 1]], tint: -0.08 },
-  { shape: [[0, 0, 1], [1, 1, 1]], tint: 0.6 },
+  {
+    shape: [
+      [1, 1],
+      [1, 1],
+    ],
+    tint: 0,
+  },
+  {
+    shape: [
+      [0, 1, 0],
+      [1, 1, 1],
+    ],
+    tint: -0.15,
+  },
+  {
+    shape: [
+      [0, 1, 1],
+      [1, 1, 0],
+    ],
+    tint: -0.28,
+  },
+  {
+    shape: [
+      [1, 1, 0],
+      [0, 1, 1],
+    ],
+    tint: -0.4,
+  },
+  {
+    shape: [
+      [1, 0, 0],
+      [1, 1, 1],
+    ],
+    tint: -0.08,
+  },
+  {
+    shape: [
+      [0, 0, 1],
+      [1, 1, 1],
+    ],
+    tint: 0.6,
+  },
 ];
 
-const paletteFor = (accentRgb: string) =>
-  PIECE_DEFS.map((d) => accentMix(accentRgb, d.tint));
+const paletteFor = (accentRgb: string) => PIECE_DEFS.map((d) => accentMix(accentRgb, d.tint));
 
 type NextPiece = Pick<Piece, "shape" | "color">;
 
@@ -53,7 +88,9 @@ export function TetrisGame() {
     board: mkBoard(),
     cur: null as Piece | null,
     next: randPiece(palette.current),
-    score: 0, lines: 0, lastTick: 0,
+    score: 0,
+    lines: 0,
+    lastTick: 0,
   });
 
   const { canvasRef, accentRef, phase, hud, playing, start, die, refresh } = useCanvasGame({
@@ -78,13 +115,15 @@ export function TetrisGame() {
     const p = game.current.next;
     const ox = Math.floor((4 - p.shape[0].length) / 2);
     const oy = Math.floor((4 - p.shape.length) / 2);
-    p.shape.forEach((row, y) => row.forEach((v, x) => {
-      if (!v) return;
-      ctx.fillStyle = p.color;
-      ctx.fillRect((ox + x) * NCELL + 1, (oy + y) * NCELL + 1, NCELL - 2, NCELL - 2);
-      ctx.fillStyle = "rgba(255,255,255,0.12)";
-      ctx.fillRect((ox + x) * NCELL + 1, (oy + y) * NCELL + 1, NCELL - 2, 3);
-    }));
+    p.shape.forEach((row, y) =>
+      row.forEach((v, x) => {
+        if (!v) return;
+        ctx.fillStyle = p.color;
+        ctx.fillRect((ox + x) * NCELL + 1, (oy + y) * NCELL + 1, NCELL - 2, NCELL - 2);
+        ctx.fillStyle = "rgba(255,255,255,0.12)";
+        ctx.fillRect((ox + x) * NCELL + 1, (oy + y) * NCELL + 1, NCELL - 2, 3);
+      }),
+    );
   }
 
   function draw() {
@@ -95,29 +134,43 @@ export function TetrisGame() {
     ctx.fillRect(0, 0, W, H);
     ctx.strokeStyle = "rgba(255,255,255,0.025)";
     ctx.lineWidth = 1;
-    for (let x = 0; x <= BW; x++) { ctx.beginPath(); ctx.moveTo(x * CELL, 0); ctx.lineTo(x * CELL, H); ctx.stroke(); }
-    for (let y = 0; y <= BH; y++) { ctx.beginPath(); ctx.moveTo(0, y * CELL); ctx.lineTo(W, y * CELL); ctx.stroke(); }
-    board.forEach((row, y) => row.forEach((c, x) => {
-      if (!c) return;
-      ctx.fillStyle = c;
-      ctx.fillRect(x * CELL + 1, y * CELL + 1, CELL - 2, CELL - 2);
-      ctx.fillStyle = "rgba(255,255,255,0.12)";
-      ctx.fillRect(x * CELL + 1, y * CELL + 1, CELL - 2, 3);
-    }));
+    for (let x = 0; x <= BW; x++) {
+      ctx.beginPath();
+      ctx.moveTo(x * CELL, 0);
+      ctx.lineTo(x * CELL, H);
+      ctx.stroke();
+    }
+    for (let y = 0; y <= BH; y++) {
+      ctx.beginPath();
+      ctx.moveTo(0, y * CELL);
+      ctx.lineTo(W, y * CELL);
+      ctx.stroke();
+    }
+    board.forEach((row, y) =>
+      row.forEach((c, x) => {
+        if (!c) return;
+        ctx.fillStyle = c;
+        ctx.fillRect(x * CELL + 1, y * CELL + 1, CELL - 2, CELL - 2);
+        ctx.fillStyle = "rgba(255,255,255,0.12)";
+        ctx.fillRect(x * CELL + 1, y * CELL + 1, CELL - 2, 3);
+      }),
+    );
     if (cur) {
       let ghostY = cur.y;
       while (fits(board, cur.shape, cur.x, ghostY + 1)) ghostY++;
-      cur.shape.forEach((row, dy) => row.forEach((v, dx) => {
-        if (!v) return;
-        if (ghostY !== cur.y) {
-          ctx.fillStyle = `rgb(${accentRef.current} / 0.12)`;
-          ctx.fillRect((cur.x + dx) * CELL + 1, (ghostY + dy) * CELL + 1, CELL - 2, CELL - 2);
-        }
-        ctx.fillStyle = cur.color;
-        ctx.fillRect((cur.x + dx) * CELL + 1, (cur.y + dy) * CELL + 1, CELL - 2, CELL - 2);
-        ctx.fillStyle = "rgba(255,255,255,0.15)";
-        ctx.fillRect((cur.x + dx) * CELL + 1, (cur.y + dy) * CELL + 1, CELL - 2, 3);
-      }));
+      cur.shape.forEach((row, dy) =>
+        row.forEach((v, dx) => {
+          if (!v) return;
+          if (ghostY !== cur.y) {
+            ctx.fillStyle = `rgb(${accentRef.current} / 0.12)`;
+            ctx.fillRect((cur.x + dx) * CELL + 1, (ghostY + dy) * CELL + 1, CELL - 2, CELL - 2);
+          }
+          ctx.fillStyle = cur.color;
+          ctx.fillRect((cur.x + dx) * CELL + 1, (cur.y + dy) * CELL + 1, CELL - 2, CELL - 2);
+          ctx.fillStyle = "rgba(255,255,255,0.15)";
+          ctx.fillRect((cur.x + dx) * CELL + 1, (cur.y + dy) * CELL + 1, CELL - 2, 3);
+        }),
+      );
     }
     drawNext();
   }
@@ -153,8 +206,12 @@ export function TetrisGame() {
   function play() {
     start(() => {
       const s = game.current;
-      s.board = mkBoard(); s.cur = null; s.next = randPiece(palette.current);
-      s.score = 0; s.lines = 0; s.lastTick = 0;
+      s.board = mkBoard();
+      s.cur = null;
+      s.next = randPiece(palette.current);
+      s.score = 0;
+      s.lines = 0;
+      s.lastTick = 0;
       spawnPiece();
     });
   }
@@ -167,21 +224,36 @@ export function TetrisGame() {
     else refresh();
   }
 
-  const moveLeft = () => act((s, p) => { if (fits(s.board, p.shape, p.x - 1, p.y)) p.x--; });
-  const moveRight = () => act((s, p) => { if (fits(s.board, p.shape, p.x + 1, p.y)) p.x++; });
-  const rotatePiece = () => act((s, p) => { s.cur = kickRotate(s.board, p) ?? p; });
-  const softDrop = () => act((s, p) => {
-    if (fits(s.board, p.shape, p.x, p.y + 1)) p.y++;
-    else return lock();
-  });
-  const hardDrop = () => act((s, p) => {
-    while (fits(s.board, p.shape, p.x, p.y + 1)) p.y++;
-    return lock();
-  });
+  const moveLeft = () =>
+    act((s, p) => {
+      if (fits(s.board, p.shape, p.x - 1, p.y)) p.x--;
+    });
+  const moveRight = () =>
+    act((s, p) => {
+      if (fits(s.board, p.shape, p.x + 1, p.y)) p.x++;
+    });
+  const rotatePiece = () =>
+    act((s, p) => {
+      s.cur = kickRotate(s.board, p) ?? p;
+    });
+  const softDrop = () =>
+    act((s, p) => {
+      if (fits(s.board, p.shape, p.x, p.y + 1)) p.y++;
+      else return lock();
+    });
+  const hardDrop = () =>
+    act((s, p) => {
+      while (fits(s.board, p.shape, p.x, p.y + 1)) p.y++;
+      return lock();
+    });
 
   function onKey(e: React.KeyboardEvent) {
-    if (!playing()) { if (e.key === " " || e.key === "Enter") play(); return; }
-    if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", " "].includes(e.key)) e.preventDefault();
+    if (!playing()) {
+      if (e.key === " " || e.key === "Enter") play();
+      return;
+    }
+    if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", " "].includes(e.key))
+      e.preventDefault();
     if (e.key === "ArrowLeft") moveLeft();
     else if (e.key === "ArrowRight") moveRight();
     else if (e.key === "ArrowDown") softDrop();
@@ -191,7 +263,10 @@ export function TetrisGame() {
 
   function tb(action: () => void) {
     return {
-      onTouchStart: (e: React.TouchEvent) => { e.preventDefault(); action(); },
+      onTouchStart: (e: React.TouchEvent) => {
+        e.preventDefault();
+        action();
+      },
       onMouseDown: action,
     };
   }
@@ -206,7 +281,13 @@ export function TetrisGame() {
               phase={phase}
               title="TETRIS"
               score={hud.score}
-              hint={<>← → move · ↑ rotate · ↓ drop<br />space hard drop</>}
+              hint={
+                <>
+                  ← → move · ↑ rotate · ↓ drop
+                  <br />
+                  space hard drop
+                </>
+              }
               onStart={play}
             >
               {phase === "over" && (
@@ -218,14 +299,25 @@ export function TetrisGame() {
           }
         >
           <canvas
-            ref={canvasRef} width={W} height={H} tabIndex={0} onKeyDown={onKey}
+            ref={canvasRef}
+            width={W}
+            height={H}
+            tabIndex={0}
+            onKeyDown={onKey}
             className="block cursor-pointer outline-none"
           />
         </GameShell>
 
         {phase === "playing" && (
           <div className="mt-2 grid grid-cols-4 gap-1.5">
-            {([ ["←", moveLeft], ["↺", rotatePiece], ["→", moveRight], ["↓↓", hardDrop] ] as [string, () => void][]).map(([label, action]) => (
+            {(
+              [
+                ["←", moveLeft],
+                ["↺", rotatePiece],
+                ["→", moveRight],
+                ["↓↓", hardDrop],
+              ] as [string, () => void][]
+            ).map(([label, action]) => (
               <button
                 key={label}
                 {...tb(action)}
@@ -238,23 +330,33 @@ export function TetrisGame() {
         )}
       </div>
 
-      {phase === "playing" && <div className="flex flex-col gap-5 pt-1">
-        <div>
-          <p className="mono mb-2 text-[11px] tracking-[0.18em] text-accent/[0.6]">NEXT</p>
-          <canvas
-            ref={nextRef} width={NW} height={NH}
-            className="border border-[rgba(255,255,255,0.05)]"
-          />
+      {phase === "playing" && (
+        <div className="flex flex-col gap-5 pt-1">
+          <div>
+            <p className="mono mb-2 text-[11px] tracking-[0.18em] text-accent/[0.6]">NEXT</p>
+            <canvas
+              ref={nextRef}
+              width={NW}
+              height={NH}
+              className="border border-[rgba(255,255,255,0.05)]"
+            />
+          </div>
+          <div className="flex flex-col gap-3">
+            {(
+              [
+                ["SCORE", hud.score],
+                ["LEVEL", hud.level],
+                ["LINES", hud.lines],
+              ] as [string, number][]
+            ).map(([label, val]) => (
+              <div key={label}>
+                <p className="mono text-[7px] tracking-[0.18em] text-fg-4">{label}</p>
+                <p className="mono text-[13px] text-accent/[0.65]">{val}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-col gap-3">
-          {([["SCORE", hud.score], ["LEVEL", hud.level], ["LINES", hud.lines]] as [string, number][]).map(([label, val]) => (
-            <div key={label}>
-              <p className="mono text-[7px] tracking-[0.18em] text-fg-4">{label}</p>
-              <p className="mono text-[13px] text-accent/[0.65]">{val}</p>
-            </div>
-          ))}
-        </div>
-      </div>}
+      )}
     </div>
   );
 }

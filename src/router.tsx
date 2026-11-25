@@ -7,9 +7,7 @@ export function getRouter() {
   return createRouter({
     routeTree,
     defaultPreload: "intent",
-    defaultErrorComponent: ({ error }) => (
-      <StatusPage message={error.message || undefined} />
-    ),
+    defaultErrorComponent: ({ error }) => <StatusPage message={error.message || undefined} />,
     defaultNotFoundComponent: () => <NotFoundPage />,
     scrollRestoration: true,
   });

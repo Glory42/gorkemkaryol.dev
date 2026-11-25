@@ -9,7 +9,7 @@ const contributions = manualProjects.flatMap(({ name, contribution }) =>
 export function ContributedList() {
   return (
     <HomeSection cmd="ls ~/projects --contributed">
-      <div className="flex flex-col gap-5 stagger">
+      <div className="stagger flex flex-col gap-5">
         {contributions.map((item) => (
           <p key={item.name} className="text-[14px] leading-[1.7] text-fg-2">
             <Link

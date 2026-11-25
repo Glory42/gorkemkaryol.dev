@@ -48,23 +48,19 @@ export function ContributionGrid({ calendar }: Props) {
   const fills = useMemo(() => levelFill(accentRgb), [accentRgb]);
 
   // Keyed on `calendar` alone so hover re-renders don't regroup 364 days.
-  const weeks = useMemo(
-    () => (calendar ? buildContributionWeeks(calendar.days) : []),
-    [calendar],
-  );
+  const weeks = useMemo(() => (calendar ? buildContributionWeeks(calendar.days) : []), [calendar]);
 
   if (!calendar) {
     return (
-      <StatusPanel tone="empty"
+      <StatusPanel
+        tone="empty"
         title="No contribution activity"
         description="No contribution data was returned by GitHub for the selected period."
       />
     );
   }
 
-  const totalContributions = new Intl.NumberFormat("en-US").format(
-    calendar.totalContributions,
-  );
+  const totalContributions = new Intl.NumberFormat("en-US").format(calendar.totalContributions);
 
   const CELL = containerWidth
     ? (containerWidth - (weeks.length - 1) * GAP) / weeks.length
@@ -92,7 +88,12 @@ export function ContributionGrid({ calendar }: Props) {
     <section>
       <SectionHeader
         label="./projects/contributions"
-        meta={<> — <span className="text-accent/[0.65]">{totalContributions}</span></>}
+        meta={
+          <>
+            {" "}
+            — <span className="text-accent/[0.65]">{totalContributions}</span>
+          </>
+        }
       />
 
       <div ref={wrapRef} className="relative w-full" onPointerLeave={() => setHover(null)}>

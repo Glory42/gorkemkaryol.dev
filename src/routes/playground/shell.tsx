@@ -85,10 +85,7 @@ function ShellPage() {
   }
 
   return (
-    <div
-      className="mono min-h-[50vh] text-[12px] leading-[2] text-fg-2"
-      onClick={focusInput}
-    >
+    <div className="mono min-h-[50vh] text-[12px] leading-[2] text-fg-2" onClick={focusInput}>
       {entries.map((entry, i) => (
         <div key={i}>
           {entry.cmd && <p className="text-accent/[0.7]">~$ {entry.cmd}</p>}

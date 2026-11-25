@@ -27,9 +27,7 @@ function PosterCard({ item }: { item: DisplayItem }) {
       <p className="mt-2 text-[12px] font-medium leading-[1.3] text-[rgba(255,255,255,0.8)] transition-colors group-hover:text-accent">
         {item.title}
       </p>
-      {item.subtitle && (
-        <p className="mt-0.5 text-[11px] text-fg-3">{item.subtitle}</p>
-      )}
+      {item.subtitle && <p className="mt-0.5 text-[11px] text-fg-3">{item.subtitle}</p>}
       {item.progressPercent != null && (
         <div className="mt-1.5 h-[2px] w-full overflow-hidden rounded-full bg-[rgba(255,255,255,0.05)]">
           <div
@@ -48,7 +46,7 @@ export function PosterGrid({ items, emptyTitle, emptyDescription }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-x-4 gap-y-6 stagger sm:grid-cols-4 md:grid-cols-5">
+    <div className="stagger grid grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-4 md:grid-cols-5">
       {items.map((item) =>
         item.href ? (
           <a

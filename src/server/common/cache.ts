@@ -83,9 +83,7 @@ export async function readStaleCache<T>(
 
 // Refresh a stale value and store it. Returns the cached value when it is still
 // fresh, so a late revalidation request is a no-op.
-export async function revalidateStaleCache<T>(
-  options: RevalidateOptions<T>,
-): Promise<T> {
+export async function revalidateStaleCache<T>(options: RevalidateOptions<T>): Promise<T> {
   const cache = options.cache ?? workersRuntime().cache;
   const now = options.now ?? Date.now;
   const hit = await cache.get<StaleEntry<T>>(options.key);

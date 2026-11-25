@@ -1,9 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import {
-  readStaleCache,
-  revalidateStaleCache,
-  withCache,
-} from "@/server/common/cache";
+import { readStaleCache, revalidateStaleCache, withCache } from "@/server/common/cache";
 import type { CachePort } from "@/server/common/runtime";
 
 function spyCache(): CachePort & {

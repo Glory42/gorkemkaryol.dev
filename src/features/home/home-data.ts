@@ -1,11 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getCurrently, type Currently } from "@/features/interests/currently";
 import { getShowcaseProjects, type ProjectCard } from "@/features/projects/projects";
-import {
-  readStaleCache,
-  revalidateStaleCache,
-  type StaleCacheValue,
-} from "@/server/common/cache";
+import { readStaleCache, revalidateStaleCache, type StaleCacheValue } from "@/server/common/cache";
 import { ok, type ServiceResult } from "@/server/common/http";
 import { runSource } from "@/server/common/page-data";
 import { workersRuntime } from "@/server/common/runtime";
@@ -18,9 +14,7 @@ import { workersRuntime } from "@/server/common/runtime";
 const CURRENTLY_TTL = 300;
 const SHOWCASE_TTL = 600;
 
-export type ShowcaseResult =
-  | { ok: true; projects: ProjectCard[] }
-  | { ok: false };
+export type ShowcaseResult = { ok: true; projects: ProjectCard[] } | { ok: false };
 
 const EMPTY_CURRENTLY: Currently = { reading: null, watching: null };
 const EMPTY_SHOWCASE: ShowcaseResult = { ok: true, projects: [] };
@@ -52,8 +46,7 @@ export const getCurrentlyServerFn = createServerFn({ method: "GET" }).handler(
 
 // Only the showcase list crosses to the client, not the whole /projects view.
 export const getShowcaseServerFn = createServerFn({ method: "GET" }).handler(
-  (): Promise<Snapshot<ShowcaseResult>> =>
-    readStaleCache<ShowcaseResult>(showcaseOptions()),
+  (): Promise<Snapshot<ShowcaseResult>> => readStaleCache<ShowcaseResult>(showcaseOptions()),
 );
 
 async function fetchShowcase(): Promise<ShowcaseResult> {

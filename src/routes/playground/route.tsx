@@ -14,15 +14,8 @@ function PlaygroundLayout() {
   return (
     <PageShell>
       <section className="mx-auto max-w-[900px]">
-        <TerminalPrompt
-          cmd={sub ? `cd ./playground/${sub}` : "ls ./playground"}
-          className="mb-3"
-        />
-        {sub ? (
-          <BackLink to="/playground">back to playground</BackLink>
-        ) : (
-          <div className="mb-5" />
-        )}
+        <TerminalPrompt cmd={sub ? `cd ./playground/${sub}` : "ls ./playground"} className="mb-3" />
+        {sub ? <BackLink to="/playground">back to playground</BackLink> : <div className="mb-5" />}
         <Outlet />
       </section>
     </PageShell>

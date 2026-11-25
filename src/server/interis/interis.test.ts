@@ -77,9 +77,7 @@ describe("getInterisData", () => {
       {
         url: "/api/public/gk/top4",
         body: {
-          categories: [
-            { key: "movie", supported: true, items: [top4Item()] },
-          ],
+          categories: [{ key: "movie", supported: true, items: [top4Item()] }],
         },
       },
       { url: "/api/public/gk/profile", body: PROFILE },

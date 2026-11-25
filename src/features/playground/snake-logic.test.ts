@@ -20,7 +20,11 @@ describe("stepSnake", () => {
   it("moves the head one cell and drops the tail", () => {
     const next = stepSnake(snakeAt());
     if (next === "over") throw new Error("expected a move");
-    expect(next.snake).toEqual([{ x: 13, y: 12 }, { x: 12, y: 12 }, { x: 11, y: 12 }]);
+    expect(next.snake).toEqual([
+      { x: 13, y: 12 },
+      { x: 12, y: 12 },
+      { x: 11, y: 12 },
+    ]);
   });
 
   it("grows, scores and re-rolls food on a bite", () => {
@@ -32,7 +36,10 @@ describe("stepSnake", () => {
   });
 
   it("dies on a wall in walls mode and wraps in wrap mode", () => {
-    const edge = [{ x: COLS - 1, y: 5 }, { x: COLS - 2, y: 5 }];
+    const edge = [
+      { x: COLS - 1, y: 5 },
+      { x: COLS - 2, y: 5 },
+    ];
     expect(stepSnake(snakeAt({ snake: edge }))).toBe("over");
 
     const wrapped = stepSnake(snakeAt({ snake: edge, mode: "wrap" }));
@@ -42,7 +49,11 @@ describe("stepSnake", () => {
 
   it("dies running into its own body", () => {
     const coiled = [
-      { x: 5, y: 5 }, { x: 5, y: 6 }, { x: 6, y: 6 }, { x: 6, y: 5 }, { x: 6, y: 4 },
+      { x: 5, y: 5 },
+      { x: 5, y: 6 },
+      { x: 6, y: 6 },
+      { x: 6, y: 5 },
+      { x: 6, y: 4 },
     ];
     expect(stepSnake(snakeAt({ snake: coiled, dir: "U", next: "R" }))).toBe("over");
   });

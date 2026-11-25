@@ -74,9 +74,7 @@ export interface InMemoryRuntimeOptions {
   now?: () => number;
 }
 
-export function createInMemoryRuntime(
-  options: InMemoryRuntimeOptions = {},
-): RuntimePort {
+export function createInMemoryRuntime(options: InMemoryRuntimeOptions = {}): RuntimePort {
   const responses = options.responses ?? [];
   const calls = options.calls ?? [];
   const now = options.now ?? (() => Date.now());
@@ -93,10 +91,7 @@ export function createInMemoryRuntime(
         if (!match) {
           return new Response(`no canned response for ${url}`, { status: 599 });
         }
-        const body =
-          typeof match.body === "string"
-            ? match.body
-            : JSON.stringify(match.body);
+        const body = typeof match.body === "string" ? match.body : JSON.stringify(match.body);
         return new Response(body, {
           status: match.status ?? 200,
           headers: {

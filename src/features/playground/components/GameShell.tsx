@@ -50,13 +50,9 @@ export function GameOverlay({
       )}
       {children}
       {onStart && (
-        <TerminalButton onClick={onStart}>
-          {phase === "over" ? "RESTART" : "START"}
-        </TerminalButton>
+        <TerminalButton onClick={onStart}>{phase === "over" ? "RESTART" : "START"}</TerminalButton>
       )}
-      <p className="mono text-center text-[11px] leading-[1.8] text-fg-4">
-        {hint}
-      </p>
+      <p className="mono text-center text-[11px] leading-[1.8] text-fg-4">{hint}</p>
     </>
   );
 }

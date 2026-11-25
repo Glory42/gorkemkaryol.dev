@@ -8,7 +8,7 @@ interface Props {
 
 export function ProjectsGrid({ repos }: Props) {
   return (
-    <div className="flex flex-col stagger">
+    <div className="stagger flex flex-col">
       {repos.map((repo) => {
         const tags = repo.tags.slice(0, 3);
         const lang = repo.language;
@@ -40,7 +40,9 @@ export function ProjectsGrid({ repos }: Props) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="focus-ring tap-target text-fg-4 transition-colors hover:text-accent"
-                    aria-label={repo.code ? `Open ${repo.name} on GitHub` : `Open the ${repo.name} site`}
+                    aria-label={
+                      repo.code ? `Open ${repo.name} on GitHub` : `Open the ${repo.name} site`
+                    }
                   >
                     <ExternalLink size={10} />
                   </a>
@@ -48,15 +50,11 @@ export function ProjectsGrid({ repos }: Props) {
               </div>
             </div>
             {repo.description && (
-              <p className="mt-1 text-[13px] leading-[1.6] text-fg-3">
-                {repo.description}
-              </p>
+              <p className="mt-1 text-[13px] leading-[1.6] text-fg-3">{repo.description}</p>
             )}
             {(tags.length > 0 || lang) && (
               <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-                {lang && (
-                  <span className="mono text-[11px] text-fg-3">{lang}</span>
-                )}
+                {lang && <span className="mono text-[11px] text-fg-3">{lang}</span>}
                 {lang && tags.length > 0 && (
                   <span className="h-[10px] w-px bg-[rgba(255,255,255,0.07)]" />
                 )}

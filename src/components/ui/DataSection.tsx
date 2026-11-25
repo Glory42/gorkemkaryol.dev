@@ -20,23 +20,11 @@ function renderResult<T>(
 ): ReactNode {
   if (result.ok) return children(result.data);
   if (renderError) return renderError(result.error);
-  return (
-    <StatusPanel
-      tone="error"
-      title={errorTitle ?? "Unavailable"}
-      error={result.error}
-    />
-  );
+  return <StatusPanel tone="error" title={errorTitle ?? "Unavailable"} error={result.error} />;
 }
 
 // Suspense + Await + ok branch + error panel; children only ever see successful data.
-export function DataSection<T>({
-  promise,
-  fallback,
-  errorTitle,
-  children,
-  renderError,
-}: Props<T>) {
+export function DataSection<T>({ promise, fallback, errorTitle, children, renderError }: Props<T>) {
   return (
     <Suspense fallback={fallback}>
       <Await promise={promise}>

@@ -152,7 +152,8 @@ export function RunnerGame() {
     ctx.fillStyle = `rgb(${accent})`;
     ctx.fillRect(PLAYER_X, top, PLAYER_W, bodyH);
     // Legs alternate while running, tuck in mid-air.
-    const stride = lift === 0 && status.current === "playing" ? Math.floor(runFrame.current / 5) % 2 : -1;
+    const stride =
+      lift === 0 && status.current === "playing" ? Math.floor(runFrame.current / 5) % 2 : -1;
     ctx.fillRect(PLAYER_X + 3, top + bodyH, 4, stride === 0 ? 4 : 2);
     ctx.fillRect(PLAYER_X + PLAYER_W - 7, top + bodyH, 4, stride === 1 ? 4 : 2);
     ctx.fillStyle = "#000";

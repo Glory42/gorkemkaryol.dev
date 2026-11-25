@@ -87,7 +87,10 @@ function manualCard(project: ManualProject): ProjectCard {
 }
 
 function view(
-  lists: Pick<ProjectsView, "username" | "featured" | "showcase" | "contributed" | "contributions" | "githubError">,
+  lists: Pick<
+    ProjectsView,
+    "username" | "featured" | "showcase" | "contributed" | "contributions" | "githubError"
+  >,
 ): ProjectsView {
   const all = [...lists.featured, ...lists.showcase, ...lists.contributed];
   return { ...lists, slugs: [...new Set(all.map((card) => card.name))] };

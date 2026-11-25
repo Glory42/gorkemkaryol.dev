@@ -26,7 +26,7 @@ export function SmartImage({
     >
       <span
         aria-hidden
-        className={`image-shimmer pointer-events-none absolute inset-0 z-0 transition-opacity duration-500${loaded ? " opacity-0" : ""}`}
+        className={`image-shimmer pointer-events-none absolute inset-0 z-0 transition-opacity duration-500${loaded ? "opacity-0" : ""}`}
       />
       <img
         {...props}
@@ -36,7 +36,7 @@ export function SmartImage({
           setLoaded(true);
           onLoad?.(e);
         }}
-        className={`relative z-[1] transition-opacity duration-500 ease-out${loaded ? " opacity-100" : " opacity-0"}${className ? ` ${className}` : ""}`}
+        className={`relative z-[1] transition-opacity duration-500 ease-out${loaded ? "opacity-100" : "opacity-0"}${className ? ` ${className}` : ""}`}
       />
     </span>
   );

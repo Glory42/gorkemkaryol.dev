@@ -38,7 +38,10 @@ export async function getCurrently(
   env: RuntimeEnv,
   ctx: SourceCtx,
 ): Promise<ServiceResult<Currently>> {
-  const [reading, watching] = await Promise.all([getReadingNow(env, ctx), getWatchingNow(env, ctx)]);
+  const [reading, watching] = await Promise.all([
+    getReadingNow(env, ctx),
+    getWatchingNow(env, ctx),
+  ]);
   return ok({
     reading: reading.ok ? (reading.data[0] ?? null) : null,
     watching: watching.ok ? (watching.data[0] ?? null) : null,

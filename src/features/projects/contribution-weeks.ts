@@ -5,9 +5,7 @@ export const CONTRIBUTION_WEEKS = 52;
 export const DAYS_PER_WEEK = 7;
 
 /** Sort days oldest-first, keep the last 364, then group into 7-day weeks. */
-export function buildContributionWeeks(
-  days: GithubContributionDay[],
-): GithubContributionDay[][] {
+export function buildContributionWeeks(days: GithubContributionDay[]): GithubContributionDay[][] {
   const recent = days
     .slice()
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())

@@ -27,9 +27,9 @@ export const places: Place[] = [
 ];
 
 /** Section directory names (home excluded), for the shell's `ls` and `help`. */
-export const sectionDirs: string[] = SECTION_LIST.filter(
-  (section) => section.href !== "/",
-).map((section) => section.slug);
+export const sectionDirs: string[] = SECTION_LIST.filter((section) => section.href !== "/").map(
+  (section) => section.slug,
+);
 
 // Resolve a `cd` argument (`projects`, `./projects`, `~/interests/reading`, `/`, `home`, empty).
 export function findPlace(input: string): Place | undefined {

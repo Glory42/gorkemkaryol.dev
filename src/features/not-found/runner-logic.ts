@@ -47,8 +47,7 @@ export function newRunner(): RunnerState {
   };
 }
 
-export const runnerScore = (state: RunnerState): number =>
-  Math.floor(state.distance / 10);
+export const runnerScore = (state: RunnerState): number => Math.floor(state.distance / 10);
 
 const grounded = (state: RunnerState): boolean => state.lift === 0 && state.vy === 0;
 

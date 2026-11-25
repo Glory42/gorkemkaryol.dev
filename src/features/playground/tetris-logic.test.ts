@@ -15,7 +15,12 @@ import {
 
 describe("rotate", () => {
   it("turns the T piece a quarter clockwise", () => {
-    expect(rotate([[0, 1, 0], [1, 1, 1]])).toEqual([
+    expect(
+      rotate([
+        [0, 1, 0],
+        [1, 1, 1],
+      ]),
+    ).toEqual([
       [1, 0],
       [1, 1],
       [1, 0],
@@ -93,7 +98,16 @@ describe("kickRotate", () => {
   });
 
   it("nudges off a wall, and gives up when boxed in", () => {
-    const tee = { shape: [[1, 0], [1, 1], [1, 0]], color: "c", x: BOARD_W - 2, y: 5 };
+    const tee = {
+      shape: [
+        [1, 0],
+        [1, 1],
+        [1, 0],
+      ],
+      color: "c",
+      x: BOARD_W - 2,
+      y: 5,
+    };
     const board = mkBoard();
     board[5][BOARD_W - 3] = "x";
     expect(kickRotate(board, tee)).toBeNull();

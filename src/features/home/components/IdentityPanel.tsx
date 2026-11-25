@@ -27,18 +27,18 @@ export function IdentityPanel({ live }: { live: ServiceResult<Currently> }) {
       <div className="animate-fade-in">
         <HomeHeading cmd="whoami" />
       </div>
-      <h1 className="mono text-[clamp(28px,3vw,34px)] font-bold leading-[1.05] tracking-[-0.02em] text-white animate-fade-in-down">
+      <h1 className="mono animate-fade-in-down text-[clamp(28px,3vw,34px)] font-bold leading-[1.05] tracking-[-0.02em] text-white">
         {profile.name}
       </h1>
-      <p className="mono mt-[calc(var(--home-gap-sm)-5px)] text-[14px] text-fg-2 animate-fade-in-down delay-50">
+      <p className="mono animate-fade-in-down delay-50 mt-[calc(var(--home-gap-sm)-5px)] text-[14px] text-fg-2">
         <span className="sr-only">{hero.roles[0]}</span>
         <span aria-hidden="true">
           <span className="inline-block -translate-y-[2px] text-accent/[0.65]">→</span>{" "}
           <RotatingPrompt words={hero.roles} />
-          <span className="text-accent/[0.65] animate-pulse">_</span>
+          <span className="animate-pulse text-accent/[0.65]">_</span>
         </span>
       </p>
-      <p className="mono mt-[calc(var(--home-gap-sm)-7px)] text-[13px] text-fg-3 animate-fade-in-down delay-100">
+      <p className="mono animate-fade-in-down mt-[calc(var(--home-gap-sm)-7px)] text-[13px] text-fg-3 delay-100">
         {profile.location} ·{" "}
         <LiveClock
           location={profile.timezone}
@@ -47,14 +47,16 @@ export function IdentityPanel({ live }: { live: ServiceResult<Currently> }) {
           timezoneClassName="text-fg-3"
         />
       </p>
-      <div className="mt-[calc(var(--home-gap)-13px)] animate-fade-in-up delay-150">
+      <div className="animate-fade-in-up mt-[calc(var(--home-gap)-13px)] delay-150">
         <StatusBadge />
       </div>
-      <p className="mt-[calc(var(--home-gap)-13px)] text-[14px] leading-[1.75] text-fg-2 animate-fade-in-up delay-150">{introText}</p>
-      <div className="mt-[calc(var(--home-gap)-10px)] animate-fade-in-up delay-200">
+      <p className="animate-fade-in-up mt-[calc(var(--home-gap)-13px)] text-[14px] leading-[1.75] text-fg-2 delay-150">
+        {introText}
+      </p>
+      <div className="animate-fade-in-up mt-[calc(var(--home-gap)-10px)] delay-200">
         <ContactLinks items={contactItems} />
       </div>
-      <div className="mt-[calc(var(--home-gap)-7px)] animate-fade-in-up delay-300">
+      <div className="animate-fade-in-up mt-[calc(var(--home-gap)-7px)] delay-300">
         <NowList live={live} />
       </div>
     </aside>

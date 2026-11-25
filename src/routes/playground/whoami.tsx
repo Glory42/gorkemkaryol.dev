@@ -5,9 +5,7 @@ import { pageHead } from "@/components/layout/page";
 import { EMPTY_EDGE_INFO, getEdgeInfo } from "@/server/edge/edge";
 import { runSource } from "@/server/common/page-data";
 
-const edgeFn = createServerFn({ method: "GET" }).handler(() =>
-  runSource(getEdgeInfo),
-);
+const edgeFn = createServerFn({ method: "GET" }).handler(() => runSource(getEdgeInfo));
 
 export const Route = createFileRoute("/playground/whoami")({
   head: () =>
@@ -40,23 +38,14 @@ function WhoamiPage() {
   const offEdge = !e.colo && !e.ip;
 
   const location =
-    [e.city, e.region === e.city ? null : e.region, e.country]
-      .filter(Boolean)
-      .join(", ") || null;
-  const coords =
-    e.latitude && e.longitude ? `${e.latitude}, ${e.longitude}` : null;
-  const network = [e.asn ? `AS${e.asn}` : null, e.isp]
-    .filter(Boolean)
-    .join(" ") || null;
-  const transport =
-    [e.httpProtocol, e.tlsVersion].filter(Boolean).join(" over ") || null;
+    [e.city, e.region === e.city ? null : e.region, e.country].filter(Boolean).join(", ") || null;
+  const coords = e.latitude && e.longitude ? `${e.latitude}, ${e.longitude}` : null;
+  const network = [e.asn ? `AS${e.asn}` : null, e.isp].filter(Boolean).join(" ") || null;
+  const transport = [e.httpProtocol, e.tlsVersion].filter(Boolean).join(" over ") || null;
 
   const rows: Array<[string, string | null]> = [
     ["ip", e.ip],
-    [
-      "location",
-      location ? `${location}${coords ? `  (${coords})` : ""}` : null,
-    ],
+    ["location", location ? `${location}${coords ? `  (${coords})` : ""}` : null],
     ["timezone", e.timezone],
     ["network", network],
     ["edge", e.colo ? `${e.colo}  ·  Cloudflare datacenter` : null],
@@ -89,8 +78,7 @@ function WhoamiPage() {
 
       {done && offEdge && (
         <p className="mt-4 text-fg-3">
-          // running off the edge — most fields only populate on the deployed
-          Cloudflare worker
+          // running off the edge — most fields only populate on the deployed Cloudflare worker
         </p>
       )}
     </div>

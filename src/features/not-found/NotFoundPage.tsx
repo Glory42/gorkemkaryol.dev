@@ -29,15 +29,15 @@ export function NotFoundPage({
       id="main-content"
       className="mx-auto w-full max-w-[680px] px-[max(24px,4vw)] pb-16 pt-[max(24px,4vh)]"
     >
-      <TerminalPrompt cmd={`curl -I ${pathname}`} className="mb-2 animate-fade-in" />
-      <p className="mono mb-6 text-[12px] text-accent/[0.75] animate-fade-in">
+      <TerminalPrompt cmd={`curl -I ${pathname}`} className="animate-fade-in mb-2" />
+      <p className="mono animate-fade-in mb-6 text-[12px] text-accent/[0.75]">
         HTTP/1.1 404 Not Found
       </p>
 
-      <h1 className="mono mb-2 text-[clamp(20px,2.2vw,30px)] font-bold leading-[1.1] tracking-[-0.01em] text-white animate-fade-in-down">
+      <h1 className="mono animate-fade-in-down mb-2 text-[clamp(20px,2.2vw,30px)] font-bold leading-[1.1] tracking-[-0.01em] text-white">
         {title}
       </h1>
-      <p className="mb-8 text-[13px] leading-[1.75] text-fg-2 animate-fade-in-up delay-100">
+      <p className="animate-fade-in-up mb-8 text-[13px] leading-[1.75] text-fg-2 delay-100">
         {message}
       </p>
 
@@ -54,7 +54,7 @@ export function NotFoundPage({
         </Suspense>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 animate-fade-in-up delay-200">
+      <div className="animate-fade-in-up mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 delay-200">
         <Link
           to={backTo}
           className="focus-ring mono inline-flex items-center border border-accent/[0.4] px-4 py-2 text-[11px] tracking-[0.12em] text-accent/[0.85] no-underline transition-colors hover:border-accent hover:text-accent"

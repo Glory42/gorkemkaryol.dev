@@ -1,10 +1,5 @@
 import { Marked } from "marked";
-import {
-  escapeAttr,
-  isExternalUrl,
-  isSafeUrl,
-  sanitizeRawHtml,
-} from "@/server/markdown/raw-html";
+import { escapeAttr, isExternalUrl, isSafeUrl, sanitizeRawHtml } from "@/server/markdown/raw-html";
 
 const ALERT_TITLES: Record<string, string> = {
   NOTE: "Note",
@@ -126,10 +121,7 @@ export interface MarkdownContext {
   imageSize?: (src: string) => { width: number; height: number } | undefined;
 }
 
-export function renderMarkdownToHTML(
-  markdown: string,
-  ctx: MarkdownContext = {},
-): MarkdownResult {
+export function renderMarkdownToHTML(markdown: string, ctx: MarkdownContext = {}): MarkdownResult {
   try {
     const markedInstance = buildMarked(
       ctx.owner ?? "",
@@ -141,10 +133,7 @@ export function renderMarkdownToHTML(
     const html = markedInstance.parse(markdown, { async: false }) as string;
     return { html, hadError: false };
   } catch {
-    const escaped = markdown
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+    const escaped = markdown.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     return { html: `<pre>${escaped}</pre>`, hadError: true };
   }
 }

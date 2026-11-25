@@ -29,16 +29,24 @@ function text(value: unknown): string | null {
 }
 
 export const EMPTY_EDGE_INFO: EdgeInfo = {
-  ip: null, colo: null, country: null, city: null, region: null,
-  timezone: null, latitude: null, longitude: null, isp: null, asn: null,
-  httpProtocol: null, tlsVersion: null, tlsCipher: null, tcpRttMs: null,
+  ip: null,
+  colo: null,
+  country: null,
+  city: null,
+  region: null,
+  timezone: null,
+  latitude: null,
+  longitude: null,
+  isp: null,
+  asn: null,
+  httpProtocol: null,
+  tlsVersion: null,
+  tlsCipher: null,
+  tcpRttMs: null,
   userAgent: null,
 };
 
-export function getEdgeInfo(
-  _env: RuntimeEnv,
-  ctx: SourceCtx,
-): ServiceResult<EdgeInfo> {
+export function getEdgeInfo(_env: RuntimeEnv, ctx: SourceCtx): ServiceResult<EdgeInfo> {
   const request = ctx.request;
   if (!request) return ok(EMPTY_EDGE_INFO);
 
@@ -47,8 +55,7 @@ export function getEdgeInfo(
 
   // cf-ray is "<id>-<COLO>"; the suffix names the datacenter that answered.
   const ray = h.get("cf-ray");
-  const rayColo =
-    ray && ray.includes("-") ? ray.slice(ray.lastIndexOf("-") + 1) : null;
+  const rayColo = ray && ray.includes("-") ? ray.slice(ray.lastIndexOf("-") + 1) : null;
 
   return ok({
     ip: h.get("cf-connecting-ip") ?? h.get("x-real-ip"),

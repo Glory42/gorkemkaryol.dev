@@ -100,11 +100,7 @@ interface GithubOverviewQueryData {
             date: string;
             contributionCount: number;
             contributionLevel:
-              | "NONE"
-              | "FIRST_QUARTILE"
-              | "SECOND_QUARTILE"
-              | "THIRD_QUARTILE"
-              | "FOURTH_QUARTILE";
+              "NONE" | "FIRST_QUARTILE" | "SECOND_QUARTILE" | "THIRD_QUARTILE" | "FOURTH_QUARTILE";
           }>;
         }>;
       };
@@ -207,10 +203,7 @@ const lastPush = (p: GithubProject): number => new Date(p.pushedAt || p.updatedA
 // Filter out forks and incomplete nodes, map to GithubProject, newest code push first.
 function toProjects(nodes: Array<RepositoryNode | undefined>): GithubProject[] {
   return nodes
-    .filter(
-      (node): node is RepositoryNode =>
-        Boolean(node?.name && node?.url) && !node?.isFork,
-    )
+    .filter((node): node is RepositoryNode => Boolean(node?.name && node?.url) && !node?.isFork)
     .map((node) => ({
       name: node.name ?? "unknown",
       description: node.description ?? "No description provided.",
@@ -249,11 +242,7 @@ function mapRateLimitFromHeaders(headers: Headers): {
   const remaining = Number(headers.get("x-ratelimit-remaining") ?? "");
   const resetEpoch = Number(headers.get("x-ratelimit-reset") ?? "");
 
-  if (
-    Number.isNaN(limit) ||
-    Number.isNaN(remaining) ||
-    Number.isNaN(resetEpoch)
-  ) {
+  if (Number.isNaN(limit) || Number.isNaN(remaining) || Number.isNaN(resetEpoch)) {
     return null;
   }
 
@@ -312,27 +301,24 @@ export async function getGithubProjects(
   let responseHeaders: Headers | null = null;
 
   const client = githubClient(env, ctx);
-  const result = await client.gql<GithubOverviewQueryData>(
-    buildGithubOverviewQuery(),
-    {
-      variables: {
-        username,
-        ...Object.fromEntries(
-          TOPIC_LISTS.map((list) => [listVar(list), buildRepoQuery(username, list)]),
-        ),
-        from: from.toISOString(),
-        to: to.toISOString(),
-      },
-      // `from` / `to` change every call, so key on stable inputs (EXTERNAL_REPOS included).
-      cacheDiscriminant: `overview:v4:${username}:${EXTERNAL_REPOS.map(
-        (repo) => `${repo.owner}/${repo.name}`,
-      ).join(",")}`,
-      label: "GitHub",
-      onMeta: ({ headers }) => {
-        responseHeaders = headers;
-      },
+  const result = await client.gql<GithubOverviewQueryData>(buildGithubOverviewQuery(), {
+    variables: {
+      username,
+      ...Object.fromEntries(
+        TOPIC_LISTS.map((list) => [listVar(list), buildRepoQuery(username, list)]),
+      ),
+      from: from.toISOString(),
+      to: to.toISOString(),
     },
-  );
+    // `from` / `to` change every call, so key on stable inputs (EXTERNAL_REPOS included).
+    cacheDiscriminant: `overview:v4:${username}:${EXTERNAL_REPOS.map(
+      (repo) => `${repo.owner}/${repo.name}`,
+    ).join(",")}`,
+    label: "GitHub",
+    onMeta: ({ headers }) => {
+      responseHeaders = headers;
+    },
+  });
 
   if (!result.ok) return result;
 
@@ -363,8 +349,7 @@ export async function getGithubProjects(
     contributionDays.length > 0
       ? {
           totalContributions:
-            queryData.user?.contributionsCollection?.contributionCalendar
-              ?.totalContributions ?? 0,
+            queryData.user?.contributionsCollection?.contributionCalendar?.totalContributions ?? 0,
           days: contributionDays,
         }
       : null;

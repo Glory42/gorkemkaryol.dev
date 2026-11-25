@@ -9,12 +9,8 @@ import { getApod, getNeoFeed, type Apod, type NeoFeed } from "@/server/nasa/nasa
 import { resolveApodMedia } from "@/server/nasa/apod-media";
 import { runSource } from "@/server/common/page-data";
 
-const apodFn = createServerFn({ method: "GET" }).handler(() =>
-  runSource(getApod),
-);
-const neoFn = createServerFn({ method: "GET" }).handler(() =>
-  runSource(getNeoFeed),
-);
+const apodFn = createServerFn({ method: "GET" }).handler(() => runSource(getApod));
+const neoFn = createServerFn({ method: "GET" }).handler(() => runSource(getNeoFeed));
 
 export const Route = createFileRoute("/playground/space")({
   head: () =>
@@ -33,9 +29,7 @@ export const Route = createFileRoute("/playground/space")({
 const km = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
 
 function Loading() {
-  return (
-    <div className="h-40 w-full animate-pulse bg-[rgba(255,255,255,0.03)]" />
-  );
+  return <div className="h-40 w-full animate-pulse bg-[rgba(255,255,255,0.03)]" />;
 }
 
 function ApodLightbox({ apod, onClose }: { apod: Apod; onClose: () => void }) {
@@ -62,10 +56,7 @@ function ApodLightbox({ apod, onClose }: { apod: Apod; onClose: () => void }) {
         className="max-h-[80vh] max-w-full object-contain"
         onClick={(e) => e.stopPropagation()}
       />
-      <div
-        className="flex items-center gap-6"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="flex items-center gap-6" onClick={(e) => e.stopPropagation()}>
         <a
           href={apod.pageUrl}
           target="_blank"
@@ -93,9 +84,7 @@ function ApodBlock({ apod }: { apod: Apod }) {
   return (
     <div>
       <div className="mb-3 flex items-baseline justify-between gap-4">
-        <p className="text-[13px] font-medium text-[rgba(255,255,255,0.85)]">
-          {apod.title}
-        </p>
+        <p className="text-[13px] font-medium text-[rgba(255,255,255,0.85)]">{apod.title}</p>
         <span className="mono shrink-0 text-[11px] text-fg-3">{apod.date}</span>
       </div>
 
@@ -159,12 +148,8 @@ function ApodBlock({ apod }: { apod: Apod }) {
         </a>
       )}
 
-      <p className="mt-4 text-[13px] leading-[1.75] text-fg-2">
-        {apod.explanation}
-      </p>
-      {apod.copyright && (
-        <p className="mono mt-2 text-[11px] text-fg-3">© {apod.copyright}</p>
-      )}
+      <p className="mt-4 text-[13px] leading-[1.75] text-fg-2">{apod.explanation}</p>
+      {apod.copyright && <p className="mono mt-2 text-[11px] text-fg-3">© {apod.copyright}</p>}
 
       {open && media.kind === "image" && (
         <ApodLightbox apod={apod} onClose={() => setOpen(false)} />
@@ -190,7 +175,7 @@ function NeoBlock({ feed }: { feed: NeoFeed }) {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[560px] border-collapse text-left">
           <thead>
-            <tr className="mono text-[11px] tracking-[0.15em] text-fg-3 uppercase">
+            <tr className="mono text-[11px] uppercase tracking-[0.15em] text-fg-3">
               <th className="py-2 pr-4 font-normal">object</th>
               <th className="py-2 pr-4 font-normal">Ø approx (m)</th>
               <th className="py-2 pr-4 font-normal">miss (km)</th>
@@ -235,22 +220,14 @@ function SpacePage() {
     <div className="flex flex-col gap-12">
       <section>
         <SectionHeader label="./space/picture-of-the-day" />
-        <DataSection
-          promise={apod}
-          fallback={<Loading />}
-          errorTitle="NASA APOD Unavailable"
-        >
+        <DataSection promise={apod} fallback={<Loading />} errorTitle="NASA APOD Unavailable">
           {(data) => <ApodBlock apod={data} />}
         </DataSection>
       </section>
 
       <section>
         <SectionHeader label="./space/near-earth-today" />
-        <DataSection
-          promise={neo}
-          fallback={<Loading />}
-          errorTitle="NeoWs API Unavailable"
-        >
+        <DataSection promise={neo} fallback={<Loading />} errorTitle="NeoWs API Unavailable">
           {(data) => <NeoBlock feed={data} />}
         </DataSection>
       </section>

@@ -31,9 +31,7 @@ describe("runShellCommand", () => {
   });
 
   it("lists the files and every section directory on ls", () => {
-    expect(runShellCommand("ls").lines[1]).toBe(
-      "projects/  experience/  interests/  playground/",
-    );
+    expect(runShellCommand("ls").lines[1]).toBe("projects/  experience/  interests/  playground/");
   });
 
   it("errors on cd to an unknown section", () => {
@@ -60,7 +58,9 @@ describe("runShellCommand", () => {
     const result = runShellCommand("fastfetch");
     expect(result.lines.length).toBeGreaterThan(10);
     expect(result.lines.some((l) => l.includes("gorkem@portfolio"))).toBe(true);
-    expect(result.lines.some((l) => l.includes("Dotfiles: github.com/Glory42/arch-config"))).toBe(true);
+    expect(result.lines.some((l) => l.includes("Dotfiles: github.com/Glory42/arch-config"))).toBe(
+      true,
+    );
     expect(result.lines.some((l) => l.includes("OS:"))).toBe(true);
   });
 

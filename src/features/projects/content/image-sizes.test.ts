@@ -10,7 +10,8 @@ const CONTENT = __dirname;
 function webpSize(file: string): { width: number; height: number } {
   const b = readFileSync(file);
   const chunk = b.toString("ascii", 12, 16);
-  if (chunk === "VP8 ") return { width: b.readUInt16LE(26) & 0x3fff, height: b.readUInt16LE(28) & 0x3fff };
+  if (chunk === "VP8 ")
+    return { width: b.readUInt16LE(26) & 0x3fff, height: b.readUInt16LE(28) & 0x3fff };
   if (chunk === "VP8L") {
     const bits = b.readUInt32LE(21);
     return { width: (bits & 0x3fff) + 1, height: ((bits >> 14) & 0x3fff) + 1 };
@@ -21,7 +22,9 @@ function webpSize(file: string): { width: number; height: number } {
 
 const markdownImages = readdirSync(CONTENT)
   .filter((f) => f.endsWith(".md"))
-  .flatMap((f) => [...readFileSync(join(CONTENT, f), "utf8").matchAll(/!\[[^\]]*\]\((\/projects\/[^)\s]+)\)/g)])
+  .flatMap((f) => [
+    ...readFileSync(join(CONTENT, f), "utf8").matchAll(/!\[[^\]]*\]\((\/projects\/[^)\s]+)\)/g),
+  ])
   .map((m) => m[1]);
 
 describe("PROJECT_IMAGE_SIZES", () => {

@@ -17,10 +17,7 @@ export function StatusPage({
   backLabel = "Back Home",
 }: Props) {
   return (
-    <main
-      id="main-content"
-      className="mx-auto w-full max-w-4xl px-4 pb-16 pt-[90px] md:px-8"
-    >
+    <main id="main-content" className="mx-auto w-full max-w-4xl px-4 pb-16 pt-[90px] md:px-8">
       <section className="panel p-6">
         <p className="mono text-[12px] tracking-[0.15em] text-[rgba(248,113,113,0.85)]">
           Runtime Error

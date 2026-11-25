@@ -121,9 +121,7 @@ describe("top4ToDisplayItem", () => {
   });
 
   it("routes movies to /movies and series to /serials", () => {
-    expect(top4ToDisplayItem(top()).href).toBe(
-      "https://interis.gorkemkaryol.dev/movies/244786",
-    );
+    expect(top4ToDisplayItem(top()).href).toBe("https://interis.gorkemkaryol.dev/movies/244786");
     expect(top4ToDisplayItem(top({ mediaType: "serial" })).href).toBe(
       "https://interis.gorkemkaryol.dev/serials/244786",
     );

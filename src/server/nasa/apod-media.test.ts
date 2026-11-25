@@ -19,9 +19,7 @@ function apod(overrides: Partial<Apod>): Apod {
 
 describe("resolveApodMedia", () => {
   it("keeps an image day an image", () => {
-    const media = resolveApodMedia(
-      apod({ mediaType: "image", url: "https://x/pic.jpg" }),
-    );
+    const media = resolveApodMedia(apod({ mediaType: "image", url: "https://x/pic.jpg" }));
     expect(media).toEqual({
       kind: "image",
       src: "https://x/pic.jpg",
@@ -30,9 +28,7 @@ describe("resolveApodMedia", () => {
   });
 
   it("rewrites a youtu.be video to the nocookie embed", () => {
-    const media = resolveApodMedia(
-      apod({ mediaType: "video", url: "https://youtu.be/abc123" }),
-    );
+    const media = resolveApodMedia(apod({ mediaType: "video", url: "https://youtu.be/abc123" }));
     expect(media.kind).toBe("youtube");
     expect(media.src).toBe(
       "https://www.youtube-nocookie.com/embed/abc123?autoplay=1&mute=1&playsinline=1",
@@ -83,9 +79,7 @@ describe("resolveApodMedia", () => {
   });
 
   it("falls back to a bare link when there is no thumbnail", () => {
-    const media = resolveApodMedia(
-      apod({ mediaType: "video", url: "https://vimeo.com/12345" }),
-    );
+    const media = resolveApodMedia(apod({ mediaType: "video", url: "https://vimeo.com/12345" }));
     expect(media).toMatchObject({ kind: "link", src: "https://vimeo.com/12345" });
   });
 

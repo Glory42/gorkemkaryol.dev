@@ -38,16 +38,14 @@ export const techItems: TechItem[] = [
     id: "laptop",
     title: "Laptop",
     spec: "ASUS Zenbook UM3402YAR",
-    description:
-      "I have been using this for more than a year. It is light, stable, and reliable.",
+    description: "I have been using this for more than a year. It is light, stable, and reliable.",
     iconId: "monitor",
   },
   {
     id: "os",
     title: "OS",
     spec: "Arch Linux, Hyprland",
-    description:
-      "It was a mental challenge and still one of the best technical decisions I made.",
+    description: "It was a mental challenge and still one of the best technical decisions I made.",
     iconId: "layers",
     href: DOTFILES_URL,
   },
@@ -55,8 +53,7 @@ export const techItems: TechItem[] = [
     id: "editor",
     title: "Editor",
     spec: "Zed",
-    description:
-      "Because waiting for VSCode to open was slowly ruining my life.",
+    description: "Because waiting for VSCode to open was slowly ruining my life.",
     iconId: "code",
   },
   {
@@ -70,8 +67,7 @@ export const techItems: TechItem[] = [
     id: "browser",
     title: "Browser",
     spec: "Helium Browser",
-    description:
-      "Because mainstream browsers were eating my RAM for breakfast.",
+    description: "Because mainstream browsers were eating my RAM for breakfast.",
     iconId: "globe",
   },
 ];

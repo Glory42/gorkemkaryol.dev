@@ -49,7 +49,9 @@ const HELP_LINES = [
 
 function fastfetchOutput(): { lines: string[]; rich: ShellSegment[][] } {
   const spec = (id: TechItem["id"]) => techItems.find((t) => t.id === id)?.spec ?? "";
-  const [osName, wm] = spec("os").split(",").map((s) => s.trim());
+  const [osName, wm] = spec("os")
+    .split(",")
+    .map((s) => s.trim());
 
   const info = [
     "gorkem@portfolio",
@@ -86,10 +88,7 @@ function fastfetchOutput(): { lines: string[]; rich: ShellSegment[][] } {
       rich.push([artSegment, { text: info[i] }]);
     } else if (i === colorRow) {
       lines.push(art + plainColorRow);
-      rich.push([
-        artSegment,
-        ...SECTION_LIST.map((s) => ({ text: "███ ", color: s.accentHex })),
-      ]);
+      rich.push([artSegment, ...SECTION_LIST.map((s) => ({ text: "███ ", color: s.accentHex }))]);
     } else {
       lines.push(art);
       rich.push([artSegment]);
@@ -112,10 +111,7 @@ export function runShellCommand(input: string): ShellResult {
 
     case "ls":
       return {
-        lines: [
-          Object.keys(FILES).join("  "),
-          sectionDirs.map((dir) => `${dir}/`).join("  "),
-        ],
+        lines: [Object.keys(FILES).join("  "), sectionDirs.map((dir) => `${dir}/`).join("  ")],
       };
 
     case "cat": {
@@ -135,10 +131,7 @@ export function runShellCommand(input: string): ShellResult {
 
     case "whoami":
       return {
-        lines: [
-          "gorkem karyol — software engineer",
-          "(the real one lives at /playground/whoami)",
-        ],
+        lines: ["gorkem karyol — software engineer", "(the real one lives at /playground/whoami)"],
       };
 
     case "fastfetch": {

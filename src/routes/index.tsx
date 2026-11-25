@@ -23,10 +23,7 @@ export const Route = createFileRoute("/")({
   // Cache reads only, so the first HTML has whatever the last visit cached and
   // closes at once; a cold cache paints a fetching state instead of blocking.
   loader: async () => {
-    const [live, showcase] = await Promise.all([
-      getCurrentlyServerFn(),
-      getShowcaseServerFn(),
-    ]);
+    const [live, showcase] = await Promise.all([getCurrentlyServerFn(), getShowcaseServerFn()]);
     return { live, showcase };
   },
   component: HomePage,
@@ -49,9 +46,7 @@ function HomePage() {
         if (cancelled) return;
         // A failed refresh must not replace a good stale snapshot.
         setShowcase((previous) =>
-          fresh.ok || !previous.ok || previous.projects.length === 0
-            ? fresh
-            : previous,
+          fresh.ok || !previous.ok || previous.projects.length === 0 ? fresh : previous,
         );
         setShowcasePending(false);
       })
@@ -77,9 +72,7 @@ function HomePage() {
     void revalidateCurrentlyServerFn()
       .then((fresh) => {
         if (cancelled) return;
-        setLive((previous) =>
-          fresh.ok || !previous.ok ? fresh : previous,
-        );
+        setLive((previous) => (fresh.ok || !previous.ok ? fresh : previous));
       })
       .catch(() => undefined);
 

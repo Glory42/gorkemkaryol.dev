@@ -15,11 +15,14 @@ function Projects({ result }: { result: ShowcaseResult }) {
     return <p className="mono text-[13px] text-fg-3">Nothing tagged showcase yet.</p>;
   }
   return (
-    <div className="flex flex-col stagger">
+    <div className="stagger flex flex-col">
       {result.projects.map((project) => {
         const { live, code } = project;
         return (
-          <article key={project.name} className="group border-b border-[rgba(255,255,255,0.05)] py-6 first:pt-1">
+          <article
+            key={project.name}
+            className="group border-b border-[rgba(255,255,255,0.05)] py-6 first:pt-1"
+          >
             <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 leading-none">
               <Link
                 to="/projects/$slug"
@@ -44,7 +47,10 @@ function Projects({ result }: { result: ShowcaseResult }) {
             <p className="mt-2 text-[14px] leading-[1.7] text-fg-2">{project.description}</p>
             <div className="mt-3 flex flex-wrap gap-1.5">
               {[project.language, ...project.tags].filter(Boolean).map((tag) => (
-                <span key={tag} className="mono border border-[rgba(255,255,255,0.08)] px-2 py-0.5 text-[11px] text-fg-3">
+                <span
+                  key={tag}
+                  className="mono border border-[rgba(255,255,255,0.08)] px-2 py-0.5 text-[11px] text-fg-3"
+                >
                   {tag}
                 </span>
               ))}

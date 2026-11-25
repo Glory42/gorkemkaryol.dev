@@ -7,10 +7,7 @@ import { DataPage } from "@/components/ui/DataPage";
 import { SkeletonBlock } from "@/components/ui/Skeleton";
 import { NotFoundPage } from "@/features/not-found/NotFoundPage";
 import { ReadmeArticle } from "@/features/projects/components/ReadmeArticle";
-import {
-  getProjectReadme,
-  type ProjectReadme,
-} from "@/features/projects/projects";
+import { getProjectReadme, type ProjectReadme } from "@/features/projects/projects";
 import type { ServiceResult } from "@/server/common/http";
 import { runSource } from "@/server/common/page-data";
 
@@ -19,9 +16,7 @@ const getProjectReadmeServerFn = createServerFn({ method: "GET" })
     if (!/^[a-zA-Z0-9_.-]+$/.test(data)) throw new Error("Invalid slug");
     return data;
   })
-  .handler(async ({ data: slug }) =>
-    runSource((env, ctx) => getProjectReadme(env, ctx, slug)),
-  );
+  .handler(async ({ data: slug }) => runSource((env, ctx) => getProjectReadme(env, ctx, slug)));
 
 export const Route = createFileRoute("/projects/$slug")({
   head: ({ params }) =>
@@ -80,9 +75,7 @@ function ReadmeLink({ readme }: { readme: ProjectReadme }) {
       rel="noopener noreferrer"
       className="focus-ring mono inline-flex items-center gap-1.5 text-[11px] tracking-[0.08em] text-fg-4 no-underline transition-colors hover:text-accent/[0.85]"
       aria-label={
-        readme.kind === "manual"
-          ? `Visit ${readme.title}`
-          : `Open ${readme.title} on GitHub`
+        readme.kind === "manual" ? `Visit ${readme.title}` : `Open ${readme.title} on GitHub`
       }
     >
       {readme.kind === "manual" ? (
@@ -117,9 +110,7 @@ function ProjectReadmePage() {
       errorTitle="GitHub API Unavailable"
       rightSlot={(readme) => <ReadmeLink readme={readme} />}
     >
-      {(readme) => (
-        <ReadmeArticle html={readme.html} hadError={readme.hadError} />
-      )}
+      {(readme) => <ReadmeArticle html={readme.html} hadError={readme.hadError} />}
     </DataPage>
   );
 }

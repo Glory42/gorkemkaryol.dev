@@ -19,13 +19,25 @@ const LITERAL: CannedResponse = {
     data: {
       login: { token: "t", profile: { id: "p1" } },
       booksByReadingStateAndProfile: [
-        { id: "1", slug: "project-hail-mary", title: "Project Hail Mary", cover: "", authors: [{ name: "Andy Weir" }] },
+        {
+          id: "1",
+          slug: "project-hail-mary",
+          title: "Project Hail Mary",
+          cover: "",
+          authors: [{ name: "Andy Weir" }],
+        },
       ],
     },
   },
 };
 
-const show = { tmdbId: 73223, title: "Black Clover", posterPath: null, progressPercent: 40, currentEpisode: { seasonNumber: 2, episodeNumber: 8 } };
+const show = {
+  tmdbId: 73223,
+  title: "Black Clover",
+  posterPath: null,
+  progressPercent: 40,
+  currentEpisode: { seasonNumber: 2, episodeNumber: 8 },
+};
 const WATCHING: CannedResponse = { url: "/serials/currently-watching", body: [show] };
 
 const run = (responses: CannedResponse[], calls: string[] = []) =>

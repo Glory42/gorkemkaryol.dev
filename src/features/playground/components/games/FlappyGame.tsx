@@ -1,9 +1,5 @@
 import { useRef } from "react";
-import {
-  GameOverlay,
-  GameShell,
-  ScoreLine,
-} from "@/features/playground/components/GameShell";
+import { GameOverlay, GameShell, ScoreLine } from "@/features/playground/components/GameShell";
 import {
   BIRD_X,
   flap,
@@ -38,7 +34,7 @@ export function FlappyGame() {
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = `rgb(${accent} / 0.45)`;
-    pipes.forEach(p => {
+    pipes.forEach((p) => {
       ctx.fillRect(p.x, 0, PIPE_W, p.topH);
       ctx.fillRect(p.x, p.topH + GAP, PIPE_W, H - p.topH - GAP);
       ctx.fillStyle = `rgb(${accent} / 0.65)`;
@@ -116,8 +112,13 @@ export function FlappyGame() {
         }
       >
         <canvas
-          ref={canvasRef} width={W} height={H} tabIndex={0}
-          onKeyDown={onKey} onClick={act} onTouchStart={onTouch}
+          ref={canvasRef}
+          width={W}
+          height={H}
+          tabIndex={0}
+          onKeyDown={onKey}
+          onClick={act}
+          onTouchStart={onTouch}
           className="block cursor-pointer border border-[rgba(255,255,255,0.06)] outline-none focus:border-accent/[0.25]"
           style={{ touchAction: "none" }}
         />

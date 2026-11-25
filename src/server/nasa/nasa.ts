@@ -66,17 +66,16 @@ const ENTITIES: Record<string, string> = {
 function decodeEntities(text: string): string {
   return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, code: string) => {
     if (code[0] !== "#") return ENTITIES[code.toLowerCase()] ?? whole;
-    const n = code[1] === "x" || code[1] === "X"
-      ? parseInt(code.slice(2), 16)
-      : parseInt(code.slice(1), 10);
+    const n =
+      code[1] === "x" || code[1] === "X"
+        ? parseInt(code.slice(2), 16)
+        : parseInt(code.slice(1), 10);
     return Number.isFinite(n) ? String.fromCodePoint(n) : whole;
   });
 }
 
 function htmlToText(html: string): string {
-  return decodeEntities(
-    html.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]+>/g, ""),
-  )
+  return decodeEntities(html.replace(/<br\s*\/?>/gi, " ").replace(/<[^>]+>/g, ""))
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -109,10 +108,7 @@ export function apodDisplayUrl(hdUrl: string): string {
   }
 }
 
-export async function getApod(
-  env: RuntimeEnv,
-  ctx: SourceCtx,
-): Promise<ServiceResult<Apod>> {
+export async function getApod(env: RuntimeEnv, ctx: SourceCtx): Promise<ServiceResult<Apod>> {
   // Newest post first; keyed on today so a new day's picture isn't masked by yesterday's.
   const raw = await apodClient(env, ctx).get<RawApodPost[]>("/?per_page=1", {
     cacheDiscriminant: `apod:${today()}`,
@@ -132,7 +128,9 @@ export async function getApod(
     mediaType: isVideo ? "video" : isImage ? "image" : "other",
     url: isVideo
       ? (apodVideoSrc(post.basic_html ?? "") ?? pageUrl)
-      : hd ? apodDisplayUrl(hd) : pageUrl,
+      : hd
+        ? apodDisplayUrl(hd)
+        : pageUrl,
     hdUrl: isVideo ? null : hd,
     // A video day's hdurl is its poster frame.
     thumbnailUrl: isVideo ? hd : null,
@@ -173,10 +171,7 @@ interface RawNeo {
   }>;
 }
 
-export async function getNeoFeed(
-  env: RuntimeEnv,
-  ctx: SourceCtx,
-): Promise<ServiceResult<NeoFeed>> {
+export async function getNeoFeed(env: RuntimeEnv, ctx: SourceCtx): Promise<ServiceResult<NeoFeed>> {
   const date = today();
   const raw = await nasaClient(env, ctx).get<{
     near_earth_objects?: Record<string, RawNeo[]>;
@@ -190,10 +185,8 @@ export async function getNeoFeed(
         id: n.id ?? "",
         name: (n.name ?? "").replace(/^\(|\)$/g, ""),
         hazardous: Boolean(n.is_potentially_hazardous_asteroid),
-        diameterMinM:
-          n.estimated_diameter?.meters?.estimated_diameter_min ?? 0,
-        diameterMaxM:
-          n.estimated_diameter?.meters?.estimated_diameter_max ?? 0,
+        diameterMinM: n.estimated_diameter?.meters?.estimated_diameter_min ?? 0,
+        diameterMaxM: n.estimated_diameter?.meters?.estimated_diameter_max ?? 0,
         missKm: Number(approach?.miss_distance?.kilometers ?? 0),
         missLunar: Number(approach?.miss_distance?.lunar ?? 0),
         velocityKph: Number(approach?.relative_velocity?.kilometers_per_hour ?? 0),

@@ -1,4 +1,12 @@
-import { ArrowUpRight, Code, Globe, Layers, Monitor, Terminal, type LucideIcon } from "lucide-react";
+import {
+  ArrowUpRight,
+  Code,
+  Globe,
+  Layers,
+  Monitor,
+  Terminal,
+  type LucideIcon,
+} from "lucide-react";
 import { HomeSection } from "@/features/home/components/HomeSection";
 import { techItems, type TechItem } from "@/features/home/content";
 
@@ -13,7 +21,7 @@ const ICONS: Record<TechItem["iconId"], LucideIcon> = {
 export function SetupList() {
   return (
     <HomeSection cmd="cat ~/.setup">
-      <dl className="mono m-0 flex flex-col gap-4 text-[14px] stagger">
+      <dl className="mono stagger m-0 flex flex-col gap-4 text-[14px]">
         {techItems.map((item) => {
           const Icon = ICONS[item.iconId];
           return (

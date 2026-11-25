@@ -27,9 +27,7 @@ function ReadingPageSkeleton() {
   return (
     <DataPage.Skeleton
       cmd={CMD}
-      promptAside={
-        <div className="h-2.5 w-36 animate-pulse rounded bg-[rgba(255,255,255,0.04)]" />
-      }
+      promptAside={<div className="h-2.5 w-36 animate-pulse rounded bg-[rgba(255,255,255,0.04)]" />}
       backTo="/interests"
       backLabel="back to interests"
     >
@@ -54,8 +52,8 @@ function ReadingPage() {
       promptAside={
         result.ok ? (
           <p className="mono text-[11px] text-accent/[0.6]">
-            {result.data.finishedBooks.length} books read ·{" "}
-            {result.data.currentlyReading.length} reading
+            {result.data.finishedBooks.length} books read · {result.data.currentlyReading.length}{" "}
+            reading
           </p>
         ) : undefined
       }

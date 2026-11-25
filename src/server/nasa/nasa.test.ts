@@ -39,7 +39,7 @@ describe("nasa — mapping through the transport seam", () => {
               permalink: "https://science.nasa.gov/image-article/apod-x/",
               media_type: "image",
               explanation:
-                "<strong>Explanation:</strong> Dust &amp; <a href=\"x\">gas</a>.<br><br><strong>Tomorrow's picture: </strong>dark matters<br>",
+                '<strong>Explanation:</strong> Dust &amp; <a href="x">gas</a>.<br><br><strong>Tomorrow\'s picture: </strong>dark matters<br>',
               credit: "Someone",
               copyright: '<a href="https://x">Someone</a> (Club)',
               hdurl:
@@ -147,10 +147,7 @@ describe("nasa — mapping through the transport seam", () => {
 
   it("does not cache a failed fetch", async () => {
     const calls: string[] = [];
-    const ctx = ctxFor(
-      [{ url: "apod-basic", status: 503, body: { error: "down" } }],
-      calls,
-    );
+    const ctx = ctxFor([{ url: "apod-basic", status: 503, body: { error: "down" } }], calls);
     const first = await getApod(ENV, ctx);
     const second = await getApod(ENV, ctx);
     expect(first.ok).toBe(false);
@@ -169,7 +166,6 @@ describe("nasa — mapping through the transport seam", () => {
     await getApod(ENV, ctx);
     expect(calls).toHaveLength(1);
   });
-
 });
 
 describe("apod helpers", () => {
@@ -183,7 +179,9 @@ describe("apod helpers", () => {
 
   it("finds a YouTube iframe on a video day", () => {
     expect(
-      apodVideoSrc('<iframe width="960" src="https://www.youtube.com/embed/abc?rel=0&amp;x=1"></iframe>'),
+      apodVideoSrc(
+        '<iframe width="960" src="https://www.youtube.com/embed/abc?rel=0&amp;x=1"></iframe>',
+      ),
     ).toBe("https://www.youtube.com/embed/abc?rel=0&x=1");
     expect(apodVideoSrc("<img src=x>")).toBeNull();
   });

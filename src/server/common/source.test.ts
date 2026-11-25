@@ -127,9 +127,7 @@ describe("createSourceClient — gql()", () => {
   const OK = { url: "/graphql", body: { data: { viewer: { login: "gk" } } } };
 
   it("posts the query and flattens the envelope", async () => {
-    const res = await gqlClient([OK]).gql<{ viewer: { login: string } }>(
-      "{ viewer { login } }",
-    );
+    const res = await gqlClient([OK]).gql<{ viewer: { login: string } }>("{ viewer { login } }");
     expect(res).toEqual({ ok: true, data: { viewer: { login: "gk" } } });
   });
 
@@ -161,10 +159,7 @@ describe("createSourceClient — gql()", () => {
 
   it("does not cache a GraphQL failure — the next call retries", async () => {
     const calls: string[] = [];
-    const c = gqlClient(
-      [{ url: "/graphql", body: { errors: [{ message: "boom" }] } }],
-      calls,
-    );
+    const c = gqlClient([{ url: "/graphql", body: { errors: [{ message: "boom" }] } }], calls);
     const first = await c.gql("{ viewer { login } }");
     const second = await c.gql("{ viewer { login } }");
     expect(first.ok).toBe(false);

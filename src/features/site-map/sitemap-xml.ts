@@ -3,9 +3,7 @@ import { absoluteUrl } from "@/lib/site";
 
 /** Every indexable path: each page and toy, plus one detail page per project name. */
 export function sitemapPaths(projectNames: string[]): string[] {
-  const projects = projectNames.map(
-    (name) => `/projects/${encodeURIComponent(name)}`,
-  );
+  const projects = projectNames.map((name) => `/projects/${encodeURIComponent(name)}`);
   return [...new Set([...places.map((place) => place.href), ...projects])];
 }
 

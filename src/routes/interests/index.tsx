@@ -51,7 +51,7 @@ export const Route = createFileRoute("/interests/")({
 
 function SubLabel({ label, icon: Icon }: { label: string; icon: LucideIcon }) {
   return (
-    <div className="mono mb-3 flex items-center gap-1.5 text-[11px] tracking-[0.2em] text-accent/[0.6] uppercase">
+    <div className="mono mb-3 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.2em] text-accent/[0.6]">
       <Icon size={10} />
       {label}
     </div>
@@ -101,9 +101,7 @@ function InterestsPage() {
         </DataSection>
 
         {interestsIntro && (
-          <p className="mb-6 text-[13px] leading-[1.75] text-fg-3">
-            {interestsIntro}
-          </p>
+          <p className="mb-6 text-[13px] leading-[1.75] text-fg-3">{interestsIntro}</p>
         )}
 
         <div className="flex flex-col gap-8 md:flex-row md:gap-10">
@@ -124,7 +122,11 @@ function InterestsPage() {
             </DataSection>
 
             <div className="mt-4">
-              <SectionHeader label="./interests/watching" more="/interests/watching" className="mb-3" />
+              <SectionHeader
+                label="./interests/watching"
+                more="/interests/watching"
+                className="mb-3"
+              />
               <DataSection
                 promise={watching}
                 fallback={<SectionLoading />}
@@ -149,8 +151,14 @@ function InterestsPage() {
                 promise={interis}
                 fallback={
                   <>
-                    <div><SubLabel label="Films" icon={Film} /><SectionLoading /></div>
-                    <div><SubLabel label="Series" icon={Tv} /><SectionLoading /></div>
+                    <div>
+                      <SubLabel label="Films" icon={Film} />
+                      <SectionLoading />
+                    </div>
+                    <div>
+                      <SubLabel label="Series" icon={Tv} />
+                      <SectionLoading />
+                    </div>
                   </>
                 }
                 renderError={(error) => (
@@ -183,7 +191,7 @@ function InterestsPage() {
 
               <div>
                 <SubLabel label="Bands" icon={Music} />
-                <div className="flex flex-col stagger">
+                <div className="stagger flex flex-col">
                   {favoriteBands.map((band, i) => (
                     <div key={band.name}>
                       <a

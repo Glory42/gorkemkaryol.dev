@@ -126,11 +126,7 @@ describe("getRepoReadmeData", () => {
   });
 
   it("fails NOT_FOUND on a bare null repository", async () => {
-    const result = await getRepoReadmeData(
-      ENV,
-      ctxFor({ data: { repository: null } }),
-      "ghost",
-    );
+    const result = await getRepoReadmeData(ENV, ctxFor({ data: { repository: null } }), "ghost");
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error.code).toBe("NOT_FOUND");
   });
@@ -142,11 +138,7 @@ describe("getRepoReadmeData", () => {
   });
 
   it("propagates a GraphQL failure", async () => {
-    const result = await getRepoReadmeData(
-      ENV,
-      ctxFor({ errors: [{ message: "boom" }] }),
-      "proj",
-    );
+    const result = await getRepoReadmeData(ENV, ctxFor({ errors: [{ message: "boom" }] }), "proj");
     expect(result.ok).toBe(false);
   });
 

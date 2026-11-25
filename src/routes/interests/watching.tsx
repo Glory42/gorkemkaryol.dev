@@ -23,13 +23,12 @@ import {
 import { runSources } from "@/server/common/page-data";
 
 // Three Interis reads that fail independently, folded into one round-trip.
-const getWatchingPageDataServerFn = createServerFn({ method: "GET" }).handler(
-  () =>
-    runSources({
-      currentlyWatching: (env, ctx) => getCurrentlyWatchingSerials(env, ctx, 30),
-      watched: (env, ctx) => getWatchedMedia(env, ctx, 200),
-      profile: getInterisProfile,
-    }),
+const getWatchingPageDataServerFn = createServerFn({ method: "GET" }).handler(() =>
+  runSources({
+    currentlyWatching: (env, ctx) => getCurrentlyWatchingSerials(env, ctx, 30),
+    watched: (env, ctx) => getWatchedMedia(env, ctx, 200),
+    profile: getInterisProfile,
+  }),
 );
 
 export const Route = createFileRoute("/interests/watching")({
@@ -51,9 +50,7 @@ function WatchingPageSkeleton() {
   return (
     <DataPage.Skeleton
       cmd={CMD}
-      promptAside={
-        <div className="h-2.5 w-44 animate-pulse rounded bg-[rgba(255,255,255,0.04)]" />
-      }
+      promptAside={<div className="h-2.5 w-44 animate-pulse rounded bg-[rgba(255,255,255,0.04)]" />}
       backTo="/interests"
       backLabel="back to interests"
     >

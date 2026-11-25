@@ -32,7 +32,11 @@ export function randFood(snake: Pt[], rand: () => number = Math.random): Pt {
 }
 
 export function newSnake(mode: Mode, rand: () => number = Math.random): SnakeState {
-  const snake = [{ x: 12, y: 12 }, { x: 11, y: 12 }, { x: 10, y: 12 }];
+  const snake = [
+    { x: 12, y: 12 },
+    { x: 11, y: 12 },
+    { x: 10, y: 12 },
+  ];
   return { snake, dir: "R", next: "R", food: randFood(snake, rand), score: 0, mode };
 }
 

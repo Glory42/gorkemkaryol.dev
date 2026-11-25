@@ -18,9 +18,7 @@ describe("places", () => {
 
   it("labels places the way the shell prints paths", () => {
     expect(places.find((p) => p.href === "/")?.label).toBe("~");
-    expect(places.find((p) => p.href === "/interests/reading")?.label).toBe(
-      "~/interests/reading",
-    );
+    expect(places.find((p) => p.href === "/interests/reading")?.label).toBe("~/interests/reading");
   });
 
   it("marks playground entries as toys and leaves 'soon' ones out", () => {

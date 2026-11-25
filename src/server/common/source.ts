@@ -1,9 +1,6 @@
 import { requireEnv, type RuntimeEnv, type RuntimeEnvKey } from "@/lib/env";
 import { withCache } from "@/server/common/cache";
-import {
-  graphqlRequest,
-  type GraphqlRequestOptions,
-} from "@/server/common/graphql";
+import { graphqlRequest, type GraphqlRequestOptions } from "@/server/common/graphql";
 import {
   envFail,
   fail,
@@ -90,9 +87,7 @@ function hashKey(input: string): string {
 
 const isOk = (result: ServiceResult<unknown>): boolean => result.ok;
 
-export function createSourceClient(
-  options: SourceClientOptions,
-): SourceClient {
+export function createSourceClient(options: SourceClientOptions): SourceClient {
   const runtime = options.runtime ?? workersRuntime();
   const timeoutMs = options.timeoutMs ?? 12_000;
   const retries = options.retries ?? 1;
@@ -108,10 +103,7 @@ export function createSourceClient(
     return `upstream:${hashKey(`${options.scope}\n${kind}\n${discriminant}`)}`;
   }
 
-  async function get<T>(
-    path: string,
-    opts: GetOptions = {},
-  ): Promise<ServiceResult<T>> {
+  async function get<T>(path: string, opts: GetOptions = {}): Promise<ServiceResult<T>> {
     if (options.guard && !options.guard.ok) return fail(options.guard.error);
 
     return withCache(
@@ -134,15 +126,11 @@ export function createSourceClient(
     );
   }
 
-  async function gql<T>(
-    query: string,
-    opts: GqlOptions = {},
-  ): Promise<ServiceResult<T>> {
+  async function gql<T>(query: string, opts: GqlOptions = {}): Promise<ServiceResult<T>> {
     if (options.guard && !options.guard.ok) return fail(options.guard.error);
 
     const discriminant =
-      opts.cacheDiscriminant ??
-      `${query}\n${JSON.stringify(opts.variables ?? {})}`;
+      opts.cacheDiscriminant ?? `${query}\n${JSON.stringify(opts.variables ?? {})}`;
 
     return withCache(
       keyFor("gql", discriminant),
@@ -169,10 +157,7 @@ export function createSourceClient(
 
 // Declare an upstream once: its env keys and how scope, base and headers derive from them.
 
-export interface SourceDefinition<
-  K extends RuntimeEnvKey,
-  O extends RuntimeEnvKey = never,
-> {
+export interface SourceDefinition<K extends RuntimeEnvKey, O extends RuntimeEnvKey = never> {
   /** Required bindings. `[]` means the source needs no env (e.g. a public API). */
   envKeys: K[];
   /** Bindings read when set but never required (a key with a public fallback). */
@@ -188,17 +173,12 @@ export interface SourceDefinition<
   query?: (env: Pick<RuntimeEnv, K | O>) => Record<string, string>;
 }
 
-export function defineSource<
-  K extends RuntimeEnvKey,
-  O extends RuntimeEnvKey = never,
->(
+export function defineSource<K extends RuntimeEnvKey, O extends RuntimeEnvKey = never>(
   def: SourceDefinition<K, O>,
 ): (env: RuntimeEnv, ctx: SourceCtx) => SourceClient {
   return (env, ctx) => {
     const envResult = requireEnv(env, def.envKeys);
-    const optional = Object.fromEntries(
-      (def.optionalEnvKeys ?? []).map((key) => [key, env[key]]),
-    );
+    const optional = Object.fromEntries((def.optionalEnvKeys ?? []).map((key) => [key, env[key]]));
     // A missing key fails every call via the guard, so a partial pick here is harmless.
     const picked = {
       ...optional,

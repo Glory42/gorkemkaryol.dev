@@ -34,9 +34,7 @@ export function bookToDisplayItem(book: LiteralBook): DisplayItem {
   };
 }
 
-export function currentlyWatchingToDisplayItem(
-  serial: CurrentlyWatchingSerial,
-): DisplayItem {
+export function currentlyWatchingToDisplayItem(serial: CurrentlyWatchingSerial): DisplayItem {
   return {
     id: serial.tmdbId,
     title: serial.title,
@@ -92,19 +90,14 @@ export const WATCHED_FILTERS = [
 export type WatchedFilter = (typeof WATCHED_FILTERS)[number]["id"];
 
 // Series and films merged newest-first, narrowed by `filter`, each through its own adapter.
-export function watchedItems(
-  media: WatchedMedia,
-  filter: WatchedFilter,
-): DisplayItem[] {
+export function watchedItems(media: WatchedMedia, filter: WatchedFilter): DisplayItem[] {
   const entries: (WatchedSerial | WatchedMovie)[] = [
     ...(filter === "films" ? [] : media.serials),
     ...(filter === "series" ? [] : media.movies),
   ];
   return entries
     .sort(
-      (a, b) =>
-        new Date(b.lastInteractionAt).getTime() -
-        new Date(a.lastInteractionAt).getTime(),
+      (a, b) => new Date(b.lastInteractionAt).getTime() - new Date(a.lastInteractionAt).getTime(),
     )
     .map((entry) =>
       entry.mediaType === "tv"
