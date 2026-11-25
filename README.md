@@ -46,7 +46,7 @@ Projects are picked on GitHub, not in code. Add a repo topic and it shows up wit
 - `featured` - listed on `/projects`
 - `showcase` - listed on the home page
 
-Both lists are ordered by GitHub's last update time, and a repo's **Website** field becomes its "live" link. The topics themselves are never shown as tags. `/sitemap.xml` is built from the same data, so new projects are indexed without a deploy.
+Both lists are ordered by the last commit on each repo's default branch, and a repo's **Website** field becomes its "live" link. The topics themselves are never shown as tags. `/sitemap.xml` is built from the same data, so new projects are indexed without a deploy.
 
 ## Environment
 

@@ -20,6 +20,7 @@ function repoNode(over: Record<string, unknown> = {}) {
     url: "https://github.com/gk/repo",
     stargazerCount: 1,
     updatedAt: "2026-01-01T00:00:00Z",
+    defaultBranchRef: { target: { committedDate: "2026-01-01T00:00:00Z" } },
     isFork: false,
     repositoryTopics: { nodes: [{ topic: { name: "featured" } }] },
     primaryLanguage: { name: "TypeScript", color: "#3178c6" },
@@ -109,18 +110,51 @@ describe("getGithubProjects — mapping through the interface", () => {
     expect(byName).toEqual({ shown: "https://shown.example", "no-site": null });
   });
 
-  it.each(TOPIC_LISTS)("orders the %s list by GitHub update time", async (list) => {
+  it.each(TOPIC_LISTS)(
+    "orders the %s list by last default-branch commit, not metadata edits",
+    async (list) => {
+      const body = overviewBody({
+        [`list_${list}`]: {
+          nodes: [
+            repoNode({
+              name: "retagged",
+              updatedAt: "2026-09-01T00:00:00Z",
+              defaultBranchRef: { target: { committedDate: "2026-03-01T00:00:00Z" } },
+            }),
+            repoNode({
+              name: "active",
+              updatedAt: "2026-02-01T00:00:00Z",
+              defaultBranchRef: { target: { committedDate: "2026-08-01T00:00:00Z" } },
+            }),
+          ],
+        },
+      });
+      const result = await getGithubProjects(ENV, ctxFor(body));
+      if (!result.ok) throw new Error("expected ok");
+      expect(result.data[list].map((p) => p.name)).toEqual(["active", "retagged"]);
+    },
+  );
+
+  it("falls back to updatedAt when a repo has no default-branch commit", async () => {
     const body = overviewBody({
-      [`list_${list}`]: {
+      list_featured: {
         nodes: [
-          repoNode({ name: "older", updatedAt: "2026-03-01T00:00:00Z" }),
-          repoNode({ name: "newer", updatedAt: "2026-09-01T00:00:00Z" }),
+          repoNode({
+            name: "empty",
+            updatedAt: "2026-08-01T00:00:00Z",
+            defaultBranchRef: null,
+          }),
+          repoNode({
+            name: "committed",
+            updatedAt: "2026-02-01T00:00:00Z",
+            defaultBranchRef: { target: { committedDate: "2026-03-01T00:00:00Z" } },
+          }),
         ],
       },
     });
     const result = await getGithubProjects(ENV, ctxFor(body));
     if (!result.ok) throw new Error("expected ok");
-    expect(result.data[list].map((p) => p.name)).toEqual(["newer", "older"]);
+    expect(result.data.featured.map((p) => p.name)).toEqual(["empty", "committed"]);
   });
 
   it("maps GitHub contribution levels to the 0-4 ramp", async () => {

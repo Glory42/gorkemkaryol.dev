@@ -38,8 +38,10 @@ export interface GithubProject {
     name: string;
     color?: string | null;
   } | null;
-  /** GitHub's last-updated timestamp: code pushes and repo metadata edits both move it. */
+  /** GitHub's last-updated timestamp, used only when the repo has no default-branch commit. */
   updatedAt: string;
+  /** Last commit on the default branch; empty for repos with no commits. */
+  committedAt: string;
 }
 
 export interface GithubContributionDay {
@@ -53,7 +55,7 @@ export interface GithubContributionCalendar {
   days: GithubContributionDay[];
 }
 
-// One newest-updated-first list per TOPIC_LISTS entry (`featured`, `showcase`), plus the overview.
+// One newest-commit-first list per TOPIC_LISTS entry (`featured`, `showcase`), plus the overview.
 export type GithubProjectsPayload = Record<TopicList, GithubProject[]> & {
   username: string;
   /** Repos you don't own (from `EXTERNAL_REPOS`). */
@@ -74,6 +76,9 @@ interface RepositoryNode {
   homepageUrl?: string | null;
   stargazerCount?: number;
   updatedAt?: string;
+  defaultBranchRef?: {
+    target?: { committedDate?: string | null } | null;
+  } | null;
   isFork?: boolean;
   repositoryTopics?: {
     nodes?: Array<{
@@ -124,6 +129,13 @@ const REPO_FRAGMENT = `
   homepageUrl
   stargazerCount
   updatedAt
+  defaultBranchRef {
+    target {
+      ... on Commit {
+        committedDate
+      }
+    }
+  }
   isFork
   repositoryTopics(first: 8) {
     nodes {
@@ -195,9 +207,10 @@ function buildGithubOverviewQuery() {
   `;
 }
 
-const lastUpdate = (p: GithubProject): number => new Date(p.updatedAt).getTime();
+const lastCodeChange = (p: GithubProject): number =>
+  new Date(p.committedAt || p.updatedAt).getTime();
 
-// Filter out forks and incomplete nodes, map to GithubProject, newest GitHub update first.
+// Filter out forks and incomplete nodes, map to GithubProject, newest default-branch commit first.
 function toProjects(nodes: Array<RepositoryNode | undefined>): GithubProject[] {
   return nodes
     .filter((node): node is RepositoryNode => Boolean(node?.name && node?.url) && !node?.isFork)
@@ -208,6 +221,7 @@ function toProjects(nodes: Array<RepositoryNode | undefined>): GithubProject[] {
       homepageUrl: node.homepageUrl || null,
       stargazerCount: node.stargazerCount ?? 0,
       updatedAt: node.updatedAt ?? "",
+      committedAt: node.defaultBranchRef?.target?.committedDate ?? "",
       topics:
         node.repositoryTopics?.nodes
           ?.map((topicNode) => topicNode.topic?.name)
@@ -217,7 +231,7 @@ function toProjects(nodes: Array<RepositoryNode | undefined>): GithubProject[] {
           ? { name: node.primaryLanguage.name, color: node.primaryLanguage.color }
           : null,
     }))
-    .sort((a, b) => lastUpdate(b) - lastUpdate(a));
+    .sort((a, b) => lastCodeChange(b) - lastCodeChange(a));
 }
 
 function mapContributionLevel(level: string): 0 | 1 | 2 | 3 | 4 {
@@ -307,7 +321,7 @@ export async function getGithubProjects(
       to: to.toISOString(),
     },
     // `from` / `to` change every call, so key on stable inputs (EXTERNAL_REPOS included).
-    cacheDiscriminant: `overview:v5:${username}:${EXTERNAL_REPOS.map(
+    cacheDiscriminant: `overview:v6:${username}:${EXTERNAL_REPOS.map(
       (repo) => `${repo.owner}/${repo.name}`,
     ).join(",")}`,
     label: "GitHub",
